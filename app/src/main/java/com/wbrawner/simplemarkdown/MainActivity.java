@@ -1,6 +1,7 @@
 package com.wbrawner.simplemarkdown;
 
 import android.Manifest;
+import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.ClipData;
 import android.content.DialogInterface;
@@ -34,7 +35,7 @@ import butterknife.ButterKnife;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String AUTHORITY = "com.wbrawner.simplemarkdown.fileprovider";
+    public static final String AUTHORITY = "com.wbrawner.simplemarkdown.fileprovider";
     private static final int REQUEST_WRITE_STORAGE = 0;
     private static File mFilesDir;
     @BindView(R.id.pager) ViewPager pager;
@@ -77,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
         mFilesDir = getFilesDir();
         checkDirectories();
         Intent intent = getIntent();
-        if (intent != null && intent.getData() != null) {
+        if (intent != null && !intent.getAction().equals(Intent.ACTION_MAIN) && intent.getData() != null) {
             Intent loadIntent = new Intent(EditFragment.LOAD_ACTION);
             loadIntent.putExtra("fileUri", intent.getData().toString());
             LocalBroadcastManager.getInstance(getApplicationContext())
