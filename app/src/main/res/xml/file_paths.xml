@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <paths xmlns:android="http://schemas.android.com/apk/res/android">
-    <files-path name="markdown_files" path="/"/>
+    <files-path name="saved_files" path="saved_files/"/>
+    <files-path name="tmp" path="tmp/"/>
 </paths>

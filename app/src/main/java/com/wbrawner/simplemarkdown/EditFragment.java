@@ -1,9 +1,11 @@
 package com.wbrawner.simplemarkdown;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -33,7 +35,11 @@ import static android.content.ContentValues.TAG;
 
 public class EditFragment extends Fragment {
     public static final String SAVE_ACTION = "com.wbrawner.simplemarkdown.ACTION_SAVE";
-    @BindView(R.id.markdown_edit) EditText markdownEditor;
+    public static final String LOAD_ACTION = "com.wbrawner.simplemarkdown.ACTION_LOAD";
+    @BindView(R.id.markdown_edit)
+    EditText markdownEditor;
+
+    private Activity mContext;
 
     private File mTmpFile;
 
@@ -46,10 +52,12 @@ public class EditFragment extends Fragment {
         super.onCreate(savedInstanceState);
         IntentFilter filter = new IntentFilter();
         filter.addAction(SAVE_ACTION);
+        filter.addAction(LOAD_ACTION);
         LocalBroadcastManager.getInstance(getContext()).registerReceiver(
                 new EditFragment.MarkdownBroadcastSaveReceiver(),
                 filter
         );
+        mContext = getActivity();
     }
 
     @Override
@@ -60,7 +68,8 @@ public class EditFragment extends Fragment {
         ButterKnife.bind(this, view);
         if (markdownEditor.requestFocus()) {
             getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
-        };
+        }
+        ;
         markdownEditor.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -82,12 +91,10 @@ public class EditFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        Log.d(TAG, "Markdown from beginning: " + markdownEditor.getText().toString());
         BufferedReader reader = null;
         try {
             File tmpFile = new File(getActivity().getFilesDir() + MainActivity.getTempFileName());
             if (tmpFile.exists()) {
-                Log.d(TAG, "Temp file size: " + tmpFile.length());
                 InputStream in = new FileInputStream(tmpFile);
                 reader = new BufferedReader(new InputStreamReader(in));
                 String line;
@@ -106,16 +113,10 @@ public class EditFragment extends Fragment {
                 }
             }
         }
-        if (markdownEditor.getText().length() > 0) {
-            Log.d(TAG, "We have text");
-        } else {
-            Log.d(TAG, "Blank slate");
-        }
         updatePreview(markdownEditor.getText());
     }
 
     private void updatePreview(Editable data) {
-        Log.d(TAG, "Data to send: " + data.toString());
         Intent broadcastIntent = new Intent(PreviewFragment.PREVIEW_ACTION);
         broadcastIntent.putExtra("markdownData", data.toString());
         LocalBroadcastManager manager = LocalBroadcastManager.getInstance(getContext());
@@ -161,11 +162,25 @@ public class EditFragment extends Fragment {
     private class MarkdownBroadcastSaveReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (intent.hasExtra("fileName")) {
-                String fileName = intent.getStringExtra("fileName");
-                Log.d(TAG, "File: " + fileName);
-                save(markdownEditor.getText().toString(), fileName);
+            Log.d(TAG, "Intent received: " + intent.getAction());
+            switch (intent.getAction()) {
+                case SAVE_ACTION:
+                    if (intent.hasExtra("fileName")) {
+                        String fileName = intent.getStringExtra("fileName");
+                        save(markdownEditor.getText().toString(), fileName);
+                    }
+                    break;
+                case LOAD_ACTION:
+                    if (intent.hasExtra("fileUri")) {
+                        load(Uri.parse(intent.getStringExtra("fileUri")));
+                    }
+                    break;
             }
         }
+    }
+
+    private void load(Uri fileUri) {
+        FileLoadTask loadTask = new FileLoadTask(mContext, markdownEditor);
+        loadTask.execute(fileUri);
     }
 }

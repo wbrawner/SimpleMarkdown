@@ -11,4 +11,7 @@
     <string name="action_save">Save</string>
     <string name="action_share">Share</string>
     <string name="hint_filename">File name</string>
+    <string name="action_export">Export</string>
+    <string name="no_shareable_apps">Unable to share file - no capable apps installed</string>
+    <string name="share_file">Share file to...</string>
 </resources>
