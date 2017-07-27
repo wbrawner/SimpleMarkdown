@@ -16,4 +16,7 @@
     <string name="share_file">Share file to...</string>
     <string name="no_permissions">Unable to save file without permissions</string>
     <string name="file_saved">File saved to %1$s</string>
+    <string name="action_load">Load</string>
+    <string name="open_file">Select a file to open</string>
+    <string name="no_filebrowser">No file browser apps found</string>
 </resources>

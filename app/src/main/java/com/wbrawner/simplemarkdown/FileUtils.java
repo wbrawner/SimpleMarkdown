@@ -15,6 +15,7 @@ import android.support.v7.app.AppCompatActivity;
 public class FileUtils {
 
     public static final int WRITE_PERMISSION_REQUEST = 0;
+    public static final int OPEN_FILE_REQUEST = 1;
 
     private Activity mContext;
 

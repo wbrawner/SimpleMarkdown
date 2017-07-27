@@ -11,9 +11,14 @@
         android:id="@+id/action_share"
         android:icon="@android:drawable/ic_menu_share"
         app:showAsAction="always" />
+    <item
+    android:id="@+id/action_load"
+    android:orderInCategory="100"
+    android:title="@string/action_load"
+    app:showAsAction="never" />
     <!--<item-->
-        <!--android:id="@+id/action_help"-->
-        <!--android:orderInCategory="100"-->
-        <!--android:title="@string/action_help"-->
-        <!--app:showAsAction="never" />-->
+    <!--android:id="@+id/action_help"-->
+    <!--android:orderInCategory="100"-->
+    <!--android:title="@string/action_help"-->
+    <!--app:showAsAction="never" />-->
 </menu>

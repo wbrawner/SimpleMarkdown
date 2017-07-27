@@ -39,13 +39,15 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class MainActivity extends AppCompatActivity
-implements ActivityCompat.OnRequestPermissionsResultCallback {
+        implements ActivityCompat.OnRequestPermissionsResultCallback {
 
     public static final String AUTHORITY = "com.wbrawner.simplemarkdown.fileprovider";
     private static final int REQUEST_WRITE_STORAGE = 0;
     private static File mFilesDir;
-    @BindView(R.id.pager) ViewPager pager;
-    @BindView(R.id.layout_tab) TabLayout tabLayout;
+    @BindView(R.id.pager)
+    ViewPager pager;
+    @BindView(R.id.layout_tab)
+    TabLayout tabLayout;
 
     private static final String TAG = MainActivity.class.getSimpleName();
     private static String fileName;
@@ -178,6 +180,9 @@ implements ActivityCompat.OnRequestPermissionsResultCallback {
                     }
                 }
                 break;
+            case R.id.action_load:
+                requestOpen();
+                break;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -187,6 +192,24 @@ implements ActivityCompat.OnRequestPermissionsResultCallback {
         saveIntent.putExtra("fileName", text);
         LocalBroadcastManager.getInstance(getApplicationContext())
                 .sendBroadcast(saveIntent);
+    }
+
+    private void requestOpen() {
+        Intent openIntent = new Intent(Intent.ACTION_GET_CONTENT);
+        openIntent.setType("*/*");
+        openIntent.addCategory(Intent.CATEGORY_OPENABLE);
+        try {
+            startActivityForResult(
+                    Intent.createChooser(
+                            openIntent,
+                            getString(R.string.open_file)
+                    ),
+                    FileUtils.OPEN_FILE_REQUEST
+            );
+        } catch (ActivityNotFoundException e) {
+            Toast.makeText(MainActivity.this, R.string.no_filebrowser, Toast.LENGTH_SHORT)
+                    .show();
+        }
     }
 
     @Override
@@ -255,5 +278,19 @@ implements ActivityCompat.OnRequestPermissionsResultCallback {
             super.onBackPressed();
         else
             pager.setCurrentItem(EditPagerAdapter.FRAGMENT_EDIT);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case FileUtils.OPEN_FILE_REQUEST:
+                if (resultCode == RESULT_OK) {
+                    Uri fileUri = data.getData();
+                    Intent loadIntent = new Intent(EditFragment.LOAD_ACTION);
+                    loadIntent.putExtra("fileUri", fileUri.toString());
+                    LocalBroadcastManager.getInstance(MainActivity.this).sendBroadcast(loadIntent);
+                }
+        }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 }
