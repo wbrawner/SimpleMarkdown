@@ -14,4 +14,6 @@
     <string name="action_export">Export</string>
     <string name="no_shareable_apps">Unable to share file - no capable apps installed</string>
     <string name="share_file">Share file to...</string>
+    <string name="no_permissions">Unable to save file without permissions</string>
+    <string name="file_saved">File saved to %1$s</string>
 </resources>

@@ -6,8 +6,10 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.FileProvider;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.Editable;
@@ -18,6 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -34,11 +37,12 @@ public class EditFragment extends Fragment {
     public static final String SAVE_ACTION = "com.wbrawner.simplemarkdown.ACTION_SAVE";
     public static final String LOAD_ACTION = "com.wbrawner.simplemarkdown.ACTION_LOAD";
     private static EditText mMarkdownEditor;
+    private FileUtils mFileUtils;
 
     @BindView(R.id.markdown_edit)
     EditText markdownEditor;
 
-    private Context mContext;
+    private FragmentActivity mContext;
 
     private File mTmpFile;
     private boolean loadTmpFile = true;
@@ -58,6 +62,7 @@ public class EditFragment extends Fragment {
                 filter
         );
         mContext = getActivity();
+        mFileUtils = new FileUtils(mContext);
     }
 
     @Override
@@ -111,10 +116,16 @@ public class EditFragment extends Fragment {
 
     public void save(String data, String filePath) {
         // TODO: move this to AsyncTask
-        if (filePath == null)
+        if (!mFileUtils.isExternalStorageWriteable()) {
+            mFileUtils.requestWritePermissions();
+            return;
+        }
+        if (filePath == null) {
             filePath = MainActivity.getFilePath() + MainActivity.getFileName();
+        }
         FileOutputStream out = null;
         try {
+            Log.d(TAG, "File path: " + filePath);
             File tmpFile = new File(filePath);
             out = new FileOutputStream(tmpFile);
             out.write(data.getBytes());
@@ -122,8 +133,11 @@ public class EditFragment extends Fragment {
             Log.e(TAG, "Error saving temp file:", e);
         } finally {
             try {
-                if (out != null)
+                if (out != null) {
                     out.close();
+                    Toast.makeText(mContext, getString(R.string.file_saved, filePath), Toast.LENGTH_SHORT)
+                            .show();
+                }
             } catch (IOException e) {
                 Log.e(TAG, "Error closing write stream", e);
             }
@@ -134,8 +148,8 @@ public class EditFragment extends Fragment {
         save(data, null);
     }
 
-    public void save(Editable data) {
-        save(data.toString(), null);
+    public void save() {
+        save(mMarkdownEditor.getText().toString(), null);
     }
 
     @Override
@@ -157,6 +171,11 @@ public class EditFragment extends Fragment {
                 case SAVE_ACTION:
                     if (intent.hasExtra("fileName")) {
                         String fileName = intent.getStringExtra("fileName");
+                        if (!fileName.contains("/")) {
+                            fileName = MainActivity.getFilePath() + "/" + fileName;
+                        }
+                        if (!fileName.endsWith(".md"))
+                            fileName += ".md";
                         save(mMarkdownEditor.getText().toString(), fileName);
                     }
                     break;

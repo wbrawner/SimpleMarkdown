@@ -8,6 +8,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Environment;
+import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
@@ -16,14 +18,17 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.os.EnvironmentCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.InputType;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.SearchEvent;
 import android.webkit.MimeTypeMap;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -33,7 +38,8 @@ import java.io.File;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity
+implements ActivityCompat.OnRequestPermissionsResultCallback {
 
     public static final String AUTHORITY = "com.wbrawner.simplemarkdown.fileprovider";
     private static final int REQUEST_WRITE_STORAGE = 0;
@@ -43,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
     private static String fileName;
+    public static FileUtils mFileUtils;
 
     public static String getTempFileName() {
         return "tmp_" + getFileName();
@@ -62,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public static String getFilePath() {
-        return mFilesDir + "/saved_files/";
+        return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + "/";
     }
 
     public static void setFileName(String fileName) {
@@ -123,10 +130,7 @@ public class MainActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int which) {
                         if (input.getText().length() > 0) {
                             setFileName(input.getText().toString());
-                            Intent saveIntent = new Intent(EditFragment.SAVE_ACTION);
-                            saveIntent.putExtra("fileName", input.getText());
-                            LocalBroadcastManager.getInstance(getApplicationContext())
-                                    .sendBroadcast(saveIntent);
+                            requestSave(input.getText().toString());
                         }
                     }
                 });
@@ -148,11 +152,8 @@ public class MainActivity extends AppCompatActivity {
                     LocalBroadcastManager.getInstance(getApplicationContext())
                             .sendBroadcast(saveIntent);
                 }
-                Log.d(TAG, "Temp file size: " + tmpFile.length());
                 Uri fileUri = FileProvider.getUriForFile(MainActivity.this, AUTHORITY, tmpFile);
-//                Uri fileUri = Uri.fromFile(tmpFile);
                 if (fileUri != null) {
-                    Log.d(TAG, "MIME type: " + getContentResolver().getType(fileUri));
                     try {
                         Intent shareIntent = new Intent(Intent.ACTION_SEND);
                         shareIntent.setDataAndType(
@@ -177,33 +178,31 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
                 break;
-//            case R.id.action_export:
-//                //TODO: Implement export functionality
-//                if (ContextCompat.checkSelfPermission(MainActivity.this,
-//                        Manifest.permission.WRITE_EXTERNAL_STORAGE)
-//                        != PackageManager.PERMISSION_GRANTED){
-//                ActivityCompat.requestPermissions(MainActivity.this,
-//                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-//                        REQUEST_WRITE_STORAGE);
-//                break;
-//            }
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void requestSave(String text) {
+        Intent saveIntent = new Intent(EditFragment.SAVE_ACTION);
+        saveIntent.putExtra("fileName", text);
+        LocalBroadcastManager.getInstance(getApplicationContext())
+                .sendBroadcast(saveIntent);
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            String permissions[], int[] grantResults) {
-        //TODO: Implement export functionality
         switch (requestCode) {
-            case REQUEST_WRITE_STORAGE: {
+            case FileUtils.WRITE_PERMISSION_REQUEST: {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // Permission granted, open file chooser dialog
-
+                    requestSave(getFileName());
                 } else {
                     // Permission denied, do nothing
+                    Toast.makeText(MainActivity.this, R.string.no_permissions, Toast.LENGTH_SHORT)
+                            .show();
                 }
                 return;
             }
