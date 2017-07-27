@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     tools:context="com.wbrawner.simplemarkdown.PreviewFragment">
 
-    <us.feras.mdv.MarkdownView
+    <WebView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/markdown_view" />

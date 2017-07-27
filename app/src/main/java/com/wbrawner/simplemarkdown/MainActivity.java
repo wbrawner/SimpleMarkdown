@@ -212,7 +212,7 @@ public class MainActivity extends AppCompatActivity {
 
     public class EditPagerAdapter extends FragmentPagerAdapter {
         private static final int FRAGMENT_EDIT = 0;
-        private static final int FRAGMENT_PREVIEW = 1;
+        public static final int FRAGMENT_PREVIEW = 1;
         private static final int NUM_PAGES = 2;
 
         public EditPagerAdapter(FragmentManager fm) {
@@ -248,5 +248,13 @@ public class MainActivity extends AppCompatActivity {
             }
             return getString(stringId);
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (pager.getCurrentItem() == EditPagerAdapter.FRAGMENT_EDIT)
+            super.onBackPressed();
+        else
+            pager.setCurrentItem(EditPagerAdapter.FRAGMENT_EDIT);
     }
 }
