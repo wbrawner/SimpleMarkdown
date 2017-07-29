@@ -8,6 +8,7 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
@@ -37,6 +38,7 @@ public class PreviewFragment extends Fragment {
     private static final String TAG = PreviewFragment.class.getSimpleName();
     private static final int INTERNET_REQUEST = 0;
     private WebView mMarkdownView;
+    private boolean timeoutActive = false;
 
     @BindView(R.id.markdown_view)
     WebView markdownView;
@@ -87,20 +89,31 @@ public class PreviewFragment extends Fragment {
         public void onReceive(Context context, Intent intent) {
             if (intent.hasExtra("markdownData")) {
                 String data = intent.getStringExtra("markdownData");
-                Log.d(TAG, "Markdown Data: " + data);
                 markdown(data);
             }
         }
     }
 
     private void markdown(String text) {
-        MutableDataHolder options = new MutableDataSet();
-        options.setFrom(ParserEmulationProfile.MARKDOWN);
-        options.set(Parser.EXTENSIONS, Arrays.asList(TablesExtension.create(), StrikethroughExtension.create()));
-        Parser parser = Parser.builder(options).build();
-        Node document = parser.parse(text);
-        HtmlRenderer renderer = HtmlRenderer.builder(options).build();
-        String html = renderer.render(document);
-        mMarkdownView.loadDataWithBaseURL(null, html, "text/html", "UTF-8", null);
+        final String iText = text;
+        final Handler handler = new Handler();
+        Thread setMarkdown = new Thread() {
+            @Override
+            public void run() {
+                MutableDataHolder options = new MutableDataSet();
+                options.setFrom(ParserEmulationProfile.MARKDOWN);
+                options.set(Parser.EXTENSIONS, Arrays.asList(TablesExtension.create(), StrikethroughExtension.create()));
+                Parser parser = Parser.builder(options).build();
+                Node document = parser.parse(iText);
+                HtmlRenderer renderer = HtmlRenderer.builder(options).build();
+                String html = renderer.render(document);
+                mMarkdownView.loadDataWithBaseURL(null, html, "text/html", "UTF-8", null);
+                timeoutActive = false;
+            }
+        };
+        if (!timeoutActive) {
+            timeoutActive = true;
+            handler.postDelayed(setMarkdown, 50);
+        }
     }
 }
