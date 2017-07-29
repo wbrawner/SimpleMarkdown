@@ -62,8 +62,7 @@ public class EditFragment extends Fragment {
                 filter
         );
         mContext = getActivity();
-        mFileUtils = new FileUtils(mContext);
-    }
+        mFileUtils = new FileUtils(mContext);  }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -79,12 +78,11 @@ public class EditFragment extends Fragment {
         mMarkdownEditor.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
             }
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                updatePreview(mMarkdownEditor.getText());
+                updatePreview(mContext);
             }
 
             @Override
@@ -104,13 +102,12 @@ public class EditFragment extends Fragment {
                 loadTask.execute(FileProvider.getUriForFile(mContext, MainActivity.AUTHORITY, tmpFile));
             }
         }
-        updatePreview(mMarkdownEditor.getText());
     }
 
-    private void updatePreview(Editable data) {
+    public static void updatePreview(Context context) {
         Intent broadcastIntent = new Intent(PreviewFragment.PREVIEW_ACTION);
-        broadcastIntent.putExtra("markdownData", data.toString());
-        LocalBroadcastManager manager = LocalBroadcastManager.getInstance(getContext());
+        broadcastIntent.putExtra("markdownData", mMarkdownEditor.getText().toString());
+        LocalBroadcastManager manager = LocalBroadcastManager.getInstance(context);
         manager.sendBroadcast(broadcastIntent);
     }
 
