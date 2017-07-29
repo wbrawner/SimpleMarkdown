@@ -2,7 +2,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="8dp"
     tools:context="com.wbrawner.simplemarkdown.EditFragment">
         <EditText
             android:layout_width="match_parent"
@@ -10,6 +9,7 @@
             android:id="@+id/markdown_edit"
             android:inputType="textMultiLine"
             android:background="@null"
+            android:padding="8dp"
             android:hint="@string/markdown_here"
             android:scrollHorizontally="false" />
 

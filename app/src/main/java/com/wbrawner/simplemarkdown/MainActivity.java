@@ -4,9 +4,11 @@ import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.ClipData;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Environment;
 import android.support.annotation.Nullable;
@@ -29,6 +31,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SearchEvent;
+import android.view.WindowManager;
 import android.webkit.MimeTypeMap;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -44,6 +47,10 @@ public class MainActivity extends AppCompatActivity
     public static final String AUTHORITY = "com.wbrawner.simplemarkdown.fileprovider";
     private static final int REQUEST_WRITE_STORAGE = 0;
     private static File mFilesDir;
+    public static final int FRAGMENT_EDIT = 0;
+    public static final int FRAGMENT_PREVIEW = 1;
+    public static final int NUM_PAGES = 2;
+
     @BindView(R.id.pager)
     ViewPager pager;
     @BindView(R.id.layout_tab)
@@ -83,7 +90,9 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-        pager.setAdapter(new EditPagerAdapter(getSupportFragmentManager()));
+        pager.setAdapter(
+                new EditPagerAdapter(getSupportFragmentManager(), MainActivity.this)
+        );
         mFilesDir = getFilesDir();
         checkDirectories();
         Intent intent = getIntent();
@@ -231,53 +240,12 @@ public class MainActivity extends AppCompatActivity
             }
         }
     }
-
-    public class EditPagerAdapter extends FragmentPagerAdapter {
-        private static final int FRAGMENT_EDIT = 0;
-        public static final int FRAGMENT_PREVIEW = 1;
-        private static final int NUM_PAGES = 2;
-
-        public EditPagerAdapter(FragmentManager fm) {
-            super(fm);
-        }
-
-        @Override
-        public Fragment getItem(int position) {
-            switch (position) {
-                case FRAGMENT_EDIT:
-                    return new EditFragment();
-                case FRAGMENT_PREVIEW:
-                    return new PreviewFragment();
-            }
-            return null;
-        }
-
-        @Override
-        public int getCount() {
-            return NUM_PAGES;
-        }
-
-        @Override
-        public CharSequence getPageTitle(int position) {
-            int stringId = 0;
-            switch (position) {
-                case FRAGMENT_EDIT:
-                    stringId = R.string.action_edit;
-                    break;
-                case FRAGMENT_PREVIEW:
-                    stringId = R.string.action_preview;
-                    break;
-            }
-            return getString(stringId);
-        }
-    }
-
     @Override
     public void onBackPressed() {
-        if (pager.getCurrentItem() == EditPagerAdapter.FRAGMENT_EDIT)
+        if (pager.getCurrentItem() == FRAGMENT_EDIT)
             super.onBackPressed();
         else
-            pager.setCurrentItem(EditPagerAdapter.FRAGMENT_EDIT);
+            pager.setCurrentItem(FRAGMENT_EDIT);
     }
 
     @Override
