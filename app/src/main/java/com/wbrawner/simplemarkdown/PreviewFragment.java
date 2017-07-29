@@ -14,22 +14,12 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
 
-import com.vladsch.flexmark.ast.Node;
-import com.vladsch.flexmark.ext.gfm.strikethrough.StrikethroughExtension;
-import com.vladsch.flexmark.ext.tables.TablesExtension;
-import com.vladsch.flexmark.html.HtmlRenderer;
-import com.vladsch.flexmark.parser.Parser;
-import com.vladsch.flexmark.parser.ParserEmulationProfile;
-import com.vladsch.flexmark.util.options.MutableDataHolder;
-import com.vladsch.flexmark.util.options.MutableDataSet;
-
-import java.util.Arrays;
+import com.commonsware.cwac.anddown.AndDown;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -100,20 +90,18 @@ public class PreviewFragment extends Fragment {
         Thread setMarkdown = new Thread() {
             @Override
             public void run() {
-                MutableDataHolder options = new MutableDataSet();
-                options.setFrom(ParserEmulationProfile.MARKDOWN);
-                options.set(Parser.EXTENSIONS, Arrays.asList(TablesExtension.create(), StrikethroughExtension.create()));
-                Parser parser = Parser.builder(options).build();
-                Node document = parser.parse(iText);
-                HtmlRenderer renderer = HtmlRenderer.builder(options).build();
-                String html = renderer.render(document);
+                AndDown andDown = new AndDown();
+                int hoedownFlags =
+                        AndDown.HOEDOWN_EXT_STRIKETHROUGH | AndDown.HOEDOWN_EXT_TABLES |
+                        AndDown.HOEDOWN_EXT_UNDERLINE | AndDown.HOEDOWN_EXT_SUPERSCRIPT;
+                String html = andDown.markdownToHtml(iText, hoedownFlags, 0);
                 mMarkdownView.loadDataWithBaseURL(null, html, "text/html", "UTF-8", null);
                 timeoutActive = false;
             }
         };
         if (!timeoutActive) {
             timeoutActive = true;
-            handler.postDelayed(setMarkdown, 50);
+            handler.postDelayed(setMarkdown, 0);
         }
     }
 }
