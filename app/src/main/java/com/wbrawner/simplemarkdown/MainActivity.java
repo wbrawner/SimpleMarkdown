@@ -12,6 +12,7 @@ import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Environment;
 import android.support.annotation.Nullable;
+import android.support.annotation.VisibleForTesting;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
@@ -31,6 +32,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SearchEvent;
+import android.view.View;
 import android.view.WindowManager;
 import android.webkit.MimeTypeMap;
 import android.widget.EditText;
@@ -58,7 +60,6 @@ public class MainActivity extends AppCompatActivity
 
     private static final String TAG = MainActivity.class.getSimpleName();
     private static String fileName;
-    public static FileUtils mFileUtils;
 
     public static String getTempFileName() {
         return "tmp_" + getFileName();
@@ -94,7 +95,6 @@ public class MainActivity extends AppCompatActivity
                 new EditPagerAdapter(getSupportFragmentManager(), MainActivity.this)
         );
         mFilesDir = getFilesDir();
-        checkDirectories();
         Intent intent = getIntent();
         if (intent != null && !intent.getAction().equals(Intent.ACTION_MAIN) && intent.getData() != null) {
             Intent loadIntent = new Intent(EditFragment.LOAD_ACTION);
@@ -102,18 +102,19 @@ public class MainActivity extends AppCompatActivity
             LocalBroadcastManager.getInstance(getApplicationContext())
                     .sendBroadcast(loadIntent);
         }
+        if (getResources().getConfiguration().orientation
+                == Configuration.ORIENTATION_LANDSCAPE) {
+            tabLayout.setVisibility(View.GONE);
+        }
     }
 
-    private void checkDirectories() {
-        File tmpDir = new File(getTempFilePath());
-        if (!tmpDir.exists()) {
-            tmpDir.mkdir();
-        }
-        File outDir = new File(getFilePath());
-        if (!outDir.exists()) {
-            outDir.mkdir();
-        }
-
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE)
+            tabLayout.setVisibility(View.GONE);
+        else
+            tabLayout.setVisibility(View.VISIBLE);
     }
 
     @Override
