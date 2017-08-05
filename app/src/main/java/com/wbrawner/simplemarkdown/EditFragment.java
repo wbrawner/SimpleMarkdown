@@ -13,6 +13,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.FileProvider;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.Editable;
+import android.text.Layout;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -62,7 +63,8 @@ public class EditFragment extends Fragment {
                 filter
         );
         mContext = getActivity();
-        mFileUtils = new FileUtils(mContext);  }
+        mFileUtils = new FileUtils(mContext);
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -107,6 +109,16 @@ public class EditFragment extends Fragment {
     public static void updatePreview(Context context) {
         Intent broadcastIntent = new Intent(PreviewFragment.PREVIEW_ACTION);
         broadcastIntent.putExtra("markdownData", mMarkdownEditor.getText().toString());
+        Layout layout = mMarkdownEditor.getLayout();
+        if (layout != null) {
+            int line =
+                    layout.getLineForOffset(mMarkdownEditor.getSelectionStart());
+            int baseline = layout.getLineBaseline(line);
+            int ascent = layout.getLineAscent(line);
+            float yPos = (baseline + ascent) * 1.0f;
+            float yPercent = yPos / mMarkdownEditor.getMeasuredHeight();
+            broadcastIntent.putExtra("scrollY", yPercent);
+        }
         LocalBroadcastManager manager = LocalBroadcastManager.getInstance(context);
         manager.sendBroadcast(broadcastIntent);
     }

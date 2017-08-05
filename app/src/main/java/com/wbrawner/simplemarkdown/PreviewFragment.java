@@ -14,6 +14,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,11 +29,11 @@ public class PreviewFragment extends Fragment {
     private static final String TAG = PreviewFragment.class.getSimpleName();
     private static final int INTERNET_REQUEST = 0;
     private WebView mMarkdownView;
-    private boolean timeoutActive = false;
 
     @BindView(R.id.markdown_view)
     WebView markdownView;
 
+    public static final String SCROLL_ACTION = "com.wbrawner.simplemarkdown.scroll";
     public static final String PREVIEW_ACTION = "com.wbrawner.simplemarkdown.preview";
 
     public PreviewFragment() {
@@ -77,16 +78,25 @@ public class PreviewFragment extends Fragment {
     private class MarkdownBroadcastSender extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (intent.hasExtra("markdownData")) {
-                String data = intent.getStringExtra("markdownData");
-                markdown(data);
+            Log.d(TAG, "Intent received: " + intent.getAction());
+            switch (intent.getAction()) {
+                case PREVIEW_ACTION:
+                    if (intent.hasExtra("markdownData")) {
+                        String data = intent.getStringExtra("markdownData");
+                        int yPos = 0;
+                        if (intent.hasExtra("scrollY")) {
+                            float yPercent = intent.getFloatExtra("scrollY", 0);
+                            Log.d(TAG, "Scrolling to: " + yPercent);
+                            yPos = Math.round(mMarkdownView.getContentHeight() * yPercent);
+                        }
+                        markdown(data, yPos);
+                    }
+                    break;
             }
         }
     }
 
-    private void markdown(String text) {
-        final String iText = text;
-        final Handler handler = new Handler();
+    private void markdown(final String text, final int scrollY) {
         Thread setMarkdown = new Thread() {
             @Override
             public void run() {
@@ -94,14 +104,11 @@ public class PreviewFragment extends Fragment {
                 int hoedownFlags =
                         AndDown.HOEDOWN_EXT_STRIKETHROUGH | AndDown.HOEDOWN_EXT_TABLES |
                         AndDown.HOEDOWN_EXT_UNDERLINE | AndDown.HOEDOWN_EXT_SUPERSCRIPT;
-                String html = andDown.markdownToHtml(iText, hoedownFlags, 0);
+                String html = andDown.markdownToHtml(text, hoedownFlags, 0);
                 mMarkdownView.loadDataWithBaseURL(null, html, "text/html", "UTF-8", null);
-                timeoutActive = false;
+                mMarkdownView.scrollTo(0, scrollY);
             }
         };
-        if (!timeoutActive) {
-            timeoutActive = true;
-            handler.postDelayed(setMarkdown, 0);
-        }
+        setMarkdown.run();
     }
 }

@@ -9,6 +9,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Environment;
 import android.support.annotation.Nullable;
@@ -90,10 +91,13 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        getWindow().setBackgroundDrawable(new ColorDrawable(0xFFFFFFFF));
         ButterKnife.bind(this);
         pager.setAdapter(
                 new EditPagerAdapter(getSupportFragmentManager(), MainActivity.this)
         );
+        pager.setPageMargin(1);
+        pager.setPageMarginDrawable(R.color.colorAccent);
         mFilesDir = getFilesDir();
         Intent intent = getIntent();
         if (intent != null && !intent.getAction().equals(Intent.ACTION_MAIN) && intent.getData() != null) {
