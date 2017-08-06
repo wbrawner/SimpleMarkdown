@@ -103,7 +103,8 @@ public class PreviewFragment extends Fragment {
                 AndDown andDown = new AndDown();
                 int hoedownFlags =
                         AndDown.HOEDOWN_EXT_STRIKETHROUGH | AndDown.HOEDOWN_EXT_TABLES |
-                        AndDown.HOEDOWN_EXT_UNDERLINE | AndDown.HOEDOWN_EXT_SUPERSCRIPT;
+                        AndDown.HOEDOWN_EXT_UNDERLINE | AndDown.HOEDOWN_EXT_SUPERSCRIPT |
+                        AndDown.HOEDOWN_EXT_FENCED_CODE;
                 String html = andDown.markdownToHtml(text, hoedownFlags, 0);
                 mMarkdownView.loadDataWithBaseURL(null, html, "text/html", "UTF-8", null);
                 mMarkdownView.scrollTo(0, scrollY);
