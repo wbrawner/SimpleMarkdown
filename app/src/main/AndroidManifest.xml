@@ -26,6 +26,7 @@
                 <data android:mimeType="text/plain" />
                 <data android:mimeType="text/markdown" />
                 <data android:pathPattern=".*\\.md" />
+                <data android:pathPattern=".*\\.markdown" />
                 <data android:mimeType="application/octet-stream" />
                 <data android:host="*" />
             </intent-filter>
