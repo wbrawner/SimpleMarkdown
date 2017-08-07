@@ -23,13 +23,20 @@ import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.jakewharton.rxbinding2.widget.RxTextView;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.reactivex.Observable;
+import io.reactivex.Scheduler;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
 import static android.content.ContentValues.TAG;
 
@@ -77,20 +84,15 @@ public class EditFragment extends Fragment {
             getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
         }
 
-        mMarkdownEditor.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                updatePreview(mContext);
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-            }
+        Observable<String> obs = RxTextView.textChanges(mMarkdownEditor)
+                .debounce(50, TimeUnit.MILLISECONDS).map(editable ->  editable.toString());
+        obs.subscribeOn(Schedulers.io());
+        obs.observeOn(AndroidSchedulers.mainThread());
+        obs.subscribe(string -> {
+            Log.d(TAG, "debounced " + string);
+            updatePreview(mContext);
         });
+
         return view;
     }
 
