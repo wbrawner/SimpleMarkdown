@@ -60,32 +60,6 @@ public class MainActivity extends AppCompatActivity
     TabLayout tabLayout;
 
     private static final String TAG = MainActivity.class.getSimpleName();
-    private static String fileName;
-
-    public static String getTempFileName() {
-        return "tmp_" + getFileName();
-    }
-
-    public static String getFileName() {
-        if (fileName == null) {
-            return "untitled.md";
-        }
-        if (!fileName.endsWith(".md"))
-            return fileName + ".md";
-        return fileName;
-    }
-
-    public static String getTempFilePath() {
-        return mFilesDir + "/tmp/";
-    }
-
-    public static String getFilePath() {
-        return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + "/";
-    }
-
-    public static void setFileName(String fileName) {
-        MainActivity.fileName = fileName;
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -127,79 +101,79 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_save:
-                //TODO: Create popup for file name
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setTitle(R.string.action_save);
-
-                final EditText input = new EditText(this);
-                input.setInputType(InputType.TYPE_CLASS_TEXT);
-                input.setHint(R.string.hint_filename);
-                input.setText(getFileName());
-                builder.setView(input);
-
-                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        if (input.getText().length() > 0) {
-                            setFileName(input.getText().toString());
-                            requestSave(input.getText().toString());
-                        }
-                    }
-                });
-                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                });
-
-                builder.show();
-                break;
-            case R.id.action_share:
-                //TODO: Fix this
-                File tmpFile = new File(getTempFilePath() + getFileName());
-                if (!tmpFile.exists()) {
-                    Intent saveIntent = new Intent(EditFragment.SAVE_ACTION);
-                    saveIntent.putExtra("fileName", getTempFilePath() + getFileName());
-                    LocalBroadcastManager.getInstance(getApplicationContext())
-                            .sendBroadcast(saveIntent);
-                }
-                Uri fileUri = FileProvider.getUriForFile(MainActivity.this, AUTHORITY, tmpFile);
-                if (fileUri != null) {
-                    try {
-                        Intent shareIntent = new Intent(Intent.ACTION_SEND);
-                        shareIntent.setDataAndType(
-                                fileUri,
-                                getContentResolver().getType(fileUri)
-                        );
-                        shareIntent.putExtra(Intent.EXTRA_STREAM, fileUri);
-                        shareIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                        startActivity(
-                                Intent.createChooser(
-                                        shareIntent,
-                                        getString(R.string.share_file)
-                                )
-                        );
-                    } catch (ActivityNotFoundException e) {
-                        Log.e(TAG, "Error sharing file", e);
-                        Toast.makeText(
-                                MainActivity.this,
-                                R.string.no_shareable_apps,
-                                Toast.LENGTH_SHORT
-                        ).show();
-                    }
-                }
-                break;
-            case R.id.action_load:
-                requestOpen();
-                break;
-        }
-        return super.onOptionsItemSelected(item);
-    }
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        switch (item.getItemId()) {
+//            case R.id.action_save:
+//                //TODO: Create popup for file name
+//                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+//                builder.setTitle(R.string.action_save);
+//
+//                final EditText input = new EditText(this);
+//                input.setInputType(InputType.TYPE_CLASS_TEXT);
+//                input.setHint(R.string.hint_filename);
+//                input.setText(getFileName());
+//                builder.setView(input);
+//
+//                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+//                    @Override
+//                    public void onClick(DialogInterface dialog, int which) {
+//                        if (input.getText().length() > 0) {
+//                            setFileName(input.getText().toString());
+//                            requestSave(input.getText().toString());
+//                        }
+//                    }
+//                });
+//                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+//                    @Override
+//                    public void onClick(DialogInterface dialog, int which) {
+//                        dialog.cancel();
+//                    }
+//                });
+//
+//                builder.show();
+//                break;
+//            case R.id.action_share:
+//                //TODO: Fix this
+//                File tmpFile = new File(getTempFilePath() + getFileName());
+//                if (!tmpFile.exists()) {
+//                    Intent saveIntent = new Intent(EditFragment.SAVE_ACTION);
+//                    saveIntent.putExtra("fileName", getTempFilePath() + getFileName());
+//                    LocalBroadcastManager.getInstance(getApplicationContext())
+//                            .sendBroadcast(saveIntent);
+//                }
+//                Uri fileUri = FileProvider.getUriForFile(MainActivity.this, AUTHORITY, tmpFile);
+//                if (fileUri != null) {
+//                    try {
+//                        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+//                        shareIntent.setDataAndType(
+//                                fileUri,
+//                                getContentResolver().getType(fileUri)
+//                        );
+//                        shareIntent.putExtra(Intent.EXTRA_STREAM, fileUri);
+//                        shareIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+//                        startActivity(
+//                                Intent.createChooser(
+//                                        shareIntent,
+//                                        getString(R.string.share_file)
+//                                )
+//                        );
+//                    } catch (ActivityNotFoundException e) {
+//                        Log.e(TAG, "Error sharing file", e);
+//                        Toast.makeText(
+//                                MainActivity.this,
+//                                R.string.no_shareable_apps,
+//                                Toast.LENGTH_SHORT
+//                        ).show();
+//                    }
+//                }
+//                break;
+//            case R.id.action_load:
+//                requestOpen();
+//                break;
+//        }
+//        return super.onOptionsItemSelected(item);
+//    }
 
     private void requestSave(String text) {
         Intent saveIntent = new Intent(EditFragment.SAVE_ACTION);
@@ -226,25 +200,25 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
-        switch (requestCode) {
-            case FileUtils.WRITE_PERMISSION_REQUEST: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // Permission granted, open file chooser dialog
-                    requestSave(getFileName());
-                } else {
-                    // Permission denied, do nothing
-                    Toast.makeText(MainActivity.this, R.string.no_permissions, Toast.LENGTH_SHORT)
-                            .show();
-                }
-                return;
-            }
-        }
-    }
+//    @Override
+//    public void onRequestPermissionsResult(int requestCode,
+//                                           String permissions[], int[] grantResults) {
+//        switch (requestCode) {
+//            case FileUtils.WRITE_PERMISSION_REQUEST: {
+//                // If request is cancelled, the result arrays are empty.
+//                if (grantResults.length > 0
+//                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+//                    // Permission granted, open file chooser dialog
+//                    requestSave(getFileName());
+//                } else {
+//                    // Permission denied, do nothing
+//                    Toast.makeText(MainActivity.this, R.string.no_permissions, Toast.LENGTH_SHORT)
+//                            .show();
+//                }
+//                return;
+//            }
+//        }
+//    }
     @Override
     public void onBackPressed() {
         if (pager.getCurrentItem() == FRAGMENT_EDIT)

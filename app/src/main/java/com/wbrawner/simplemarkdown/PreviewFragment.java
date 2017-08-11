@@ -1,6 +1,9 @@
 package com.wbrawner.simplemarkdown;
 
 import android.Manifest;
+import android.arch.lifecycle.LifecycleFragment;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -22,13 +25,20 @@ import android.webkit.WebView;
 
 import com.commonsware.cwac.anddown.AndDown;
 
+import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.reactivex.Observable;
+import io.reactivex.processors.PublishProcessor;
+import io.reactivex.subjects.PublishSubject;
+import io.reactivex.subjects.Subject;
 
-public class PreviewFragment extends Fragment {
+public class PreviewFragment extends LifecycleFragment {
     private static final String TAG = PreviewFragment.class.getSimpleName();
     private static final int INTERNET_REQUEST = 0;
-    private WebView mMarkdownView;
+    private MarkdownViewModel markdownViewModel;
 
     @BindView(R.id.markdown_view)
     WebView markdownView;
@@ -41,75 +51,16 @@ public class PreviewFragment extends Fragment {
     }
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(PREVIEW_ACTION);
-        LocalBroadcastManager.getInstance(getContext()).registerReceiver(
-                new MarkdownBroadcastSender(),
-                filter
-        );
-        checkPermissions();
-    }
-
-    private void checkPermissions() {
-        if (ContextCompat.checkSelfPermission(getActivity(),
-                Manifest.permission.INTERNET)
-                != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(getActivity(),
-                    new String[]{Manifest.permission.INTERNET},
-                    INTERNET_REQUEST);
-        }
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_preview, container, false);
         ButterKnife.bind(this, view);
-        mMarkdownView = markdownView;
+        markdownViewModel = ViewModelProviders.of(getActivity()).get(MarkdownViewModel.class);
+        markdownViewModel.getHtml().observe(this, s -> markdownView.loadData(s, "text/html", "UTF-8"));
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             WebView.setWebContentsDebuggingEnabled(true);
         }
         return view;
-    }
-
-    private class MarkdownBroadcastSender extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Log.d(TAG, "Intent received: " + intent.getAction());
-            switch (intent.getAction()) {
-                case PREVIEW_ACTION:
-                    if (intent.hasExtra("markdownData")) {
-                        String data = intent.getStringExtra("markdownData");
-                        int yPos = 0;
-                        if (intent.hasExtra("scrollY")) {
-                            float yPercent = intent.getFloatExtra("scrollY", 0);
-                            Log.d(TAG, "Scrolling to: " + yPercent);
-                            yPos = Math.round(mMarkdownView.getContentHeight() * yPercent);
-                        }
-                        markdown(data, yPos);
-                    }
-                    break;
-            }
-        }
-    }
-
-    private void markdown(final String text, final int scrollY) {
-        Thread setMarkdown = new Thread() {
-            @Override
-            public void run() {
-                AndDown andDown = new AndDown();
-                int hoedownFlags =
-                        AndDown.HOEDOWN_EXT_STRIKETHROUGH | AndDown.HOEDOWN_EXT_TABLES |
-                        AndDown.HOEDOWN_EXT_UNDERLINE | AndDown.HOEDOWN_EXT_SUPERSCRIPT |
-                        AndDown.HOEDOWN_EXT_FENCED_CODE;
-                String html = andDown.markdownToHtml(text, hoedownFlags, 0);
-                mMarkdownView.loadDataWithBaseURL(null, html, "text/html", "UTF-8", null);
-                mMarkdownView.scrollTo(0, scrollY);
-            }
-        };
-        setMarkdown.run();
     }
 }

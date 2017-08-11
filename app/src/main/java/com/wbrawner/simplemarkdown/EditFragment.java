@@ -1,5 +1,7 @@
 package com.wbrawner.simplemarkdown;
 
+import android.arch.lifecycle.ViewModelProvider;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -44,33 +46,13 @@ import static android.content.ContentValues.TAG;
 public class EditFragment extends Fragment {
     public static final String SAVE_ACTION = "com.wbrawner.simplemarkdown.ACTION_SAVE";
     public static final String LOAD_ACTION = "com.wbrawner.simplemarkdown.ACTION_LOAD";
-    private static EditText mMarkdownEditor;
-    private FileUtils mFileUtils;
+    private MarkdownViewModel markdownViewModel;
 
     @BindView(R.id.markdown_edit)
     EditText markdownEditor;
 
-    private FragmentActivity mContext;
-
-    private File mTmpFile;
-    private boolean loadTmpFile = true;
-
     public EditFragment() {
         // Required empty public constructor
-    }
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(SAVE_ACTION);
-        filter.addAction(LOAD_ACTION);
-        LocalBroadcastManager.getInstance(getContext()).registerReceiver(
-                new EditFragment.MarkdownBroadcastSaveReceiver(),
-                filter
-        );
-        mContext = getActivity();
-        mFileUtils = new FileUtils(mContext);
     }
 
     @Override
@@ -79,124 +61,14 @@ public class EditFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_edit, container, false);
         ButterKnife.bind(this, view);
-        mMarkdownEditor = markdownEditor;
-        if (mMarkdownEditor.requestFocus()) {
-            getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
-        }
-
-        Observable<String> obs = RxTextView.textChanges(mMarkdownEditor)
+        markdownViewModel = ViewModelProviders.of(getActivity()).get(MarkdownViewModel.class);
+        Observable<String> obs = RxTextView.textChanges(markdownEditor)
                 .debounce(50, TimeUnit.MILLISECONDS).map(editable ->  editable.toString());
         obs.subscribeOn(Schedulers.io());
         obs.observeOn(AndroidSchedulers.mainThread());
-        obs.subscribe(string -> {
-            Log.d(TAG, "debounced " + string);
-            updatePreview(mContext);
+        obs.subscribe(data -> {
+            markdownViewModel.updateMarkdown(data);
         });
-
         return view;
-    }
-
-    @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        if (getActivity().getIntent().getAction().equals(Intent.ACTION_MAIN)) {
-            File tmpFile = new File(getActivity().getFilesDir() + "/" + MainActivity.getTempFileName());
-            if (tmpFile.exists()) {
-                FileLoadTask loadTask = new FileLoadTask(mContext, EditFragment.this);
-                loadTask.execute(FileProvider.getUriForFile(mContext, MainActivity.AUTHORITY, tmpFile));
-            }
-        }
-    }
-
-    public static void updatePreview(Context context) {
-        Intent broadcastIntent = new Intent(PreviewFragment.PREVIEW_ACTION);
-        broadcastIntent.putExtra("markdownData", mMarkdownEditor.getText().toString());
-        Layout layout = mMarkdownEditor.getLayout();
-        if (layout != null) {
-            int line =
-                    layout.getLineForOffset(mMarkdownEditor.getSelectionStart());
-            int baseline = layout.getLineBaseline(line);
-            int ascent = layout.getLineAscent(line);
-            float yPos = (baseline + ascent) * 1.0f;
-            float yPercent = yPos / mMarkdownEditor.getMeasuredHeight();
-            broadcastIntent.putExtra("scrollY", yPercent);
-        }
-        LocalBroadcastManager manager = LocalBroadcastManager.getInstance(context);
-        manager.sendBroadcast(broadcastIntent);
-    }
-
-    public void save(String data, String filePath) {
-        // TODO: move this to AsyncTask
-        if (!mFileUtils.isExternalStorageWriteable()) {
-            mFileUtils.requestWritePermissions();
-            return;
-        }
-        if (filePath == null) {
-            filePath = MainActivity.getFilePath() + MainActivity.getFileName();
-        }
-        FileOutputStream out = null;
-        try {
-            Log.d(TAG, "File path: " + filePath);
-            File tmpFile = new File(filePath);
-            out = new FileOutputStream(tmpFile);
-            out.write(data.getBytes());
-        } catch (Exception e) {
-            Log.e(TAG, "Error saving temp file:", e);
-        } finally {
-            try {
-                if (out != null) {
-                    out.close();
-                    Toast.makeText(mContext, getString(R.string.file_saved, filePath), Toast.LENGTH_SHORT)
-                            .show();
-                }
-            } catch (IOException e) {
-                Log.e(TAG, "Error closing write stream", e);
-            }
-        }
-    }
-
-    public void save(String data) {
-        save(data, null);
-    }
-
-    public void save() {
-        save(mMarkdownEditor.getText().toString(), null);
-    }
-
-    @Override
-    public void onPause() {
-        save(mMarkdownEditor.getText().toString(),
-                MainActivity.getTempFilePath() + MainActivity.getFileName());
-        super.onPause();
-    }
-
-    public void setEditorText(String s) {
-        mMarkdownEditor.setText(s);
-    }
-
-    private class MarkdownBroadcastSaveReceiver extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Log.d(TAG, "Intent received: " + intent.getAction());
-            switch (intent.getAction()) {
-                case SAVE_ACTION:
-                    if (intent.hasExtra("fileName")) {
-                        String fileName = intent.getStringExtra("fileName");
-                        if (!fileName.contains("/")) {
-                            fileName = MainActivity.getFilePath() + "/" + fileName;
-                        }
-                        if (!fileName.endsWith(".md"))
-                            fileName += ".md";
-                        save(mMarkdownEditor.getText().toString(), fileName);
-                    }
-                    break;
-                case LOAD_ACTION:
-                    if (intent.hasExtra("fileUri")) {
-                        FileLoadTask loadTask = new FileLoadTask(mContext, EditFragment.this);
-                        loadTask.execute(Uri.parse(intent.getStringExtra("fileUri")));
-                    }
-                    break;
-            }
-        }
     }
 }
