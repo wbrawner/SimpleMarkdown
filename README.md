@@ -4,12 +4,12 @@ Simple Markdown is simply a Markdown editor :) I wrote it to offer up an open so
 the other Markdown editors available on the Play Store. I also wanted to get some practice in
 creating Android apps and have a little something to put into my portfolio.
 
-# Contributing
+## Contributing
 
 I'd love any contributions, particularly in improving the existing code. Please just fork the
 repository, make your changes, squash your commits, and submit a pull request :)
 
-# License
+## License
 
    Copyright 2017 William Brawner
 
@@ -25,7 +25,7 @@ repository, make your changes, squash your commits, and submit a pull request :)
    See the License for the specific language governing permissions and
    limitations under the License.
 
-# Libraries
+## Libraries
 
 - AndDown
 - Butterknife
