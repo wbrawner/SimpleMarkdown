@@ -7,8 +7,10 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 
+import com.wbrawner.simplemarkdown.BuildConfig;
 import com.wbrawner.simplemarkdown.MarkdownApplication;
 import com.wbrawner.simplemarkdown.R;
 import com.wbrawner.simplemarkdown.presentation.MarkdownPresenter;
@@ -39,9 +41,8 @@ public class PreviewFragment extends Fragment implements MarkdownPreviewView {
         View view = inflater.inflate(R.layout.fragment_preview, container, false);
         ButterKnife.bind(this, view);
         ((MarkdownApplication) getActivity().getApplication()).getComponent().inject(this);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+        if (BuildConfig.DEBUG)
             WebView.setWebContentsDebuggingEnabled(true);
-        }
         return view;
     }
 
@@ -55,7 +56,7 @@ public class PreviewFragment extends Fragment implements MarkdownPreviewView {
     @Override
     public void updatePreview(String html) {
         markdownPreview.post(() -> {
-            markdownPreview.loadData(html, "text/html", "UTF-8");
+            markdownPreview.loadDataWithBaseURL(null, html, "text/html", "UTF-8", null);
         });
     }
 

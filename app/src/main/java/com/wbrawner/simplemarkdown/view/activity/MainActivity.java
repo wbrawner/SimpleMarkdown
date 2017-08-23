@@ -59,7 +59,7 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
 
         ((MarkdownApplication) getApplication()).getComponent().inject(this);
-
+        setTitle(presenter.getFileName());
         // Reset the background color
         getWindow().setBackgroundDrawable(new ColorDrawable(0xFFFFFFFF));
         ButterKnife.bind(this);
@@ -142,8 +142,7 @@ public class MainActivity extends AppCompatActivity
                 presenter.setFileName(input.getText().toString());
                 setTitle(input.getText());
                 if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-                    String path = Environment.getExternalStorageDirectory() + "/" +
-                            Environment.DIRECTORY_DOCUMENTS + "/" + input.getText();
+                    String path = getDocsPath() + input.getText();
                     presenter.saveMarkdown(path);
                 }
             }
@@ -153,6 +152,11 @@ public class MainActivity extends AppCompatActivity
         });
 
         builder.show();
+    }
+
+    private String getDocsPath() {
+            return Environment.getExternalStorageDirectory() + "/" +
+                    Environment.DIRECTORY_DOCUMENTS + "/";
     }
 
     @Override

@@ -83,6 +83,7 @@ public class MarkdownPresenterImpl implements MarkdownPresenter {
 
     @Override
     public void onMarkdownEdited(String markdown) {
+        setMarkdown(markdown);
         Runnable generateMarkdown = () -> {
             AndDown andDown = new AndDown();
             int hoedownFlags =
