@@ -11,6 +11,7 @@ repository, make your changes, squash your commits, and submit a pull request :)
 
 ## License
 
+```
    Copyright 2017 William Brawner
 
    Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,6 +25,7 @@ repository, make your changes, squash your commits, and submit a pull request :)
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
    limitations under the License.
+```
 
 ## Libraries
 
