@@ -1,14 +1,10 @@
 package com.wbrawner.simplemarkdown;
 
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.MutableLiveData;
-import android.arch.lifecycle.ViewModel;
-
-import com.commonsware.cwac.anddown.AndDown;
-
-public class MarkdownViewModel extends ViewModel {
-
-    private MutableLiveData<String> markdownLiveData;
+public class MarkdownViewModel {
+/*
+    private static final String TAG = MarkdownViewModel.class.getSimpleName();
+    private File file;
+    public MutableLiveData<String> markdownLiveData;
     private MutableLiveData<String> htmlLiveData = new MutableLiveData<>();;
 
     public MarkdownViewModel() {
@@ -34,4 +30,47 @@ public class MarkdownViewModel extends ViewModel {
     public LiveData<String> getHtml() {
         return htmlLiveData;
     }
+
+    public void openFile(String filePath) {
+        file = new File(filePath);
+    }
+
+    public String getFileName() {
+        if (file == null || file.getName().isEmpty())
+            return "Untitled.md";
+        return file.getName();
+    }
+
+    public boolean saveFile(String filePath, @Nullable String fileName) {
+        if (fileName == null) {
+            if (file != null)
+                fileName = file.getName();
+            else
+                fileName = "Untitled.md";
+        }
+        if (!filePath.endsWith("/"))
+            filePath += "/";
+        final boolean result;
+        new AsyncTask<String, Void, Void>() {
+            @Override
+            protected Void doInBackground(String... strings) {
+                try {
+                    PrintWriter writer = new PrintWriter(strings[0], "UTF-8");
+                    writer.write(markdownLiveData.getValue());
+                } catch (IOException e) {
+                    Log.e(TAG, "Error saving file: ", e);
+                }
+                return null;
+            }
+        }.execute(filePath + fileName);
+        return true;
+    }
+
+    public void requestSave(String s) {
+        // Do something to save the file?
+    }
+
+    public String getMarkdown() {
+        return markdownLiveData.getValue();
+    } */
 }

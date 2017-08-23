@@ -2,6 +2,9 @@ apply plugin: 'com.android.application'
 apply plugin: 'me.tatarka.retrolambda'
 
 android {
+    configurations.all {
+        resolutionStrategy.force 'com.google.code.findbugs:jsr305:3.0.1'
+    }
     packagingOptions {
         exclude 'META-INF/LICENSE-LGPL-2.1.txt'
         exclude 'META-INF/LICENSE-LGPL-3.txt'
@@ -49,9 +52,8 @@ dependencies {
     compile 'io.reactivex.rxjava2:rxjava:2.1.0'
     compile 'com.jakewharton.rxbinding2:rxbinding:2.0.0'
     compile 'com.jakewharton.rxbinding2:rxbinding-design:2.0.0'
-    compile "android.arch.lifecycle:runtime:1.0.0-alpha5"
-    compile "android.arch.lifecycle:extensions:1.0.0-alpha5"
+    compile 'com.google.dagger:dagger:2.11'
+    annotationProcessor 'com.google.dagger:dagger-compiler:2.11'
     testCompile 'junit:junit:4.12'
-    annotationProcessor "android.arch.lifecycle:compiler:1.0.0-alpha5"
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.7.0'
 }

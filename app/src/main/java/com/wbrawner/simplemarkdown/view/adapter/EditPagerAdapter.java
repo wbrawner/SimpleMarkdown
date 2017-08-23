@@ -1,4 +1,4 @@
-package com.wbrawner.simplemarkdown;
+package com.wbrawner.simplemarkdown.view.adapter;
 
 /**
  * Created by billy on 7/29/2017.
@@ -10,11 +10,15 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
-import static com.wbrawner.simplemarkdown.MainActivity.FRAGMENT_EDIT;
-import static com.wbrawner.simplemarkdown.MainActivity.FRAGMENT_PREVIEW;
-import static com.wbrawner.simplemarkdown.MainActivity.NUM_PAGES;
+import com.wbrawner.simplemarkdown.R;
+import com.wbrawner.simplemarkdown.view.fragment.EditFragment;
+import com.wbrawner.simplemarkdown.view.fragment.PreviewFragment;
 
-class EditPagerAdapter extends FragmentPagerAdapter {
+public class EditPagerAdapter extends FragmentPagerAdapter {
+    public static final int FRAGMENT_EDIT = 0;
+    public static final int FRAGMENT_PREVIEW = 1;
+    public static final int NUM_PAGES = 2;
+
     private Context mContext;
 
     public EditPagerAdapter(FragmentManager fm, Context context) {
