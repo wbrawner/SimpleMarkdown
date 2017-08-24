@@ -58,17 +58,12 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
 
         ((MarkdownApplication) getApplication()).getComponent().inject(this);
-        setTitle(presenter.getFileName());
         ButterKnife.bind(this);
         pager.setAdapter(
                 new EditPagerAdapter(getSupportFragmentManager(), MainActivity.this)
         );
         pager.setPageMargin(1);
         pager.setPageMarginDrawable(R.color.colorAccent);
-        Intent intent = getIntent();
-        if (intent != null && intent.getData() != null) {
-            loadFromUri(intent.getData());
-        }
         if (getResources().getConfiguration().orientation
                 == Configuration.ORIENTATION_LANDSCAPE) {
             tabLayout.setVisibility(View.GONE);
@@ -199,7 +194,7 @@ public class MainActivity extends AppCompatActivity
         builder.show();
     }
 
-    private String getDocsPath() {
+    public String getDocsPath() {
             return Environment.getExternalStorageDirectory() + "/" +
                     Environment.DIRECTORY_DOCUMENTS + "/";
     }
@@ -237,30 +232,10 @@ public class MainActivity extends AppCompatActivity
         switch (requestCode) {
             case OPEN_FILE_REQUEST:
                 if (resultCode == RESULT_OK) {
-                    loadFromUri(data.getData());
+                    presenter.loadFromUri(MainActivity.this, data.getData());
                 }
         }
         super.onActivityResult(requestCode, resultCode, data);
-    }
-
-    private void loadFromUri(Uri fileUri) {
-        try {
-            InputStream in =
-                    getContentResolver().openInputStream(fileUri);
-            Cursor retCur = getContentResolver()
-                    .query(fileUri, null, null, null, null);
-            if (retCur != null) {
-                int nameIndex = retCur
-                        .getColumnIndex(OpenableColumns.DISPLAY_NAME);
-                retCur.moveToFirst();
-                presenter.setFileName(retCur.getString(nameIndex));
-            }
-            presenter.loadMarkdown(in);
-        } catch (Exception e) {
-            Toast.makeText(MainActivity.this, R.string.file_load_error, Toast.LENGTH_SHORT)
-                    .show();
-        }
-
     }
 
     private void requestOpen() {
@@ -281,5 +256,9 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-
+    @Override
+    protected void onResume() {
+        super.onResume();
+        setTitle(presenter.getFileName());
+    }
 }

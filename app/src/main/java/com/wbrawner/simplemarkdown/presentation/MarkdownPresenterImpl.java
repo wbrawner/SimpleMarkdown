@@ -1,6 +1,13 @@
 package com.wbrawner.simplemarkdown.presentation;
 
+import android.content.Context;
+import android.database.Cursor;
+import android.net.Uri;
+import android.provider.OpenableColumns;
+import android.widget.Toast;
+
 import com.commonsware.cwac.anddown.AndDown;
+import com.wbrawner.simplemarkdown.R;
 import com.wbrawner.simplemarkdown.model.MarkdownFile;
 import com.wbrawner.simplemarkdown.view.MarkdownEditView;
 import com.wbrawner.simplemarkdown.view.MarkdownPreviewView;
@@ -146,5 +153,25 @@ public class MarkdownPresenterImpl implements MarkdownPresenter {
     @Override
     public void setMarkdown(String markdown) {
         file.setContent(markdown);
+    }
+
+    @Override
+    public void loadFromUri(Context context, Uri fileUri) {
+        try {
+            InputStream in =
+                    context.getContentResolver().openInputStream(fileUri);
+            Cursor retCur = context.getContentResolver()
+                    .query(fileUri, null, null, null, null);
+            if (retCur != null) {
+                int nameIndex = retCur
+                        .getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                retCur.moveToFirst();
+                setFileName(retCur.getString(nameIndex));
+            }
+            loadMarkdown(in);
+        } catch (Exception e) {
+            Toast.makeText(context, R.string.file_load_error, Toast.LENGTH_SHORT)
+                    .show();
+        }
     }
 }

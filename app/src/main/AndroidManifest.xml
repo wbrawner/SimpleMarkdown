@@ -20,8 +20,6 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-        <activity android:name=".view.activity.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.EDIT" />
                 <action android:name="android.intent.action.VIEW" />
@@ -39,6 +37,7 @@
                 <data android:host="*" />
             </intent-filter>
         </activity>
+        <activity android:name=".view.activity.MainActivity"></activity>
 
         <provider
             android:name="android.support.v4.content.FileProvider"

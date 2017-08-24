@@ -1,5 +1,8 @@
 package com.wbrawner.simplemarkdown.presentation;
 
+import android.content.Context;
+import android.net.Uri;
+
 import com.wbrawner.simplemarkdown.view.MarkdownEditView;
 import com.wbrawner.simplemarkdown.view.MarkdownPreviewView;
 
@@ -12,6 +15,7 @@ import java.io.InputStream;
 public interface MarkdownPresenter extends LifecyclePresenter {
     void loadMarkdown(String filePath);
     void loadMarkdown(InputStream in);
+    void loadFromUri(Context context, Uri fileUri);
     void loadTempMarkdown(InputStream in, OnTempFileLoadedListener listener);
     void setEditView(MarkdownEditView editView);
     void setPreviewView(MarkdownPreviewView previewView);

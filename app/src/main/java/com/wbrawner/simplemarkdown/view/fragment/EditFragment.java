@@ -14,6 +14,7 @@ import com.wbrawner.simplemarkdown.R;
 import com.wbrawner.simplemarkdown.model.MarkdownFile;
 import com.wbrawner.simplemarkdown.presentation.MarkdownPresenter;
 import com.wbrawner.simplemarkdown.view.MarkdownEditView;
+import com.wbrawner.simplemarkdown.view.activity.MainActivity;
 
 import java.util.concurrent.TimeUnit;
 
@@ -80,7 +81,9 @@ public class EditFragment extends Fragment implements MarkdownEditView {
 
     @Override
     public void showFileSavedMessage() {
-        Toast.makeText(getActivity(), R.string.file_saved, Toast.LENGTH_SHORT).show();
+        String location = ((MainActivity) getActivity()).getDocsPath() + presenter.getFileName();
+        String message = getString(R.string.file_saved, location);
+        Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
     }
 
     @Override
