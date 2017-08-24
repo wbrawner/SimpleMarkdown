@@ -29,12 +29,10 @@ public class MarkdownInfoActivity extends AppCompatActivity {
         if (intent == null || !intent.hasExtra("title") || !intent.hasExtra("html"))
             finish();
         setTitle(intent.getStringExtra("title"));
-        infoWebview.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
-        infoWebview.getSettings().setRenderPriority(WebSettings.RenderPriority.HIGH);
-        infoWebview.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+        String style = "<style>pre {overflow:scroll;}</style>";
         infoWebview.loadDataWithBaseURL(
                 null,
-                intent.getStringExtra("html"),
+                style + intent.getStringExtra("html"),
                 "text/html",
                 "UTF-8",
                 null

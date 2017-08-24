@@ -163,6 +163,6 @@ Numbered lists work similarly, though the actual number you use is irrelevant.
 
 # Final Notes
 
-Don't forget that you can, of course, write regular HTML here and it will get parsed as normal. You can view this file here: [link](https://github.com/wbrawner/SimpleMarkdown/)
+Don't forget that you can, of course, write regular HTML here and it will get parsed as normal. You can view this file here: [link](https://github.com/wbrawner/SimpleMarkdown/blob/master/app/src/main/assets/Cheatsheet.md)
 
 If you need any assistance with the app or you run into a bug, please [open an issue](https://github.com/wbrawner/SimpleMarkdown/). You can also [visit me on my personal website](https://wbrawner.com), or [send me an email](billybrawner@gmail.com).
