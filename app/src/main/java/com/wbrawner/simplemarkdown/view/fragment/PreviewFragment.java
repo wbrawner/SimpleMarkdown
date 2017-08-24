@@ -1,13 +1,11 @@
 package com.wbrawner.simplemarkdown.view.fragment;
 
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.WebSettings;
 import android.webkit.WebView;
 
 import com.wbrawner.simplemarkdown.BuildConfig;
@@ -20,9 +18,11 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.Unbinder;
 
 public class PreviewFragment extends Fragment implements MarkdownPreviewView {
     private static final String TAG = PreviewFragment.class.getSimpleName();
+    private Unbinder unbinder;
 
     @Inject
     MarkdownPresenter presenter;
@@ -39,7 +39,7 @@ public class PreviewFragment extends Fragment implements MarkdownPreviewView {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_preview, container, false);
-        ButterKnife.bind(this, view);
+        unbinder = ButterKnife.bind(this, view);
         ((MarkdownApplication) getActivity().getApplication()).getComponent().inject(this);
         if (BuildConfig.DEBUG)
             WebView.setWebContentsDebuggingEnabled(true);
@@ -65,6 +65,12 @@ public class PreviewFragment extends Fragment implements MarkdownPreviewView {
         super.onResume();
         presenter.setPreviewView(this);
         presenter.onMarkdownEdited();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        unbinder.unbind();
     }
 
     @Override

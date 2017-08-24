@@ -23,4 +23,5 @@
     <string name="file_loaded">File successfully loaded</string>
     <string name="error_write">An error occurred while writing the file</string>
     <string name="file_load_error">An error occurred while opening the file</string>
+    <string name="action_libraries">Libraries</string>
 </resources>

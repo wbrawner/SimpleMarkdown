@@ -16,13 +16,18 @@ public class MarkdownPresenterImpl implements MarkdownPresenter {
     private MarkdownEditView editView;
     private MarkdownPreviewView previewView;
     private String TAG = MarkdownPresenterImpl.class.getSimpleName();
+    private int HOEDOWN_FLAGS =
+            AndDown.HOEDOWN_EXT_STRIKETHROUGH | AndDown.HOEDOWN_EXT_TABLES |
+                    AndDown.HOEDOWN_EXT_UNDERLINE | AndDown.HOEDOWN_EXT_SUPERSCRIPT |
+                    AndDown.HOEDOWN_EXT_FENCED_CODE;
 
     public MarkdownPresenterImpl(MarkdownFile file) {
         this.file = file;
     }
 
     @Override
-    public void resume() {}
+    public void resume() {
+    }
 
     @Override
     public void pause() {
@@ -58,6 +63,22 @@ public class MarkdownPresenterImpl implements MarkdownPresenter {
     }
 
     @Override
+    public void loadTempMarkdown(InputStream in, OnTempFileLoadedListener listener) {
+        Runnable fileLoader = () -> {
+            MarkdownFile tmpFile = new MarkdownFile();
+            int result = tmpFile.load(in);
+            if (result == MarkdownFile.SUCCESS) {
+                String html = generateHTML(tmpFile.getContent());
+                listener.onSuccess(html);
+            } else {
+                listener.onError(result);
+            }
+            tmpFile = null;
+        };
+        fileLoader.run();
+    }
+
+    @Override
     public void setEditView(MarkdownEditView editView) {
         this.editView = editView;
     }
@@ -85,15 +106,21 @@ public class MarkdownPresenterImpl implements MarkdownPresenter {
     public void onMarkdownEdited(String markdown) {
         setMarkdown(markdown);
         Runnable generateMarkdown = () -> {
-            AndDown andDown = new AndDown();
-            int hoedownFlags =
-                    AndDown.HOEDOWN_EXT_STRIKETHROUGH | AndDown.HOEDOWN_EXT_TABLES |
-                            AndDown.HOEDOWN_EXT_UNDERLINE | AndDown.HOEDOWN_EXT_SUPERSCRIPT |
-                            AndDown.HOEDOWN_EXT_FENCED_CODE;
             if (previewView != null)
-                previewView.updatePreview(andDown.markdownToHtml(markdown, hoedownFlags, 0));
+                previewView.updatePreview(generateHTML());
         };
         generateMarkdown.run();
+    }
+
+    @Override
+    public String generateHTML() {
+        return generateHTML(getMarkdown());
+    }
+
+    @Override
+    public String generateHTML(String markdown) {
+        AndDown andDown = new AndDown();
+        return andDown.markdownToHtml(markdown, HOEDOWN_FLAGS, 0);
     }
 
     @Override

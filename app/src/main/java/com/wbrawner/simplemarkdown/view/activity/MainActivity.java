@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.database.Cursor;
-import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -60,8 +59,6 @@ public class MainActivity extends AppCompatActivity
 
         ((MarkdownApplication) getApplication()).getComponent().inject(this);
         setTitle(presenter.getFileName());
-        // Reset the background color
-        getWindow().setBackgroundDrawable(new ColorDrawable(0xFFFFFFFF));
         ButterKnife.bind(this);
         pager.setAdapter(
                 new EditPagerAdapter(getSupportFragmentManager(), MainActivity.this)
@@ -69,7 +66,7 @@ public class MainActivity extends AppCompatActivity
         pager.setPageMargin(1);
         pager.setPageMarginDrawable(R.color.colorAccent);
         Intent intent = getIntent();
-        if (intent != null && !intent.getAction().equals(Intent.ACTION_MAIN) && intent.getData() != null) {
+        if (intent != null && intent.getData() != null) {
             loadFromUri(intent.getData());
         }
         if (getResources().getConfiguration().orientation
@@ -123,8 +120,56 @@ public class MainActivity extends AppCompatActivity
             case R.id.action_load:
                 requestOpen();
                 break;
+            case R.id.action_help:
+                showInfoActivity(R.id.action_help);
+                break;
+            case R.id.action_libraries:
+                showInfoActivity(R.id.action_libraries);
+                break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void showInfoActivity(int action) {
+        Intent infoIntent = new Intent(MainActivity.this, MarkdownInfoActivity.class);
+        String fileName = "";
+        String title = "";
+        switch (action) {
+            case R.id.action_help:
+                fileName = "Cheatsheet.md";
+                title = getString(R.string.action_help);
+                break;
+            case R.id.action_libraries:
+                fileName = "Libraries.md";
+                title = getString(R.string.action_libraries);
+                break;
+        }
+        infoIntent.putExtra("title", title);
+        InputStream in = null;
+        try {
+            in = getAssets().open(fileName);
+            presenter.loadTempMarkdown(in, new MarkdownPresenter.OnTempFileLoadedListener() {
+                @Override
+                public void onSuccess(String html) {
+                    infoIntent.putExtra("html", html);
+                    startActivity(infoIntent);
+                }
+
+                @Override
+                public void onError(int code) {
+                    Toast.makeText(MainActivity.this, R.string.file_load_error, Toast.LENGTH_SHORT)
+                            .show();
+                }
+            });
+        } catch (Exception e) {
+            Toast.makeText(MainActivity.this, R.string.file_load_error, Toast.LENGTH_SHORT).show();
+        }
+        if (in != null) {
+            try {
+                in.close();
+            } catch (Exception e) {
+            }
+        }
     }
 
     private void showSaveDialog() {

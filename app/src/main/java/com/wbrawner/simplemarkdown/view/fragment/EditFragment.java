@@ -21,6 +21,7 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.Unbinder;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
@@ -29,6 +30,7 @@ public class EditFragment extends Fragment implements MarkdownEditView {
     public static final String SAVE_ACTION = "com.wbrawner.simplemarkdown.ACTION_SAVE";
     public static final String LOAD_ACTION = "com.wbrawner.simplemarkdown.ACTION_LOAD";
     private String TAG = EditFragment.class.getSimpleName();
+    private Unbinder unbinder;
 
     @Inject
     MarkdownPresenter presenter;
@@ -45,7 +47,7 @@ public class EditFragment extends Fragment implements MarkdownEditView {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_edit, container, false);
-        ButterKnife.bind(this, view);
+        unbinder = ButterKnife.bind(this, view);
         ((MarkdownApplication) getActivity().getApplication()).getComponent().inject(this);
 
         Observable<String> obs = RxTextView.textChanges(markdownEditor)
@@ -108,5 +110,11 @@ public class EditFragment extends Fragment implements MarkdownEditView {
     @Override
     public void setMarkdown(String markdown) {
         markdownEditor.setText(markdown);
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        unbinder.unbind();
     }
 }
