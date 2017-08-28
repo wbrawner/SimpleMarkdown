@@ -4,6 +4,15 @@ Simple Markdown is simply a Markdown editor :) I wrote it to offer up an open so
 the other Markdown editors available on the Play Store. I also wanted to get some practice in
 creating Android apps and have a little something to put into my portfolio.
 
+## Roadmap
+
+* Auto-save
+* Night mode
+* Save to cloud (Dropbox, Google Drive, OneDrive)
+* Disable live preview in landscape mode
+* Disable preview tab for better performance in large files
+* Custom CSS for Markdown preview
+
 ## Contributing
 
 I'd love any contributions, particularly in improving the existing code. Please just fork the
