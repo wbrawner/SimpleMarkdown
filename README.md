@@ -1,4 +1,4 @@
-# [Simple Markdown](https://wbrawner.com/simple-markdown)
+# [Simple Markdown](https://wbrawner.com/portfolio/simple-markdown/)
 
 Simple Markdown is simply a Markdown editor :) I wrote it to offer up an open source alternative to
 the other Markdown editors available on the Play Store. I also wanted to get some practice in
