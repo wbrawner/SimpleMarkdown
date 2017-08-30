@@ -55,9 +55,11 @@ public class PreviewFragment extends Fragment implements MarkdownPreviewView {
 
     @Override
     public void updatePreview(String html) {
-        markdownPreview.post(() -> {
-            markdownPreview.loadDataWithBaseURL(null, html, "text/html", "UTF-8", null);
-        });
+        if (markdownPreview != null) {
+            markdownPreview.post(() -> {
+                markdownPreview.loadDataWithBaseURL(null, html, "text/html", "UTF-8", null);
+            });
+        }
     }
 
     @Override
