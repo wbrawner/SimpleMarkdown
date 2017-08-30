@@ -4,10 +4,8 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.OpenableColumns;
-import android.widget.Toast;
 
 import com.commonsware.cwac.anddown.AndDown;
-import com.wbrawner.simplemarkdown.R;
 import com.wbrawner.simplemarkdown.model.MarkdownFile;
 import com.wbrawner.simplemarkdown.view.MarkdownEditView;
 import com.wbrawner.simplemarkdown.view.MarkdownPreviewView;
@@ -60,7 +58,8 @@ public class MarkdownPresenterImpl implements MarkdownPresenter {
         Runnable fileLoader = () -> {
             int result = file.load(in);
             if (result == MarkdownFile.SUCCESS) {
-                editView.setMarkdown(getMarkdown());
+                if (editView != null)
+                    editView.setMarkdown(getMarkdown());
                 onMarkdownEdited();
             } else {
                 editView.showFileLoadeddError(result);
@@ -160,18 +159,21 @@ public class MarkdownPresenterImpl implements MarkdownPresenter {
         try {
             InputStream in =
                     context.getContentResolver().openInputStream(fileUri);
-            Cursor retCur = context.getContentResolver()
-                    .query(fileUri, null, null, null, null);
-            if (retCur != null) {
-                int nameIndex = retCur
-                        .getColumnIndex(OpenableColumns.DISPLAY_NAME);
-                retCur.moveToFirst();
-                setFileName(retCur.getString(nameIndex));
+            if (fileUri.getScheme().equals("content")) {
+                Cursor retCur = context.getContentResolver()
+                        .query(fileUri, null, null, null, null);
+                if (retCur != null) {
+                    int nameIndex = retCur
+                            .getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                    retCur.moveToFirst();
+                    setFileName(retCur.getString(nameIndex));
+                }
+            } else if (fileUri.getScheme().equals("file")) {
+                setFileName(fileUri.getLastPathSegment());
             }
             loadMarkdown(in);
         } catch (Exception e) {
-            Toast.makeText(context, R.string.file_load_error, Toast.LENGTH_SHORT)
-                    .show();
+            editView.showFileLoadeddError(MarkdownFile.READ_ERROR);
         }
     }
 }
