@@ -38,8 +38,10 @@ repository, make your changes, squash your commits, and submit a pull request :)
 
 ## Libraries
 
-- AndDown
-- Butterknife
-- Dagger 2
-- RxAndroid
-- RxJava
+- [AndDown](https://github.com/commonsguy/cwac-anddown)
+- [Butterknife](https://github.com/JakeWharton/butterknife)
+- [Dagger 2](https://github.com/google/dagger)
+- [Hoedown](https://github.com/hoedown/hoedown)
+- [Retrolambda](https://github.com/evant/gradle-retrolambda)
+- [RxAndroid](https://github.com/ReactiveX/RxAndroid)
+- [RxJava](https://github.com/ReactiveX/RxJava)
