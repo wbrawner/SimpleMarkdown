@@ -12,6 +12,7 @@ creating Android apps and have a little something to put into my portfolio.
 * Disable live preview in landscape mode
 * Disable preview tab for better performance in large files
 * Custom CSS for Markdown preview
+* Auto-scroll preview to match edit view in landscape mode
 
 ## Contributing
 
