@@ -43,11 +43,13 @@ public class MarkdownPresenterImpl implements MarkdownPresenter {
     public void loadMarkdown(String filePath) {
         Runnable fileLoader = () -> {
             int result = file.load(filePath);
-            if (result == MarkdownFile.SUCCESS) {
-                editView.setMarkdown(getMarkdown());
-                onMarkdownEdited();
-            } else {
-                editView.showFileLoadeddError(result);
+            if (editView != null) {
+                if (result == MarkdownFile.SUCCESS) {
+                    editView.setMarkdown(getMarkdown());
+                    onMarkdownEdited();
+                } else {
+                    editView.showFileLoadeddError(result);
+                }
             }
         };
         fileLoader.run();
@@ -62,7 +64,8 @@ public class MarkdownPresenterImpl implements MarkdownPresenter {
                     editView.setMarkdown(getMarkdown());
                 onMarkdownEdited();
             } else {
-                editView.showFileLoadeddError(result);
+                if (editView != null)
+                    editView.showFileLoadeddError(result);
             }
         };
         fileLoader.run();
@@ -99,10 +102,12 @@ public class MarkdownPresenterImpl implements MarkdownPresenter {
         Runnable fileSaver = () -> {
             int code;
             code = file.save(filePath);
-            if (code == MarkdownFile.SUCCESS) {
-                editView.showFileSavedMessage();
-            } else {
-                editView.showFileSavedError(code);
+            if (editView != null) {
+                if (code == MarkdownFile.SUCCESS) {
+                    editView.showFileSavedMessage();
+                } else {
+                    editView.showFileSavedError(code);
+                }
             }
         };
         fileSaver.run();
@@ -173,7 +178,8 @@ public class MarkdownPresenterImpl implements MarkdownPresenter {
             }
             loadMarkdown(in);
         } catch (Exception e) {
-            editView.showFileLoadeddError(MarkdownFile.READ_ERROR);
+            if (editView != null)
+                editView.showFileLoadeddError(MarkdownFile.READ_ERROR);
         }
     }
 }
