@@ -180,7 +180,7 @@ public class MainActivity extends AppCompatActivity
         builder.setPositiveButton("OK", (dialog, which) -> {
             if (input.getText().length() > 0) {
                 presenter.setFileName(input.getText().toString());
-                setTitle(input.getText());
+                setTitle(presenter.getFileName());
                 if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
                     String path = getDocsPath() + input.getText();
                     presenter.saveMarkdown(path);
