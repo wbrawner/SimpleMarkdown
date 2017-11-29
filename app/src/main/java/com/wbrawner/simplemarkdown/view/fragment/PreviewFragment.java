@@ -71,8 +71,12 @@ public class PreviewFragment extends Fragment implements MarkdownPreviewView {
 
     @Override
     public void onDestroyView() {
-        super.onDestroyView();
+        if (markdownPreview != null) {
+            ((ViewGroup) markdownPreview.getParent()).removeView(markdownPreview);
+            markdownPreview.destroy();
+        }
         unbinder.unbind();
+        super.onDestroyView();
     }
 
     @Override
