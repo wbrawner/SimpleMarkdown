@@ -28,7 +28,7 @@ android {
         exclude 'META-INF/DEPENDENCIES'
     }
     compileSdkVersion 26
-    buildToolsVersion "26.0.1"
+    buildToolsVersion "26.0.2"
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -37,8 +37,8 @@ android {
         applicationId "com.wbrawner.simplemarkdown"
         minSdkVersion 19
         targetSdkVersion 26
-        versionCode 1
-        versionName "0.1.0"
+        versionCode 2
+        versionName "0.1.1"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
