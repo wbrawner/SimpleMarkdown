@@ -1,15 +1,11 @@
 package com.wbrawner.simplemarkdown.view.activity;
 
 import android.Manifest;
-import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
-import android.provider.OpenableColumns;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -28,6 +24,8 @@ import com.wbrawner.simplemarkdown.MarkdownApplication;
 import com.wbrawner.simplemarkdown.R;
 import com.wbrawner.simplemarkdown.presentation.MarkdownPresenter;
 import com.wbrawner.simplemarkdown.view.adapter.EditPagerAdapter;
+
+import java.io.File;
 import java.io.InputStream;
 
 import javax.inject.Inject;
@@ -38,8 +36,12 @@ import butterknife.ButterKnife;
 public class MainActivity extends AppCompatActivity
         implements ActivityCompat.OnRequestPermissionsResultCallback {
 
-    public static final int WRITE_PERMISSION_REQUEST = 0;
-    private static final int OPEN_FILE_REQUEST = 1;
+    static final int WRITE_PERMISSION_REQUEST = 0;
+    static final int OPEN_FILE_REQUEST = 1;
+    static final int SAVE_FILE_REQUEST = 2;
+    static final String EXTRA_FILE = "EXTRA_FILE";
+    static final String EXTRA_FILE_PATH = "EXTRA_FILE_PATH";
+    static final String EXTRA_REQUEST_CODE = "EXTRA_REQUEST_CODE";
     public static final String AUTHORITY = "com.wbrawner.simplemarkdown.fileprovider";
 
     @Inject
@@ -93,11 +95,11 @@ public class MainActivity extends AppCompatActivity
                         MainActivity.this,
                         Manifest.permission.WRITE_EXTERNAL_STORAGE
                 ) == PackageManager.PERMISSION_GRANTED)
-                    showSaveDialog();
+                    requestSave();
                 else {
                     if (Build.VERSION.SDK_INT >= 23) {
                         requestPermissions(
-                                new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                                 WRITE_PERMISSION_REQUEST
                         );
                     }
@@ -113,7 +115,21 @@ public class MainActivity extends AppCompatActivity
                 ));
                 break;
             case R.id.action_load:
-                requestOpen();
+                if (ContextCompat.checkSelfPermission(
+                        MainActivity.this,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE
+                ) == PackageManager.PERMISSION_GRANTED)
+                    requestOpen();
+                else {
+                    if (Build.VERSION.SDK_INT >= 23) {
+                        requestPermissions(
+                                new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                OPEN_FILE_REQUEST
+                        );
+                    }
+                }
+                break;
+            case R.id.action_new:
                 break;
             case R.id.action_help:
                 showInfoActivity(R.id.action_help);
@@ -181,10 +197,6 @@ public class MainActivity extends AppCompatActivity
             if (input.getText().length() > 0) {
                 presenter.setFileName(input.getText().toString());
                 setTitle(presenter.getFileName());
-                if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-                    String path = getDocsPath() + input.getText();
-                    presenter.saveMarkdown(path);
-                }
             }
         });
         builder.setNegativeButton("Cancel", (dialog, which) -> {
@@ -195,8 +207,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     public String getDocsPath() {
-            return Environment.getExternalStorageDirectory() + "/" +
-                    Environment.DIRECTORY_DOCUMENTS + "/";
+        return Environment.getExternalStorageDirectory() + "/" +
+                Environment.DIRECTORY_DOCUMENTS + "/";
     }
 
     @Override
@@ -214,7 +226,19 @@ public class MainActivity extends AppCompatActivity
                     Toast.makeText(MainActivity.this, R.string.no_permissions, Toast.LENGTH_SHORT)
                             .show();
                 }
-                return;
+                break;
+            }
+            case OPEN_FILE_REQUEST: {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // Permission granted, open file save dialog
+                    requestOpen();
+                } else {
+                    // Permission denied, do nothing
+                    Toast.makeText(MainActivity.this, R.string.no_permissions, Toast.LENGTH_SHORT)
+                            .show();
+                }
+                break;
             }
         }
     }
@@ -231,29 +255,44 @@ public class MainActivity extends AppCompatActivity
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
             case OPEN_FILE_REQUEST:
-                if (resultCode == RESULT_OK) {
-                    presenter.loadFromUri(MainActivity.this, data.getData());
+                if (resultCode != RESULT_OK || data == null || !data.hasExtra(EXTRA_FILE)) {
+                    break;
                 }
+
+                presenter.loadMarkdown((File) data.getSerializableExtra(EXTRA_FILE));
+                break;
+            case SAVE_FILE_REQUEST:
+                if (resultCode != RESULT_OK
+                        || data == null
+                        || !data.hasExtra(EXTRA_FILE_PATH)
+                        || data.getStringExtra(EXTRA_FILE_PATH).isEmpty()) {
+                    break;
+                }
+                String path = data.getStringExtra(EXTRA_FILE_PATH);
+                presenter.saveMarkdown(path);
+                setTitle(presenter.getFileName());
+                break;
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
 
     private void requestOpen() {
-        Intent openIntent = new Intent(Intent.ACTION_GET_CONTENT);
-        openIntent.setType("text/*");
-        openIntent.addCategory(Intent.CATEGORY_OPENABLE);
-        try {
-            startActivityForResult(
-                    Intent.createChooser(
-                            openIntent,
-                            getString(R.string.open_file)
-                    ),
-                    OPEN_FILE_REQUEST
-            );
-        } catch (ActivityNotFoundException e) {
-            Toast.makeText(MainActivity.this, R.string.no_filebrowser, Toast.LENGTH_SHORT)
-                    .show();
-        }
+        Intent intent = new Intent(MainActivity.this, ExplorerActivity.class);
+        intent.putExtra(EXTRA_REQUEST_CODE, OPEN_FILE_REQUEST);
+        startActivityForResult(
+                intent,
+                OPEN_FILE_REQUEST
+        );
+    }
+
+    private void requestSave() {
+        Intent intent = new Intent(MainActivity.this, ExplorerActivity.class);
+        intent.putExtra(EXTRA_REQUEST_CODE, SAVE_FILE_REQUEST);
+        intent.putExtra(EXTRA_FILE, presenter.getFile());
+        startActivityForResult(
+                intent,
+                SAVE_FILE_REQUEST
+        );
     }
 
     @Override

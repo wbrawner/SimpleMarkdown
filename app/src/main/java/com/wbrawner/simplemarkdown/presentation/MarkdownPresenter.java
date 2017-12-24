@@ -6,6 +6,7 @@ import android.net.Uri;
 import com.wbrawner.simplemarkdown.view.MarkdownEditView;
 import com.wbrawner.simplemarkdown.view.MarkdownPreviewView;
 
+import java.io.File;
 import java.io.InputStream;
 
 /**
@@ -13,8 +14,10 @@ import java.io.InputStream;
  */
 
 public interface MarkdownPresenter extends LifecyclePresenter {
+    File getFile();
     void loadMarkdown(String filePath);
     void loadMarkdown(InputStream in);
+    void loadMarkdown(File file);
     void loadFromUri(Context context, Uri fileUri);
     void loadTempMarkdown(InputStream in, OnTempFileLoadedListener listener);
     void setEditView(MarkdownEditView editView);
