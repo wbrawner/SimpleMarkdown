@@ -24,4 +24,9 @@
     <string name="error_write">An error occurred while writing the file</string>
     <string name="file_load_error">An error occurred while opening the file</string>
     <string name="action_libraries">Libraries</string>
+    <string name="title_activity_explorer">ExplorerActivity</string>
+    <string name="action_new">New</string>
+    <string name="action_use_sdcard">Use SD Card</string>
+    <string name="action_done">Done</string>
+    <string name="action_open">Open</string>
 </resources>
