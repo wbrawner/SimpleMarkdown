@@ -10,6 +10,7 @@ import com.wbrawner.simplemarkdown.model.MarkdownFile;
 import com.wbrawner.simplemarkdown.view.MarkdownEditView;
 import com.wbrawner.simplemarkdown.view.MarkdownPreviewView;
 
+import java.io.File;
 import java.io.InputStream;
 
 /**
@@ -41,8 +42,19 @@ public class MarkdownPresenterImpl implements MarkdownPresenter {
 
     @Override
     public void loadMarkdown(String filePath) {
+        File markdownFile = new File(filePath);
+        loadMarkdown(markdownFile);
+    }
+
+    @Override
+    public File getFile() {
+        return new File(file.getFullPath());
+    }
+
+    @Override
+    public void loadMarkdown(File file) {
         Runnable fileLoader = () -> {
-            int result = file.load(filePath);
+            int result = this.file.load(file);
             if (editView != null) {
                 if (result == MarkdownFile.SUCCESS) {
                     editView.setMarkdown(getMarkdown());
@@ -82,7 +94,6 @@ public class MarkdownPresenterImpl implements MarkdownPresenter {
             } else {
                 listener.onError(result);
             }
-            tmpFile = null;
         };
         fileLoader.run();
     }

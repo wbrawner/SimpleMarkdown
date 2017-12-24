@@ -1,10 +1,7 @@
 package com.wbrawner.simplemarkdown.model;
 
-import android.util.Log;
-
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileDescriptor;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
@@ -100,14 +97,16 @@ public class MarkdownFile {
     }
 
     public int load(String path) {
-        Log.d(TAG, path);
+        return load(new File(path));
+    }
+
+    public int load(File markdownFile) {
         int code;
-        File markdownFile = new File(path);
         if (markdownFile.exists() && markdownFile.canRead()) {
             BufferedReader reader = null;
             try {
                 this.name = markdownFile.getName();
-                this.path = markdownFile.getPath();
+                this.path = markdownFile.getParentFile().getAbsolutePath();
                 StringBuilder sb = new StringBuilder();
                 String line;
                 reader = new BufferedReader(new FileReader(markdownFile));
@@ -171,6 +170,8 @@ public class MarkdownFile {
         } else {
             code = WRITE_ERROR;
         }
+        this.name = markdownFile.getName();
+        this.path = markdownFile.getParentFile().getAbsolutePath();
         return code;
     }
 
