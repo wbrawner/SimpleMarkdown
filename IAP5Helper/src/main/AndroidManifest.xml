@@ -1,0 +1,34 @@
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.samsung.android.sdk.iap.lib"
+    android:versionCode="50000"
+    android:versionName="5.00.05">
+
+
+
+    <!--
+    <uses-permission android:name="com.samsung.android.iap.permission.BILLING"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+
+    <activity
+        android:name="com.samsung.android.sdk.iap.lib.activity.PaymentActivity"
+        android:theme="@style/Theme.Empty"
+        android:configChanges="orientation|screenSize"/>
+
+    <activity
+        android:name="com.samsung.android.sdk.iap.lib.activity.ProductActivity"
+        android:theme="@style/Theme.Empty"
+        android:configChanges="orientation|screenSize"/>
+
+    <activity
+        android:name="com.samsung.android.sdk.iap.lib.activity.OwnedProductActivity"
+        android:theme="@style/Theme.Empty"
+        android:configChanges="orientation|screenSize"/>
+
+    <activity
+        android:name="com.samsung.android.sdk.iap.lib.activity.ConsumePurchasedItemsActivity"
+        android:theme="@style/Theme.Empty"
+        android:configChanges="orientation|screenSize"/>
+    -->
+
+</manifest>
