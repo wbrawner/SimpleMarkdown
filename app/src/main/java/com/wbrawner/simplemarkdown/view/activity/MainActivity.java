@@ -259,7 +259,12 @@ public class MainActivity extends AppCompatActivity
                     break;
                 }
 
-                presenter.loadMarkdown((File) data.getSerializableExtra(EXTRA_FILE));
+                File markdownFile = (File) data.getSerializableExtra(EXTRA_FILE);
+                presenter.loadMarkdown(markdownFile);
+                String title = markdownFile.getName();
+                if (!title.isEmpty()) {
+                    setTitle(title);
+                }
                 break;
             case SAVE_FILE_REQUEST:
                 if (resultCode != RESULT_OK
