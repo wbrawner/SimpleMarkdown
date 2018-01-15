@@ -1,6 +1,8 @@
 package com.wbrawner.simplemarkdown.view.fragment;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,10 +13,10 @@ import android.widget.Toast;
 import com.jakewharton.rxbinding2.widget.RxTextView;
 import com.wbrawner.simplemarkdown.MarkdownApplication;
 import com.wbrawner.simplemarkdown.R;
+import com.wbrawner.simplemarkdown.Utils;
 import com.wbrawner.simplemarkdown.model.MarkdownFile;
 import com.wbrawner.simplemarkdown.presentation.MarkdownPresenter;
 import com.wbrawner.simplemarkdown.view.MarkdownEditView;
-import com.wbrawner.simplemarkdown.view.activity.MainActivity;
 
 import java.util.concurrent.TimeUnit;
 
@@ -50,7 +52,6 @@ public class EditFragment extends Fragment implements MarkdownEditView {
         View view = inflater.inflate(R.layout.fragment_edit, container, false);
         unbinder = ButterKnife.bind(this, view);
         ((MarkdownApplication) getActivity().getApplication()).getComponent().inject(this);
-
         Observable<String> obs = RxTextView.textChanges(markdownEditor)
                 .debounce(50, TimeUnit.MILLISECONDS).map(CharSequence::toString);
         obs.subscribeOn(Schedulers.io());
@@ -59,6 +60,13 @@ public class EditFragment extends Fragment implements MarkdownEditView {
             presenter.onMarkdownEdited(markdown);
         });
         return view;
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        presenter.setEditView(EditFragment.this);
+        presenter.loadMarkdown();
     }
 
     @Override
@@ -81,7 +89,7 @@ public class EditFragment extends Fragment implements MarkdownEditView {
 
     @Override
     public void showFileSavedMessage() {
-        String location = ((MainActivity) getActivity()).getDocsPath() + presenter.getFileName();
+        String location = Utils.getDocsPath(getActivity()) + presenter.getFileName();
         String message = getString(R.string.file_saved, location);
         Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
     }
@@ -119,5 +127,10 @@ public class EditFragment extends Fragment implements MarkdownEditView {
     public void onDestroyView() {
         super.onDestroyView();
         unbinder.unbind();
+    }
+
+    @Override
+    public String getTempFilePath() {
+        return getActivity().getFilesDir().getAbsolutePath() + "/";
     }
 }

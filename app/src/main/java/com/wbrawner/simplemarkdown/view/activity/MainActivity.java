@@ -2,10 +2,12 @@ package com.wbrawner.simplemarkdown.view.activity;
 
 import android.Manifest;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Environment;
+import android.preference.PreferenceManager;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -22,6 +24,7 @@ import android.widget.Toast;
 
 import com.wbrawner.simplemarkdown.MarkdownApplication;
 import com.wbrawner.simplemarkdown.R;
+import com.wbrawner.simplemarkdown.Utils;
 import com.wbrawner.simplemarkdown.presentation.MarkdownPresenter;
 import com.wbrawner.simplemarkdown.view.adapter.EditPagerAdapter;
 
@@ -61,6 +64,7 @@ public class MainActivity extends AppCompatActivity
 
         ((MarkdownApplication) getApplication()).getComponent().inject(this);
         ButterKnife.bind(this);
+        presenter.setRootDir(Utils.getDocsPath(this));
         pager.setAdapter(
                 new EditPagerAdapter(getSupportFragmentManager(), MainActivity.this)
         );
@@ -69,6 +73,14 @@ public class MainActivity extends AppCompatActivity
         if (getResources().getConfiguration().orientation
                 == Configuration.ORIENTATION_LANDSCAPE) {
             tabLayout.setVisibility(View.GONE);
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (Utils.isAutosaveEnabled(this)) {
+            presenter.saveMarkdown();
         }
     }
 
@@ -133,6 +145,10 @@ public class MainActivity extends AppCompatActivity
                 break;
             case R.id.action_help:
                 showInfoActivity(R.id.action_help);
+                break;
+            case R.id.action_settings:
+                Intent settingsIntent = new Intent(MainActivity.this, SettingsActivity.class);
+                startActivity(settingsIntent);
                 break;
             case R.id.action_libraries:
                 showInfoActivity(R.id.action_libraries);
@@ -204,11 +220,6 @@ public class MainActivity extends AppCompatActivity
         });
 
         builder.show();
-    }
-
-    public String getDocsPath() {
-        return Environment.getExternalStorageDirectory() + "/" +
-                Environment.DIRECTORY_DOCUMENTS + "/";
     }
 
     @Override

@@ -3,7 +3,9 @@ package com.wbrawner.simplemarkdown.presentation;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Handler;
 import android.provider.OpenableColumns;
+import android.util.Log;
 
 import com.commonsware.cwac.anddown.AndDown;
 import com.wbrawner.simplemarkdown.model.MarkdownFile;
@@ -12,10 +14,6 @@ import com.wbrawner.simplemarkdown.view.MarkdownPreviewView;
 
 import java.io.File;
 import java.io.InputStream;
-
-/**
- * Created by billy on 8/22/17.
- */
 
 public class MarkdownPresenterImpl implements MarkdownPresenter {
     private MarkdownFile file;
@@ -26,18 +24,10 @@ public class MarkdownPresenterImpl implements MarkdownPresenter {
             AndDown.HOEDOWN_EXT_STRIKETHROUGH | AndDown.HOEDOWN_EXT_TABLES |
                     AndDown.HOEDOWN_EXT_UNDERLINE | AndDown.HOEDOWN_EXT_SUPERSCRIPT |
                     AndDown.HOEDOWN_EXT_FENCED_CODE;
+    private Handler fileHandler = new Handler();
 
     public MarkdownPresenterImpl(MarkdownFile file) {
         this.file = file;
-    }
-
-    @Override
-    public void resume() {
-    }
-
-    @Override
-    public void pause() {
-        saveMarkdown("");
     }
 
     @Override
@@ -49,6 +39,22 @@ public class MarkdownPresenterImpl implements MarkdownPresenter {
     @Override
     public File getFile() {
         return new File(file.getFullPath());
+    }
+
+    @Override
+    public void loadMarkdown() {
+        Runnable fileLoader = () -> {
+            int result = this.file.load();
+            if (editView != null) {
+                if (result == MarkdownFile.SUCCESS) {
+                    editView.setMarkdown(getMarkdown());
+                    onMarkdownEdited();
+                } else {
+                    editView.showFileLoadeddError(result);
+                }
+            }
+        };
+        fileHandler.post(fileLoader);
     }
 
     @Override
@@ -64,7 +70,7 @@ public class MarkdownPresenterImpl implements MarkdownPresenter {
                 }
             }
         };
-        fileLoader.run();
+        fileHandler.post(fileLoader);
     }
 
     @Override
@@ -80,7 +86,7 @@ public class MarkdownPresenterImpl implements MarkdownPresenter {
                     editView.showFileLoadeddError(result);
             }
         };
-        fileLoader.run();
+        fileHandler.post(fileLoader);
     }
 
     @Override
@@ -95,7 +101,7 @@ public class MarkdownPresenterImpl implements MarkdownPresenter {
                 listener.onError(result);
             }
         };
-        fileLoader.run();
+        fileHandler.post(fileLoader);
     }
 
     @Override
@@ -121,7 +127,12 @@ public class MarkdownPresenterImpl implements MarkdownPresenter {
                 }
             }
         };
-        fileSaver.run();
+        fileHandler.post(fileSaver);
+    }
+
+    @Override
+    public void saveMarkdown() {
+        file.save();
     }
 
     @Override
@@ -131,7 +142,7 @@ public class MarkdownPresenterImpl implements MarkdownPresenter {
             if (previewView != null)
                 previewView.updatePreview(generateHTML());
         };
-        generateMarkdown.run();
+        fileHandler.post(generateMarkdown);
     }
 
     @Override
@@ -158,6 +169,11 @@ public class MarkdownPresenterImpl implements MarkdownPresenter {
     @Override
     public void setFileName(String name) {
         file.setName(name);
+    }
+
+    @Override
+    public void setRootDir(String path) {
+        MarkdownFile.setDefaultRootDir(path);
     }
 
     @Override
@@ -192,5 +208,13 @@ public class MarkdownPresenterImpl implements MarkdownPresenter {
             if (editView != null)
                 editView.showFileLoadeddError(MarkdownFile.READ_ERROR);
         }
+    }
+
+    @Override
+    public void loadTempFile() {
+        String tempFileName = "auto-" + getFileName();
+        String tempFilePath = editView.getTempFilePath();
+        loadMarkdown(tempFilePath + tempFileName);
+        MarkdownFile.deleteTempFile(tempFilePath + tempFileName);
     }
 }
