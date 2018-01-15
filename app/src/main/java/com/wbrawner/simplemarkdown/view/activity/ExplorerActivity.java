@@ -17,6 +17,7 @@ import android.widget.ListView;
 import android.widget.SimpleAdapter;
 
 import com.wbrawner.simplemarkdown.R;
+import com.wbrawner.simplemarkdown.Utils;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -50,9 +51,7 @@ public class ExplorerActivity extends AppCompatActivity {
             return;
         }
 
-        defaultDocsDirPath = Environment.getExternalStorageDirectory() + "/" +
-                Environment.DIRECTORY_DOCUMENTS;
-        docsDirPath = defaultDocsDirPath;
+        docsDirPath = Utils.getDocsPath(this);
 
         requestCode = intent.getIntExtra(MainActivity.EXTRA_REQUEST_CODE, -1);
         switch (requestCode) {

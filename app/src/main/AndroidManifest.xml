@@ -39,6 +39,10 @@
             </intent-filter>
         </activity>
         <activity android:name=".view.activity.MainActivity" />
+        <activity
+            android:name=".view.activity.SettingsActivity"
+            android:label="@string/title_activity_settings"
+            android:theme="@style/AppTheme" />
 
         <provider
             android:name="android.support.v4.content.FileProvider"
@@ -58,7 +62,7 @@
         <activity
             android:name=".view.activity.ExplorerActivity"
             android:label="@string/title_activity_explorer"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
     </application>
 
 </manifest>

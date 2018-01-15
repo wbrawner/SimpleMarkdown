@@ -8,14 +8,15 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
+import java.util.Locale;
 import java.util.Scanner;
 
 import static android.content.ContentValues.TAG;
 
 /**
- * Created by billy on 8/22/17.
+ * This class serves as a wrapper to manage the manage the file input and output operations, as well
+ * as to keep track of the data itself in memory.
  */
-
 public class MarkdownFile {
     public static final int SUCCESS = 0;
     public static final int FILE_EXISTS = 1;
@@ -23,6 +24,12 @@ public class MarkdownFile {
     public static final int READ_ERROR = 3;
     public static final int WRITE_ERROR = 4;
     public static final int PARAMETERS_MISSING = 5;
+
+    public static void setDefaultRootDir(String defaultRootDir) {
+        MarkdownFile.defaultRootDir = defaultRootDir;
+    }
+
+    private static String defaultRootDir = "";
     private String name;
     private String path;
     private String content;
@@ -67,10 +74,21 @@ public class MarkdownFile {
 
     public String getFullPath() {
         String fullPath;
-        if (!this.path.endsWith("/"))
+
+        if (this.path.isEmpty()) {
+            this.path = defaultRootDir;
+        }
+
+        if (this.path.endsWith(this.name)) {
+            return this.path;
+        }
+
+        if (!this.path.endsWith("/")) {
             fullPath = this.path + "/";
-        else
+        } else {
             fullPath = this.path;
+        }
+
         return fullPath + this.name;
     }
 
@@ -89,7 +107,7 @@ public class MarkdownFile {
     public int load(InputStream in) {
         StringBuilder sb = new StringBuilder();
         Scanner s = new java.util.Scanner(in).useDelimiter("\\n");
-        while(s.hasNext()) {
+        while (s.hasNext()) {
             sb.append(s.next() + "\n");
         }
         this.content = sb.toString();
@@ -101,6 +119,7 @@ public class MarkdownFile {
     }
 
     public int load(File markdownFile) {
+        System.out.println("Attempting to load file from " + markdownFile.getAbsolutePath());
         int code;
         if (markdownFile.exists() && markdownFile.canRead()) {
             BufferedReader reader = null;
@@ -114,6 +133,16 @@ public class MarkdownFile {
                     sb.append(line + "\n");
                 this.content = sb.toString();
                 code = SUCCESS;
+                System.out.println(String.format(
+                        Locale.ENGLISH,
+                        "Successfully loaded file from %s",
+                        markdownFile.getAbsolutePath()
+                ));
+                System.out.println(String.format(
+                        Locale.ENGLISH,
+                        "File contents %s",
+                        this.content
+                ));
             } catch (FileNotFoundException e) {
                 code = FILE_NOT_EXISTS;
             } catch (IOException e) {
@@ -133,12 +162,13 @@ public class MarkdownFile {
     }
 
     public int load() {
-        if (!parametersOk())
+        if (this.name.isEmpty())
             return PARAMETERS_MISSING;
         return load(getFullPath());
     }
 
     public int save(String path) {
+        System.out.println("Attempting to save file to " + path);
         int code;
         File markdownFile = new File(path);
         if (!markdownFile.exists()) {
@@ -156,8 +186,12 @@ public class MarkdownFile {
                 );
                 writer.write(this.content);
                 code = SUCCESS;
-            }
-            catch (IOException e) {
+                System.out.println(String.format(
+                        Locale.ENGLISH,
+                        "File successfully saved to %s",
+                        path
+                ));
+            } catch (IOException e) {
                 code = WRITE_ERROR;
             }
             if (writer != null) {
@@ -176,24 +210,30 @@ public class MarkdownFile {
     }
 
     public int save() {
-        if (!parametersOk())
+        if (this.name.isEmpty())
             return PARAMETERS_MISSING;
         return save(this.getFullPath());
     }
 
-    public int fileExists(String path) {
+    public static int fileExists(String path) {
         if (new File(path).exists())
             return FILE_EXISTS;
         return FILE_NOT_EXISTS;
     }
 
     public int fileExists() {
-        if (parametersOk())
+        if (!this.name.isEmpty())
             return fileExists(getFullPath());
         return PARAMETERS_MISSING;
     }
 
-    private boolean parametersOk() {
-        return !this.name.isEmpty() && !this.path.isEmpty();
+    public static void deleteTempFile(String s) {
+        File tempFile = new File(s);
+        if (tempFile.exists()) {
+            try {
+                tempFile.delete();
+            } catch (Exception e) {
+            }
+        }
     }
 }
