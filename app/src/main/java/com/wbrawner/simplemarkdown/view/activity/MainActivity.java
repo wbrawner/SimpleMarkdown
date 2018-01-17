@@ -199,29 +199,6 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    private void showSaveDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(R.string.action_save);
-
-        final EditText input = new EditText(this);
-        input.setInputType(InputType.TYPE_CLASS_TEXT);
-        input.setHint(R.string.hint_filename);
-        input.setText(presenter.getFileName());
-        builder.setView(input);
-
-        builder.setPositiveButton("OK", (dialog, which) -> {
-            if (input.getText().length() > 0) {
-                presenter.setFileName(input.getText().toString());
-                setTitle(presenter.getFileName());
-            }
-        });
-        builder.setNegativeButton("Cancel", (dialog, which) -> {
-            dialog.cancel();
-        });
-
-        builder.show();
-    }
-
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            String permissions[], int[] grantResults) {
@@ -231,7 +208,7 @@ public class MainActivity extends AppCompatActivity
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // Permission granted, open file save dialog
-                    showSaveDialog();
+                    requestSave();
                 } else {
                     // Permission denied, do nothing
                     Toast.makeText(MainActivity.this, R.string.no_permissions, Toast.LENGTH_SHORT)

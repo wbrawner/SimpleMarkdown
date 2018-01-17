@@ -175,6 +175,7 @@ public class MarkdownFile {
             try {
                 markdownFile.createNewFile();
             } catch (IOException e) {
+                e.printStackTrace();
                 return WRITE_ERROR;
             }
         }

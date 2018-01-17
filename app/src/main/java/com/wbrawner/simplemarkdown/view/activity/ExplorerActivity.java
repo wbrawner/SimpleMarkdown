@@ -31,7 +31,6 @@ public class ExplorerActivity extends AppCompatActivity {
     private ListView listView;
     private File[] mounts;
     private String docsDirPath;
-    private String defaultDocsDirPath;
     private int requestCode;
     private String filePath;
     private boolean isSave = false;
@@ -128,7 +127,7 @@ public class ExplorerActivity extends AppCompatActivity {
                 if (item.isChecked()) {
                     updateListView(mounts[1]);
                 } else {
-                    updateListView(new File(defaultDocsDirPath));
+                    updateListView(new File(docsDirPath));
                 }
         }
         return true;
