@@ -198,26 +198,4 @@ public class MarkdownFile {
             return PARAMETERS_MISSING;
         return save(this.getFullPath());
     }
-
-    public static int fileExists(String path) {
-        if (new File(path).exists())
-            return FILE_EXISTS;
-        return FILE_NOT_EXISTS;
-    }
-
-    public int fileExists() {
-        if (!this.name.isEmpty())
-            return fileExists(getFullPath());
-        return PARAMETERS_MISSING;
-    }
-
-    public static void deleteTempFile(String s) {
-        File tempFile = new File(s);
-        if (tempFile.exists()) {
-            try {
-                tempFile.delete();
-            } catch (Exception e) {
-            }
-        }
-    }
 }
