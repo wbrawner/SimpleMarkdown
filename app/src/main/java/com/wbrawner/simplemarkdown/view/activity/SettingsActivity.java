@@ -7,10 +7,6 @@ import android.view.MenuItem;
 
 import com.wbrawner.simplemarkdown.R;
 
-/**
- * Created by billy on 1/14/2018.
- */
-
 public class SettingsActivity extends AppCompatActivity {
 
     public static final String KEY_DOCS_PATH = "defaultRootDir";
