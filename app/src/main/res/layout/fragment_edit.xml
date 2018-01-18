@@ -16,5 +16,4 @@
             android:paddingRight="8dp"
             android:hint="@string/markdown_here"
             android:scrollHorizontally="false" />
-
 </LinearLayout>

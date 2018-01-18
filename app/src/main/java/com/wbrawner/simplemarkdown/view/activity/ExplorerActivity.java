@@ -17,6 +17,7 @@ import android.widget.ListView;
 import android.widget.SimpleAdapter;
 
 import com.wbrawner.simplemarkdown.R;
+import com.wbrawner.simplemarkdown.Utils;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -30,7 +31,6 @@ public class ExplorerActivity extends AppCompatActivity {
     private ListView listView;
     private File[] mounts;
     private String docsDirPath;
-    private String defaultDocsDirPath;
     private int requestCode;
     private String filePath;
     private boolean isSave = false;
@@ -50,9 +50,7 @@ public class ExplorerActivity extends AppCompatActivity {
             return;
         }
 
-        defaultDocsDirPath = Environment.getExternalStorageDirectory() + "/" +
-                Environment.DIRECTORY_DOCUMENTS;
-        docsDirPath = defaultDocsDirPath;
+        docsDirPath = Utils.getDocsPath(this);
 
         requestCode = intent.getIntExtra(MainActivity.EXTRA_REQUEST_CODE, -1);
         switch (requestCode) {
@@ -129,7 +127,7 @@ public class ExplorerActivity extends AppCompatActivity {
                 if (item.isChecked()) {
                     updateListView(mounts[1]);
                 } else {
-                    updateListView(new File(defaultDocsDirPath));
+                    updateListView(new File(docsDirPath));
                 }
         }
         return true;

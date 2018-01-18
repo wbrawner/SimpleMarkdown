@@ -2,10 +2,12 @@ package com.wbrawner.simplemarkdown.view.activity;
 
 import android.Manifest;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Environment;
+import android.preference.PreferenceManager;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -22,6 +24,7 @@ import android.widget.Toast;
 
 import com.wbrawner.simplemarkdown.MarkdownApplication;
 import com.wbrawner.simplemarkdown.R;
+import com.wbrawner.simplemarkdown.Utils;
 import com.wbrawner.simplemarkdown.presentation.MarkdownPresenter;
 import com.wbrawner.simplemarkdown.view.adapter.EditPagerAdapter;
 
@@ -61,6 +64,7 @@ public class MainActivity extends AppCompatActivity
 
         ((MarkdownApplication) getApplication()).getComponent().inject(this);
         ButterKnife.bind(this);
+        presenter.setRootDir(Utils.getDocsPath(this));
         pager.setAdapter(
                 new EditPagerAdapter(getSupportFragmentManager(), MainActivity.this)
         );
@@ -69,6 +73,14 @@ public class MainActivity extends AppCompatActivity
         if (getResources().getConfiguration().orientation
                 == Configuration.ORIENTATION_LANDSCAPE) {
             tabLayout.setVisibility(View.GONE);
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (Utils.isAutosaveEnabled(this)) {
+            presenter.saveMarkdown();
         }
     }
 
@@ -134,6 +146,10 @@ public class MainActivity extends AppCompatActivity
             case R.id.action_help:
                 showInfoActivity(R.id.action_help);
                 break;
+            case R.id.action_settings:
+                Intent settingsIntent = new Intent(MainActivity.this, SettingsActivity.class);
+                startActivity(settingsIntent);
+                break;
             case R.id.action_libraries:
                 showInfoActivity(R.id.action_libraries);
                 break;
@@ -183,34 +199,6 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    private void showSaveDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(R.string.action_save);
-
-        final EditText input = new EditText(this);
-        input.setInputType(InputType.TYPE_CLASS_TEXT);
-        input.setHint(R.string.hint_filename);
-        input.setText(presenter.getFileName());
-        builder.setView(input);
-
-        builder.setPositiveButton("OK", (dialog, which) -> {
-            if (input.getText().length() > 0) {
-                presenter.setFileName(input.getText().toString());
-                setTitle(presenter.getFileName());
-            }
-        });
-        builder.setNegativeButton("Cancel", (dialog, which) -> {
-            dialog.cancel();
-        });
-
-        builder.show();
-    }
-
-    public String getDocsPath() {
-        return Environment.getExternalStorageDirectory() + "/" +
-                Environment.DIRECTORY_DOCUMENTS + "/";
-    }
-
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            String permissions[], int[] grantResults) {
@@ -220,7 +208,7 @@ public class MainActivity extends AppCompatActivity
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // Permission granted, open file save dialog
-                    showSaveDialog();
+                    requestSave();
                 } else {
                     // Permission denied, do nothing
                     Toast.makeText(MainActivity.this, R.string.no_permissions, Toast.LENGTH_SHORT)

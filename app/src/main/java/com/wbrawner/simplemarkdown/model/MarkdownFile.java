@@ -8,14 +8,15 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
+import java.util.Locale;
 import java.util.Scanner;
 
 import static android.content.ContentValues.TAG;
 
 /**
- * Created by billy on 8/22/17.
+ * This class serves as a wrapper to manage the manage the file input and output operations, as well
+ * as to keep track of the data itself in memory.
  */
-
 public class MarkdownFile {
     public static final int SUCCESS = 0;
     public static final int FILE_EXISTS = 1;
@@ -23,6 +24,12 @@ public class MarkdownFile {
     public static final int READ_ERROR = 3;
     public static final int WRITE_ERROR = 4;
     public static final int PARAMETERS_MISSING = 5;
+
+    public static void setDefaultRootDir(String defaultRootDir) {
+        MarkdownFile.defaultRootDir = defaultRootDir;
+    }
+
+    private static String defaultRootDir = "";
     private String name;
     private String path;
     private String content;
@@ -67,10 +74,21 @@ public class MarkdownFile {
 
     public String getFullPath() {
         String fullPath;
-        if (!this.path.endsWith("/"))
+
+        if (this.path.isEmpty()) {
+            this.path = defaultRootDir;
+        }
+
+        if (this.path.endsWith(this.name)) {
+            return this.path;
+        }
+
+        if (!this.path.endsWith("/")) {
             fullPath = this.path + "/";
-        else
+        } else {
             fullPath = this.path;
+        }
+
         return fullPath + this.name;
     }
 
@@ -89,7 +107,7 @@ public class MarkdownFile {
     public int load(InputStream in) {
         StringBuilder sb = new StringBuilder();
         Scanner s = new java.util.Scanner(in).useDelimiter("\\n");
-        while(s.hasNext()) {
+        while (s.hasNext()) {
             sb.append(s.next() + "\n");
         }
         this.content = sb.toString();
@@ -133,7 +151,7 @@ public class MarkdownFile {
     }
 
     public int load() {
-        if (!parametersOk())
+        if (this.name.isEmpty())
             return PARAMETERS_MISSING;
         return load(getFullPath());
     }
@@ -145,6 +163,7 @@ public class MarkdownFile {
             try {
                 markdownFile.createNewFile();
             } catch (IOException e) {
+                e.printStackTrace();
                 return WRITE_ERROR;
             }
         }
@@ -156,8 +175,7 @@ public class MarkdownFile {
                 );
                 writer.write(this.content);
                 code = SUCCESS;
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 code = WRITE_ERROR;
             }
             if (writer != null) {
@@ -176,24 +194,8 @@ public class MarkdownFile {
     }
 
     public int save() {
-        if (!parametersOk())
+        if (this.name.isEmpty())
             return PARAMETERS_MISSING;
         return save(this.getFullPath());
-    }
-
-    public int fileExists(String path) {
-        if (new File(path).exists())
-            return FILE_EXISTS;
-        return FILE_NOT_EXISTS;
-    }
-
-    public int fileExists() {
-        if (parametersOk())
-            return fileExists(getFullPath());
-        return PARAMETERS_MISSING;
-    }
-
-    private boolean parametersOk() {
-        return !this.name.isEmpty() && !this.path.isEmpty();
     }
 }
