@@ -27,7 +27,6 @@
     <string name="action_use_sdcard">Use SD Card</string>
     <string name="action_done">Done</string>
     <string name="action_open">Open</string>
-    <string name="recover_file">An autosaved version of this file was found. Would you like to recover it?</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="title_activity_settings">Settings</string>
