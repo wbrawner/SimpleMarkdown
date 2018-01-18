@@ -119,7 +119,6 @@ public class MarkdownFile {
     }
 
     public int load(File markdownFile) {
-        System.out.println("Attempting to load file from " + markdownFile.getAbsolutePath());
         int code;
         if (markdownFile.exists() && markdownFile.canRead()) {
             BufferedReader reader = null;
@@ -133,16 +132,6 @@ public class MarkdownFile {
                     sb.append(line + "\n");
                 this.content = sb.toString();
                 code = SUCCESS;
-                System.out.println(String.format(
-                        Locale.ENGLISH,
-                        "Successfully loaded file from %s",
-                        markdownFile.getAbsolutePath()
-                ));
-                System.out.println(String.format(
-                        Locale.ENGLISH,
-                        "File contents %s",
-                        this.content
-                ));
             } catch (FileNotFoundException e) {
                 code = FILE_NOT_EXISTS;
             } catch (IOException e) {
@@ -168,7 +157,6 @@ public class MarkdownFile {
     }
 
     public int save(String path) {
-        System.out.println("Attempting to save file to " + path);
         int code;
         File markdownFile = new File(path);
         if (!markdownFile.exists()) {
@@ -187,11 +175,6 @@ public class MarkdownFile {
                 );
                 writer.write(this.content);
                 code = SUCCESS;
-                System.out.println(String.format(
-                        Locale.ENGLISH,
-                        "File successfully saved to %s",
-                        path
-                ));
             } catch (IOException e) {
                 code = WRITE_ERROR;
             }
