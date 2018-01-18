@@ -34,7 +34,6 @@ public interface MarkdownPresenter {
     String generateHTML(String markdown);
     String getMarkdown();
     void setMarkdown(String markdown);
-    void loadTempFile();
 
     public abstract class OnTempFileLoadedListener {
         public abstract void onSuccess(String markdown);
