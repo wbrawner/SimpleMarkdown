@@ -12,6 +12,4 @@ public interface MarkdownEditView {
     void showFileSavedError(int code);
     void showFileLoadedMessage();
     void showFileLoadeddError(int code);
-
-    String getTempFilePath();
 }

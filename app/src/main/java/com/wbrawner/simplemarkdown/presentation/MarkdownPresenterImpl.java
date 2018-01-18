@@ -209,12 +209,4 @@ public class MarkdownPresenterImpl implements MarkdownPresenter {
                 editView.showFileLoadeddError(MarkdownFile.READ_ERROR);
         }
     }
-
-    @Override
-    public void loadTempFile() {
-        String tempFileName = "auto-" + getFileName();
-        String tempFilePath = editView.getTempFilePath();
-        loadMarkdown(tempFilePath + tempFileName);
-        MarkdownFile.deleteTempFile(tempFilePath + tempFileName);
-    }
 }

@@ -128,9 +128,4 @@ public class EditFragment extends Fragment implements MarkdownEditView {
         super.onDestroyView();
         unbinder.unbind();
     }
-
-    @Override
-    public String getTempFilePath() {
-        return getActivity().getFilesDir().getAbsolutePath() + "/";
-    }
 }
