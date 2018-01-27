@@ -18,7 +18,6 @@
         app:showAsAction="never" />
     <item
         android:id="@+id/action_new"
-        android:visible="false"
         android:orderInCategory="150"
         android:title="@string/action_new"
         app:showAsAction="never" />

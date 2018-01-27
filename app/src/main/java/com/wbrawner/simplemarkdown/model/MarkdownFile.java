@@ -36,6 +36,9 @@ public class MarkdownFile {
 
     public MarkdownFile(String name, String path, String content) {
         this.name = name;
+        if (path == null || path.isEmpty()) {
+            path = defaultRootDir;
+        }
         this.path = path;
         this.content = content;
     }
@@ -125,6 +128,7 @@ public class MarkdownFile {
             try {
                 this.name = markdownFile.getName();
                 this.path = markdownFile.getParentFile().getAbsolutePath();
+
                 StringBuilder sb = new StringBuilder();
                 String line;
                 reader = new BufferedReader(new FileReader(markdownFile));
@@ -158,6 +162,10 @@ public class MarkdownFile {
 
     public int save(String path) {
         int code;
+        if (path == null) {
+            path = this.getFullPath();
+        }
+
         File markdownFile = new File(path);
         if (!markdownFile.exists()) {
             try {
@@ -191,11 +199,5 @@ public class MarkdownFile {
         this.name = markdownFile.getName();
         this.path = markdownFile.getParentFile().getAbsolutePath();
         return code;
-    }
-
-    public int save() {
-        if (this.name.isEmpty())
-            return PARAMETERS_MISSING;
-        return save(this.getFullPath());
     }
 }
