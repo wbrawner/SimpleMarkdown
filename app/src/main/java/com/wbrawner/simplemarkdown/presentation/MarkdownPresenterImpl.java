@@ -63,6 +63,7 @@ public class MarkdownPresenterImpl implements MarkdownPresenter {
             int result = this.file.load(file);
             if (editView != null) {
                 if (result == MarkdownFile.SUCCESS) {
+                    editView.setTitle(this.file.getName());
                     editView.setMarkdown(getMarkdown());
                     onMarkdownEdited();
                 } else {
@@ -105,6 +106,16 @@ public class MarkdownPresenterImpl implements MarkdownPresenter {
     }
 
     @Override
+    public void newFile(String newName) {
+        if (this.editView != null) {
+            this.file.setContent(this.editView.getMarkdown());
+            this.editView.setTitle(newName);
+            this.editView.setMarkdown("");
+        }
+        this.file = new MarkdownFile(newName, "", "");
+    }
+
+    @Override
     public void setEditView(MarkdownEditView editView) {
         this.editView = editView;
     }
@@ -115,10 +126,15 @@ public class MarkdownPresenterImpl implements MarkdownPresenter {
     }
 
     @Override
-    public void saveMarkdown(String filePath) {
+    public void saveMarkdown(MarkdownSavedListener listener, String filePath) {
         Runnable fileSaver = () -> {
             int code;
             code = file.save(filePath);
+
+            if (listener != null) {
+                listener.saveComplete();
+            }
+
             if (editView != null) {
                 if (code == MarkdownFile.SUCCESS) {
                     editView.showFileSavedMessage();
@@ -128,11 +144,6 @@ public class MarkdownPresenterImpl implements MarkdownPresenter {
             }
         };
         fileHandler.post(fileSaver);
-    }
-
-    @Override
-    public void saveMarkdown() {
-        file.save();
     }
 
     @Override
