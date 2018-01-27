@@ -88,6 +88,11 @@ public class EditFragment extends Fragment implements MarkdownEditView {
     }
 
     @Override
+    public void setTitle(String title) {
+        getActivity().setTitle(title);
+    }
+
+    @Override
     public void showFileSavedMessage() {
         String location = Utils.getDocsPath(getActivity()) + presenter.getFileName();
         String message = getString(R.string.file_saved, location);

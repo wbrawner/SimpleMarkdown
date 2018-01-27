@@ -2,24 +2,18 @@ package com.wbrawner.simplemarkdown.view.activity;
 
 import android.Manifest;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.Build;
-import android.os.Environment;
-import android.preference.PreferenceManager;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.text.InputType;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.Toast;
 
 import com.wbrawner.simplemarkdown.MarkdownApplication;
@@ -56,6 +50,7 @@ public class MainActivity extends AppCompatActivity
     TabLayout tabLayout;
 
     private static final String TAG = MainActivity.class.getSimpleName();
+    private NewFileHandler newFileHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,13 +69,14 @@ public class MainActivity extends AppCompatActivity
                 == Configuration.ORIENTATION_LANDSCAPE) {
             tabLayout.setVisibility(View.GONE);
         }
+        newFileHandler = new NewFileHandler();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         if (Utils.isAutosaveEnabled(this)) {
-            presenter.saveMarkdown();
+            presenter.saveMarkdown(null, null);
         }
     }
 
@@ -142,6 +138,7 @@ public class MainActivity extends AppCompatActivity
                 }
                 break;
             case R.id.action_new:
+                presenter.saveMarkdown(newFileHandler, null);
                 break;
             case R.id.action_help:
                 showInfoActivity(R.id.action_help);
@@ -262,7 +259,7 @@ public class MainActivity extends AppCompatActivity
                     break;
                 }
                 String path = data.getStringExtra(EXTRA_FILE_PATH);
-                presenter.saveMarkdown(path);
+                presenter.saveMarkdown(null, path);
                 setTitle(presenter.getFileName());
                 break;
         }
@@ -292,5 +289,13 @@ public class MainActivity extends AppCompatActivity
     protected void onResume() {
         super.onResume();
         setTitle(presenter.getFileName());
+    }
+
+    private class NewFileHandler implements MarkdownPresenter.MarkdownSavedListener {
+        @Override
+        public void saveComplete() {
+            String newFile = Utils.getDefaultFileName(MainActivity.this);
+            presenter.newFile(newFile);
+        }
     }
 }

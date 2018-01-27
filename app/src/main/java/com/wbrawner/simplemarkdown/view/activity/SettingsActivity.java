@@ -9,6 +9,7 @@ import com.wbrawner.simplemarkdown.R;
 
 public class SettingsActivity extends AppCompatActivity {
 
+    public static final String KEY_AUTOSAVE = "autosave";
     public static final String KEY_DOCS_PATH = "defaultRootDir";
 
     @Override
