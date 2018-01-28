@@ -2,38 +2,38 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:title="@string/action_share"
         android:id="@+id/action_share"
         android:icon="@drawable/ic_action_share"
+        android:title="@string/action_share"
         app:showAsAction="ifRoom" />
     <item
-        android:title="@string/action_save"
         android:id="@+id/action_save"
         android:icon="@drawable/ic_action_save"
+        android:title="@string/action_save"
         app:showAsAction="never" />
     <item
         android:id="@+id/action_load"
-        android:orderInCategory="100"
         android:title="@string/action_open"
         app:showAsAction="never" />
     <item
         android:id="@+id/action_new"
-        android:orderInCategory="150"
         android:title="@string/action_new"
         app:showAsAction="never" />
     <item
+        android:id="@+id/action_lock_swipe"
+        android:checkable="true"
+        android:title="@string/action_lock_swipe"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/action_settings"
-        android:orderInCategory="200"
         android:title="@string/action_settings"
         app:showAsAction="never" />
     <item
         android:id="@+id/action_help"
-        android:orderInCategory="200"
         android:title="@string/action_help"
         app:showAsAction="never" />
     <item
         android:id="@+id/action_libraries"
-        android:orderInCategory="300"
         android:title="@string/action_libraries"
         app:showAsAction="never" />
 </menu>

@@ -4,10 +4,6 @@ import android.app.Application;
 import com.crashlytics.android.Crashlytics;
 import io.fabric.sdk.android.Fabric;
 
-/**
- * Created by billy on 8/22/17.
- */
-
 public class MarkdownApplication extends Application {
 
     private AppComponent component;

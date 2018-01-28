@@ -1,6 +1,8 @@
 package com.wbrawner.simplemarkdown.view.fragment;
 
+import android.app.Activity;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -22,32 +24,39 @@ import butterknife.Unbinder;
 
 public class PreviewFragment extends Fragment implements MarkdownPreviewView {
     private static final String TAG = PreviewFragment.class.getSimpleName();
-    private Unbinder unbinder;
-
+    public static String style = "<style>" +
+            "pre {overflow:scroll; padding:15px; background: #F1F1F1;}" +
+            "</style>";
     @Inject
     MarkdownPresenter presenter;
-
     @BindView(R.id.markdown_view)
     WebView markdownPreview;
+    private Unbinder unbinder;
 
     public PreviewFragment() {
         // Required empty public constructor
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(
+            @NonNull LayoutInflater inflater,
+            ViewGroup container,
+            Bundle savedInstanceState
+    ) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_preview, container, false);
         unbinder = ButterKnife.bind(this, view);
-        ((MarkdownApplication) getActivity().getApplication()).getComponent().inject(this);
+        Activity activity = getActivity();
+        if (activity != null) {
+            ((MarkdownApplication) activity.getApplication()).getComponent().inject(this);
+        }
         if (BuildConfig.DEBUG)
             WebView.setWebContentsDebuggingEnabled(true);
         return view;
     }
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
     }
 
@@ -56,9 +65,13 @@ public class PreviewFragment extends Fragment implements MarkdownPreviewView {
     @Override
     public void updatePreview(String html) {
         if (markdownPreview != null) {
-            markdownPreview.post(() -> {
-                markdownPreview.loadDataWithBaseURL(null, html, "text/html", "UTF-8", null);
-            });
+            markdownPreview.post(() -> markdownPreview.loadDataWithBaseURL(
+                    null,
+                    style + html,
+                    "text/html",
+                    "UTF-8",
+                    null
+            ));
         }
     }
 
