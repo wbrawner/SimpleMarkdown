@@ -3,12 +3,13 @@ package com.wbrawner.simplemarkdown.view.activity;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.AssetManager;
 import android.content.res.Configuration;
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -20,6 +21,7 @@ import com.wbrawner.simplemarkdown.MarkdownApplication;
 import com.wbrawner.simplemarkdown.R;
 import com.wbrawner.simplemarkdown.Utils;
 import com.wbrawner.simplemarkdown.presentation.MarkdownPresenter;
+import com.wbrawner.simplemarkdown.view.DisableableViewPager;
 import com.wbrawner.simplemarkdown.view.adapter.EditPagerAdapter;
 
 import java.io.File;
@@ -39,17 +41,15 @@ public class MainActivity extends AppCompatActivity
     static final String EXTRA_FILE = "EXTRA_FILE";
     static final String EXTRA_FILE_PATH = "EXTRA_FILE_PATH";
     static final String EXTRA_REQUEST_CODE = "EXTRA_REQUEST_CODE";
-    public static final String AUTHORITY = "com.wbrawner.simplemarkdown.fileprovider";
 
     @Inject
     MarkdownPresenter presenter;
 
     @BindView(R.id.pager)
-    ViewPager pager;
+    DisableableViewPager pager;
     @BindView(R.id.layout_tab)
     TabLayout tabLayout;
 
-    private static final String TAG = MainActivity.class.getSimpleName();
     private NewFileHandler newFileHandler;
 
     @Override
@@ -140,6 +140,10 @@ public class MainActivity extends AppCompatActivity
             case R.id.action_new:
                 presenter.saveMarkdown(newFileHandler, null);
                 break;
+            case R.id.action_lock_swipe:
+                item.setChecked(!item.isChecked());
+                pager.setSwipeLocked(item.isChecked());
+                break;
             case R.id.action_help:
                 showInfoActivity(R.id.action_help);
                 break;
@@ -171,8 +175,11 @@ public class MainActivity extends AppCompatActivity
         infoIntent.putExtra("title", title);
         InputStream in = null;
         try {
-            in = getAssets().open(fileName);
-            presenter.loadTempMarkdown(in, new MarkdownPresenter.OnTempFileLoadedListener() {
+            AssetManager assetManager = getAssets();
+            if (assetManager != null) {
+                in = assetManager.open(fileName);
+            }
+            presenter.loadMarkdown(in, new MarkdownPresenter.OnTempFileLoadedListener() {
                 @Override
                 public void onSuccess(String html) {
                     infoIntent.putExtra("html", html);
@@ -180,7 +187,7 @@ public class MainActivity extends AppCompatActivity
                 }
 
                 @Override
-                public void onError(int code) {
+                public void onError() {
                     Toast.makeText(MainActivity.this, R.string.file_load_error, Toast.LENGTH_SHORT)
                             .show();
                 }
@@ -188,17 +195,14 @@ public class MainActivity extends AppCompatActivity
         } catch (Exception e) {
             Toast.makeText(MainActivity.this, R.string.file_load_error, Toast.LENGTH_SHORT).show();
         }
-        if (in != null) {
-            try {
-                in.close();
-            } catch (Exception e) {
-            }
-        }
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
+    public void onRequestPermissionsResult(
+            int requestCode,
+            @NonNull String permissions[],
+            @NonNull int[] grantResults
+    ) {
         switch (requestCode) {
             case WRITE_PERMISSION_REQUEST: {
                 // If request is cancelled, the result arrays are empty.
@@ -293,9 +297,17 @@ public class MainActivity extends AppCompatActivity
 
     private class NewFileHandler implements MarkdownPresenter.MarkdownSavedListener {
         @Override
-        public void saveComplete() {
-            String newFile = Utils.getDefaultFileName(MainActivity.this);
-            presenter.newFile(newFile);
+        public void saveComplete(boolean success) {
+            if (success) {
+                String newFile = Utils.getDefaultFileName(MainActivity.this);
+                presenter.newFile(newFile);
+            } else {
+                Toast.makeText(
+                        MainActivity.this,
+                        R.string.file_save_error,
+                        Toast.LENGTH_SHORT
+                ).show();
+            }
         }
     }
 }

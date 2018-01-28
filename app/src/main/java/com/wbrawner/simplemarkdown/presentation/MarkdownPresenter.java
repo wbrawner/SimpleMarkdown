@@ -16,7 +16,8 @@ public interface MarkdownPresenter {
     void loadMarkdown(InputStream in);
     void loadMarkdown(File file);
     void loadFromUri(Context context, Uri fileUri);
-    void loadTempMarkdown(InputStream in, OnTempFileLoadedListener listener);
+
+    void loadMarkdown(InputStream in, OnTempFileLoadedListener listener);
     void newFile(String path);
     void setEditView(MarkdownEditView editView);
     void setPreviewView(MarkdownPreviewView previewView);
@@ -31,12 +32,13 @@ public interface MarkdownPresenter {
     String getMarkdown();
     void setMarkdown(String markdown);
 
-    abstract class OnTempFileLoadedListener {
-        public abstract void onSuccess(String markdown);
-        public abstract void onError(int code);
+    interface OnTempFileLoadedListener {
+        void onSuccess(String markdown);
+
+        void onError();
     }
 
     interface MarkdownSavedListener {
-        void saveComplete();
+        void saveComplete(boolean success);
     }
 }

@@ -7,8 +7,10 @@ import android.preference.PreferenceManager;
 
 import com.wbrawner.simplemarkdown.view.activity.SettingsActivity;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.FilenameFilter;
+import java.io.IOException;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -75,4 +77,13 @@ public class Utils {
         );
     }
 
+    public static void closeQuietly(Closeable closeable) {
+        if (closeable != null) {
+            try {
+                closeable.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }

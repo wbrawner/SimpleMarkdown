@@ -1,11 +1,13 @@
 package com.wbrawner.simplemarkdown.view;
 
+import java.io.File;
+
 public interface MarkdownEditView {
     String getMarkdown();
     void setMarkdown(String markdown);
     void setTitle(String title);
-    void showFileSavedMessage();
-    void showFileSavedError(int code);
-    void showFileLoadedMessage();
-    void showFileLoadeddError(int code);
+
+    void onFileSaved(boolean success);
+
+    void onFileLoaded(boolean success);
 }

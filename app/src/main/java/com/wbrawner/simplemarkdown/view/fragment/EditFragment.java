@@ -1,7 +1,8 @@
 package com.wbrawner.simplemarkdown.view.fragment;
 
-import android.app.AlertDialog;
+import android.app.Activity;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -14,7 +15,6 @@ import com.jakewharton.rxbinding2.widget.RxTextView;
 import com.wbrawner.simplemarkdown.MarkdownApplication;
 import com.wbrawner.simplemarkdown.R;
 import com.wbrawner.simplemarkdown.Utils;
-import com.wbrawner.simplemarkdown.model.MarkdownFile;
 import com.wbrawner.simplemarkdown.presentation.MarkdownPresenter;
 import com.wbrawner.simplemarkdown.view.MarkdownEditView;
 
@@ -30,40 +30,36 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
 public class EditFragment extends Fragment implements MarkdownEditView {
-    public static final String SAVE_ACTION = "com.wbrawner.simplemarkdown.ACTION_SAVE";
-    public static final String LOAD_ACTION = "com.wbrawner.simplemarkdown.ACTION_LOAD";
-    private String TAG = EditFragment.class.getSimpleName();
-    private Unbinder unbinder;
-
     @Inject
     MarkdownPresenter presenter;
-
     @BindView(R.id.markdown_edit)
     EditText markdownEditor;
+    private Unbinder unbinder;
 
     public EditFragment() {
         // Required empty public constructor
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_edit, container, false);
         unbinder = ButterKnife.bind(this, view);
-        ((MarkdownApplication) getActivity().getApplication()).getComponent().inject(this);
+        Activity activity = getActivity();
+        if (activity != null) {
+            ((MarkdownApplication) activity.getApplication()).getComponent().inject(this);
+        }
         Observable<String> obs = RxTextView.textChanges(markdownEditor)
                 .debounce(50, TimeUnit.MILLISECONDS).map(CharSequence::toString);
         obs.subscribeOn(Schedulers.io());
         obs.observeOn(AndroidSchedulers.mainThread());
-        obs.subscribe(markdown -> {
-            presenter.onMarkdownEdited(markdown);
-        });
+        obs.subscribe(markdown -> presenter.onMarkdownEdited(markdown));
         return view;
     }
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         presenter.setEditView(EditFragment.this);
         presenter.loadMarkdown();
@@ -88,44 +84,34 @@ public class EditFragment extends Fragment implements MarkdownEditView {
     }
 
     @Override
+    public void setMarkdown(String markdown) {
+        markdownEditor.setText(markdown);
+    }
+
+    @Override
     public void setTitle(String title) {
-        getActivity().setTitle(title);
+        Activity activity = getActivity();
+        if (activity != null) {
+            activity.setTitle(title);
+        }
     }
 
     @Override
-    public void showFileSavedMessage() {
+    public void onFileSaved(boolean success) {
         String location = Utils.getDocsPath(getActivity()) + presenter.getFileName();
-        String message = getString(R.string.file_saved, location);
-        Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public void showFileSavedError(int code) {
-        String message = "";
-        switch (code) {
-            case MarkdownFile.WRITE_ERROR:
-                message = getString(R.string.error_write);
-                break;
-            default:
-                message = getString(R.string.file_save_error);
+        String message;
+        if (success) {
+            message = getString(R.string.file_saved, location);
+        } else {
+            message = getString(R.string.file_save_error);
         }
         Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
     }
 
     @Override
-    public void showFileLoadedMessage() {
-        Toast.makeText(getActivity(), R.string.file_loaded, Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public void showFileLoadeddError(int code) {
-        String message = "";
+    public void onFileLoaded(boolean success) {
+        int message = success ? R.string.file_loaded : R.string.file_load_error;
         Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public void setMarkdown(String markdown) {
-        markdownEditor.setText(markdown);
     }
 
     @Override

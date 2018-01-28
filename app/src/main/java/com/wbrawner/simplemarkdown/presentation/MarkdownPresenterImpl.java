@@ -5,25 +5,22 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Handler;
 import android.provider.OpenableColumns;
-import android.util.Log;
 
 import com.commonsware.cwac.anddown.AndDown;
+import com.wbrawner.simplemarkdown.Utils;
 import com.wbrawner.simplemarkdown.model.MarkdownFile;
 import com.wbrawner.simplemarkdown.view.MarkdownEditView;
 import com.wbrawner.simplemarkdown.view.MarkdownPreviewView;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 
 public class MarkdownPresenterImpl implements MarkdownPresenter {
     private MarkdownFile file;
     private MarkdownEditView editView;
     private MarkdownPreviewView previewView;
-    private String TAG = MarkdownPresenterImpl.class.getSimpleName();
-    private int HOEDOWN_FLAGS =
-            AndDown.HOEDOWN_EXT_STRIKETHROUGH | AndDown.HOEDOWN_EXT_TABLES |
-                    AndDown.HOEDOWN_EXT_UNDERLINE | AndDown.HOEDOWN_EXT_SUPERSCRIPT |
-                    AndDown.HOEDOWN_EXT_FENCED_CODE;
     private Handler fileHandler = new Handler();
 
     public MarkdownPresenterImpl(MarkdownFile file) {
@@ -44,14 +41,12 @@ public class MarkdownPresenterImpl implements MarkdownPresenter {
     @Override
     public void loadMarkdown() {
         Runnable fileLoader = () -> {
-            int result = this.file.load();
+            boolean result = this.file.load();
+
             if (editView != null) {
-                if (result == MarkdownFile.SUCCESS) {
-                    editView.setMarkdown(getMarkdown());
-                    onMarkdownEdited();
-                } else {
-                    editView.showFileLoadeddError(result);
-                }
+                editView.onFileLoaded(result);
+                editView.setMarkdown(getMarkdown());
+                onMarkdownEdited();
             }
         };
         fileHandler.post(fileLoader);
@@ -59,47 +54,36 @@ public class MarkdownPresenterImpl implements MarkdownPresenter {
 
     @Override
     public void loadMarkdown(File file) {
-        Runnable fileLoader = () -> {
-            int result = this.file.load(file);
-            if (editView != null) {
-                if (result == MarkdownFile.SUCCESS) {
-                    editView.setTitle(this.file.getName());
-                    editView.setMarkdown(getMarkdown());
-                    onMarkdownEdited();
-                } else {
-                    editView.showFileLoadeddError(result);
-                }
-            }
-        };
-        fileHandler.post(fileLoader);
+        InputStream in = null;
+        try {
+            in = new FileInputStream(file);
+            loadMarkdown(in);
+        } catch (FileNotFoundException e) {
+            System.err.println(e.getLocalizedMessage());
+            e.printStackTrace();
+        } finally {
+            Utils.closeQuietly(in);
+        }
     }
 
     @Override
     public void loadMarkdown(InputStream in) {
-        Runnable fileLoader = () -> {
-            int result = file.load(in);
-            if (result == MarkdownFile.SUCCESS) {
-                if (editView != null)
-                    editView.setMarkdown(getMarkdown());
-                onMarkdownEdited();
-            } else {
-                if (editView != null)
-                    editView.showFileLoadeddError(result);
-            }
-        };
-        fileHandler.post(fileLoader);
+        this.loadMarkdown(in, null);
     }
 
     @Override
-    public void loadTempMarkdown(InputStream in, OnTempFileLoadedListener listener) {
+    public void loadMarkdown(final InputStream in, final OnTempFileLoadedListener listener) {
         Runnable fileLoader = () -> {
             MarkdownFile tmpFile = new MarkdownFile();
-            int result = tmpFile.load(in);
-            if (result == MarkdownFile.SUCCESS) {
+            if (tmpFile.load(in)) {
                 String html = generateHTML(tmpFile.getContent());
-                listener.onSuccess(html);
+                if (listener != null) {
+                    listener.onSuccess(html);
+                }
             } else {
-                listener.onError(result);
+                if (listener != null) {
+                    listener.onError();
+                }
             }
         };
         fileHandler.post(fileLoader);
@@ -128,19 +112,12 @@ public class MarkdownPresenterImpl implements MarkdownPresenter {
     @Override
     public void saveMarkdown(MarkdownSavedListener listener, String filePath) {
         Runnable fileSaver = () -> {
-            int code;
-            code = file.save(filePath);
-
+            boolean result = file.save(filePath);
             if (listener != null) {
-                listener.saveComplete();
+                listener.saveComplete(result);
             }
-
             if (editView != null) {
-                if (code == MarkdownFile.SUCCESS) {
-                    editView.showFileSavedMessage();
-                } else {
-                    editView.showFileSavedError(code);
-                }
+                editView.onFileSaved(result);
             }
         };
         fileHandler.post(fileSaver);
@@ -164,6 +141,9 @@ public class MarkdownPresenterImpl implements MarkdownPresenter {
     @Override
     public String generateHTML(String markdown) {
         AndDown andDown = new AndDown();
+        int HOEDOWN_FLAGS = AndDown.HOEDOWN_EXT_STRIKETHROUGH | AndDown.HOEDOWN_EXT_TABLES |
+                AndDown.HOEDOWN_EXT_UNDERLINE | AndDown.HOEDOWN_EXT_SUPERSCRIPT |
+                AndDown.HOEDOWN_EXT_FENCED_CODE;
         return andDown.markdownToHtml(markdown, HOEDOWN_FLAGS, 0);
     }
 
@@ -210,14 +190,16 @@ public class MarkdownPresenterImpl implements MarkdownPresenter {
                             .getColumnIndex(OpenableColumns.DISPLAY_NAME);
                     retCur.moveToFirst();
                     setFileName(retCur.getString(nameIndex));
+                    retCur.close();
                 }
             } else if (fileUri.getScheme().equals("file")) {
                 setFileName(fileUri.getLastPathSegment());
             }
             loadMarkdown(in);
         } catch (Exception e) {
-            if (editView != null)
-                editView.showFileLoadeddError(MarkdownFile.READ_ERROR);
+            if (editView != null) {
+                editView.onFileLoaded(false);
+            }
         }
     }
 }
