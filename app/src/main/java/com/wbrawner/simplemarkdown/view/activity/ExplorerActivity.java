@@ -1,11 +1,10 @@
 package com.wbrawner.simplemarkdown.view.activity;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -26,17 +25,18 @@ import java.util.List;
 import java.util.Locale;
 import java.util.TreeSet;
 
+import io.reactivex.annotations.BackpressureSupport;
+
 public class ExplorerActivity extends AppCompatActivity {
     private Handler fileHandler = new Handler();
     private ListView listView;
     private File[] mounts;
     private String docsDirPath;
-    private int requestCode;
     private String filePath;
     private boolean isSave = false;
     private EditText fileName;
-    private Button saveButton;
 
+    @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,7 +52,7 @@ public class ExplorerActivity extends AppCompatActivity {
 
         docsDirPath = Utils.getDocsPath(this);
 
-        requestCode = intent.getIntExtra(MainActivity.EXTRA_REQUEST_CODE, -1);
+        int requestCode = intent.getIntExtra(MainActivity.EXTRA_REQUEST_CODE, -1);
         switch (requestCode) {
             case MainActivity.OPEN_FILE_REQUEST:
                 break;
@@ -69,7 +69,7 @@ public class ExplorerActivity extends AppCompatActivity {
                         fileName.setText("Untitled.md");
                     }
                 }
-                saveButton = findViewById(R.id.button_save);
+                Button saveButton = findViewById(R.id.button_save);
                 saveButton.setVisibility(View.VISIBLE);
                 saveButton.setOnClickListener((v) -> {
                     Intent fileIntent = new Intent();
@@ -138,17 +138,19 @@ public class ExplorerActivity extends AppCompatActivity {
         return mounts.length > 1;
     }
 
+    @SuppressWarnings("unchecked")
     private List<HashMap<String, Object>> loadFiles(File docsDir) {
-        TreeSet files = new TreeSet<HashMap<String, Object>>((o1, o2) ->
+        TreeSet<HashMap<String, Object>> files = new TreeSet<HashMap<String, Object>>((o1, o2) ->
                 ((String) o1.get("name")).compareToIgnoreCase((String) o2.get("name"))) {
         };
-        TreeSet dirs = new TreeSet<HashMap<String, Object>>((o1, o2) ->
+        TreeSet<HashMap<String, Object>> dirs = new TreeSet<HashMap<String, Object>>((o1, o2) ->
                 ((String) o1.get("name")).compareToIgnoreCase((String) o2.get("name"))) {
         };
         if (docsDir.getParentFile() != null && docsDir.getParentFile().canRead()) {
             HashMap<String, Object> fileHashMap = new HashMap<>();
             fileHashMap.put("name", "..");
             fileHashMap.put("file", docsDir.getParentFile());
+
             dirs.add(fileHashMap);
         }
 

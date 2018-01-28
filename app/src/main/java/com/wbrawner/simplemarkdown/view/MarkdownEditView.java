@@ -1,7 +1,5 @@
 package com.wbrawner.simplemarkdown.view;
 
-import java.io.File;
-
 public interface MarkdownEditView {
     String getMarkdown();
     void setMarkdown(String markdown);

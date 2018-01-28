@@ -12,12 +12,12 @@ import java.io.InputStream;
 public interface MarkdownPresenter {
     File getFile();
     void loadMarkdown();
-    void loadMarkdown(String filePath);
-    void loadMarkdown(InputStream in);
+
+    void loadMarkdown(String fileName, InputStream in);
     void loadMarkdown(File file);
     void loadFromUri(Context context, Uri fileUri);
 
-    void loadMarkdown(InputStream in, OnTempFileLoadedListener listener);
+    void loadMarkdown(String fileName, InputStream in, OnTempFileLoadedListener listener);
     void newFile(String path);
     void setEditView(MarkdownEditView editView);
     void setPreviewView(MarkdownPreviewView previewView);

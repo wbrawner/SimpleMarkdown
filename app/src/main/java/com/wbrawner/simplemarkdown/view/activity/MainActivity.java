@@ -75,7 +75,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onPause() {
         super.onPause();
-        if (Utils.isAutosaveEnabled(this)) {
+        if (!presenter.getMarkdown().isEmpty() && Utils.isAutosaveEnabled(this)) {
             presenter.saveMarkdown(null, null);
         }
     }
@@ -179,7 +179,7 @@ public class MainActivity extends AppCompatActivity
             if (assetManager != null) {
                 in = assetManager.open(fileName);
             }
-            presenter.loadMarkdown(in, new MarkdownPresenter.OnTempFileLoadedListener() {
+            presenter.loadMarkdown(fileName, in, new MarkdownPresenter.OnTempFileLoadedListener() {
                 @Override
                 public void onSuccess(String html) {
                     infoIntent.putExtra("html", html);
@@ -250,10 +250,6 @@ public class MainActivity extends AppCompatActivity
 
                 File markdownFile = (File) data.getSerializableExtra(EXTRA_FILE);
                 presenter.loadMarkdown(markdownFile);
-                String title = markdownFile.getName();
-                if (!title.isEmpty()) {
-                    setTitle(title);
-                }
                 break;
             case SAVE_FILE_REQUEST:
                 if (resultCode != RESULT_OK
