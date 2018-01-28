@@ -28,12 +28,6 @@ public class MarkdownPresenterImpl implements MarkdownPresenter {
     }
 
     @Override
-    public void loadMarkdown(String filePath) {
-        File markdownFile = new File(filePath);
-        loadMarkdown(markdownFile);
-    }
-
-    @Override
     public File getFile() {
         return new File(file.getFullPath());
     }
@@ -54,31 +48,41 @@ public class MarkdownPresenterImpl implements MarkdownPresenter {
 
     @Override
     public void loadMarkdown(File file) {
-        InputStream in = null;
         try {
-            in = new FileInputStream(file);
-            loadMarkdown(in);
+            InputStream in = new FileInputStream(file);
+            loadMarkdown(file.getName(), in);
         } catch (FileNotFoundException e) {
             System.err.println(e.getLocalizedMessage());
             e.printStackTrace();
-        } finally {
-            Utils.closeQuietly(in);
         }
     }
 
     @Override
-    public void loadMarkdown(InputStream in) {
-        this.loadMarkdown(in, null);
+    public void loadMarkdown(final String fileName, final InputStream in) {
+        this.loadMarkdown(fileName, in, null);
     }
 
     @Override
-    public void loadMarkdown(final InputStream in, final OnTempFileLoadedListener listener) {
+    public void loadMarkdown(
+            final String fileName,
+            final InputStream in,
+            final OnTempFileLoadedListener listener
+    ) {
         Runnable fileLoader = () -> {
             MarkdownFile tmpFile = new MarkdownFile();
             if (tmpFile.load(in)) {
-                String html = generateHTML(tmpFile.getContent());
+                tmpFile.setName(fileName);
                 if (listener != null) {
+                    String html = generateHTML(tmpFile.getContent());
                     listener.onSuccess(html);
+                } else {
+                    this.file = tmpFile;
+                    if (this.editView != null) {
+                        editView.onFileLoaded(true);
+                        editView.setTitle(fileName);
+                        editView.setMarkdown(this.file.getContent());
+                        onMarkdownEdited();
+                    }
                 }
             } else {
                 if (listener != null) {
@@ -182,6 +186,7 @@ public class MarkdownPresenterImpl implements MarkdownPresenter {
         try {
             InputStream in =
                     context.getContentResolver().openInputStream(fileUri);
+            String fileName = null;
             if (fileUri.getScheme().equals("content")) {
                 Cursor retCur = context.getContentResolver()
                         .query(fileUri, null, null, null, null);
@@ -189,13 +194,16 @@ public class MarkdownPresenterImpl implements MarkdownPresenter {
                     int nameIndex = retCur
                             .getColumnIndex(OpenableColumns.DISPLAY_NAME);
                     retCur.moveToFirst();
-                    setFileName(retCur.getString(nameIndex));
+                    fileName = retCur.getString(nameIndex);
                     retCur.close();
                 }
             } else if (fileUri.getScheme().equals("file")) {
-                setFileName(fileUri.getLastPathSegment());
+                fileName = fileUri.getLastPathSegment();
             }
-            loadMarkdown(in);
+            if (fileName == null) {
+                fileName = Utils.getDefaultFileName(context);
+            }
+            loadMarkdown(fileName, in);
         } catch (Exception e) {
             if (editView != null) {
                 editView.onFileLoaded(false);

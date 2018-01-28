@@ -1,11 +1,15 @@
 package com.wbrawner.simplemarkdown.model;
 
+import com.wbrawner.simplemarkdown.Utils;
+
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.Scanner;
 
@@ -96,19 +100,21 @@ public class MarkdownFile {
 
     public boolean load(InputStream in) {
         StringBuilder sb = new StringBuilder();
-        Scanner s = new java.util.Scanner(in).useDelimiter("\\n");
-        if (s == null) {
-            return false;
-        }
-        while (s.hasNext()) {
-            sb.append(s.next()).append("\n");
-        }
-        this.content = sb.toString();
+        BufferedReader reader = null;
         try {
-            in.close();
-        } catch (Exception ignored) {
+            reader = new BufferedReader(new InputStreamReader(in));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                sb.append(line).append('\n');
+            }
+            this.content = sb.toString();
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        } finally {
+            Utils.closeQuietly(reader);
         }
-        return true;
     }
 
     private boolean load(String path) {
