@@ -1,6 +1,6 @@
 package com.wbrawner.simplemarkdown.model;
 
-import com.wbrawner.simplemarkdown.Utils;
+import com.wbrawner.simplemarkdown.utility.Utils;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.util.Scanner;
 
 /**
  * This class serves as a wrapper to manage the manage the file input and output operations, as well

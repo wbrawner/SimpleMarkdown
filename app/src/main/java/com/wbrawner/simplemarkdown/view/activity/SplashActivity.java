@@ -6,8 +6,8 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 
 import com.wbrawner.simplemarkdown.MarkdownApplication;
-import com.wbrawner.simplemarkdown.Utils;
 import com.wbrawner.simplemarkdown.presentation.MarkdownPresenter;
+import com.wbrawner.simplemarkdown.utility.Utils;
 
 import javax.inject.Inject;
 

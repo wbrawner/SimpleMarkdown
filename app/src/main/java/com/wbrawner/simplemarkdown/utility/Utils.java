@@ -1,4 +1,4 @@
-package com.wbrawner.simplemarkdown;
+package com.wbrawner.simplemarkdown.utility;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -9,7 +9,6 @@ import com.wbrawner.simplemarkdown.view.activity.SettingsActivity;
 
 import java.io.Closeable;
 import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.Locale;
 import java.util.regex.Matcher;
