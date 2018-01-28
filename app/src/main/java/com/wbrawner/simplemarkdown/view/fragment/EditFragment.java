@@ -14,8 +14,9 @@ import android.widget.Toast;
 import com.jakewharton.rxbinding2.widget.RxTextView;
 import com.wbrawner.simplemarkdown.MarkdownApplication;
 import com.wbrawner.simplemarkdown.R;
-import com.wbrawner.simplemarkdown.Utils;
 import com.wbrawner.simplemarkdown.presentation.MarkdownPresenter;
+import com.wbrawner.simplemarkdown.utility.MarkdownObserver;
+import com.wbrawner.simplemarkdown.utility.Utils;
 import com.wbrawner.simplemarkdown.view.MarkdownEditView;
 
 import java.util.concurrent.TimeUnit;
@@ -51,10 +52,11 @@ public class EditFragment extends Fragment implements MarkdownEditView {
             ((MarkdownApplication) activity.getApplication()).getComponent().inject(this);
         }
         Observable<String> obs = RxTextView.textChanges(markdownEditor)
-                .debounce(50, TimeUnit.MILLISECONDS).map(CharSequence::toString);
-        obs.subscribeOn(Schedulers.io());
-        obs.observeOn(AndroidSchedulers.mainThread());
-        obs.subscribe(markdown -> presenter.onMarkdownEdited(markdown));
+                .debounce(50, TimeUnit.MILLISECONDS)
+                .map(CharSequence::toString)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
+        obs.subscribe(new MarkdownObserver(presenter, obs));
         return view;
     }
 

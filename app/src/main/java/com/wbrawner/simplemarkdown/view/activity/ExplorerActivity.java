@@ -16,7 +16,7 @@ import android.widget.ListView;
 import android.widget.SimpleAdapter;
 
 import com.wbrawner.simplemarkdown.R;
-import com.wbrawner.simplemarkdown.Utils;
+import com.wbrawner.simplemarkdown.utility.Utils;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -24,8 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.TreeSet;
-
-import io.reactivex.annotations.BackpressureSupport;
 
 public class ExplorerActivity extends AppCompatActivity {
     private Handler fileHandler = new Handler();

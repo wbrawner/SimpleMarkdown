@@ -7,8 +7,8 @@ import android.os.Handler;
 import android.provider.OpenableColumns;
 
 import com.commonsware.cwac.anddown.AndDown;
-import com.wbrawner.simplemarkdown.Utils;
 import com.wbrawner.simplemarkdown.model.MarkdownFile;
+import com.wbrawner.simplemarkdown.utility.Utils;
 import com.wbrawner.simplemarkdown.view.MarkdownEditView;
 import com.wbrawner.simplemarkdown.view.MarkdownPreviewView;
 
