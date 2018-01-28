@@ -37,9 +37,9 @@ limitations under the License.
    limitations under the License.
 
 
-                                 Apache License
-                           Version 2.0, January 2004
-                        http://www.apache.org/licenses/
+   <p style="text-align: center;">Apache License<br />
+   Version 2.0, January 2004<br />
+   [http://www.apache.org/licenses](http://www.apache.org/licenses)</p>
 
    TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
 
