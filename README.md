@@ -1,5 +1,7 @@
 # [Simple Markdown](https://wbrawner.com/portfolio/simple-markdown/)
 
+[![Build Status](https://ci.wbrawner.com/job/Simple%20Markdown/badge/icon)](https://ci.wbrawner.com/job/Simple%20Markdown/)
+
 Simple Markdown is simply a Markdown editor :) I wrote it to offer up an open source alternative to
 the other Markdown editors available on the Play Store. I also wanted to get some practice in
 creating Android apps and have a little something to put into my portfolio.
