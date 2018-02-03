@@ -2,10 +2,12 @@ package com.wbrawner.simplemarkdown.view.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 
 import com.wbrawner.simplemarkdown.MarkdownApplication;
+import com.wbrawner.simplemarkdown.R;
 import com.wbrawner.simplemarkdown.presentation.MarkdownPresenter;
 import com.wbrawner.simplemarkdown.utility.Utils;
 
@@ -30,7 +32,18 @@ public class SplashActivity extends AppCompatActivity {
             presenter.setFileName(defaultName);
         }
 
-        startActivity(new Intent(this, MainActivity.class));
+        Intent startIntent = new Intent(this, MainActivity.class);
+        String startScreen = PreferenceManager.getDefaultSharedPreferences(this)
+                .getString(
+                        getString(R.string.key_default_view),
+                        SettingsActivity.EDIT_VIEW
+                );
+        switch (startScreen) {
+            case SettingsActivity.FILE_VIEW:
+                startIntent.putExtra(MainActivity.EXTRA_EXPLORER, true);
+                break;
+        }
+        startActivity(startIntent);
         finish();
     }
 }

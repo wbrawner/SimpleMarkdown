@@ -121,6 +121,7 @@ public class MarkdownPresenterImpl implements MarkdownPresenter {
                 listener.saveComplete(result);
             }
             if (editView != null) {
+                editView.setTitle(file.getName());
                 editView.onFileSaved(result);
             }
         };
