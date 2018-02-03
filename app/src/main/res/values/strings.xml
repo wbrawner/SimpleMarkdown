@@ -33,4 +33,17 @@
     <string name="pref_title_autosave">Enable autosave</string>
     <string name="pref_description_autosave">Automatically save files when closing the app</string>
     <string name="action_lock_swipe">Lock Swiping</string>
+    <string name="key_default_view">defaultView</string>
+    <string name="pref_description_default_view">Decide what you see first when you open the app</string>
+    <string name="pref_title_default_view">Default View</string>
+    <string name="value_edit_view">Edit View</string>
+    <string name="value_explorer_view">File Explorer View</string>
+    <string-array name="pref_entries_default_view">
+        <item>@string/value_edit_view</item>
+        <item>@string/value_explorer_view</item>
+    </string-array>
+    <string-array name="pref_values_default_view">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
 </resources>

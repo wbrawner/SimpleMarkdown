@@ -1,9 +1,12 @@
 package com.wbrawner.simplemarkdown.utility;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.support.v4.content.ContextCompat;
 
 import com.wbrawner.simplemarkdown.view.activity.SettingsActivity;
 
@@ -84,5 +87,12 @@ public class Utils {
                 e.printStackTrace();
             }
         }
+    }
+
+    public static boolean canAccessFiles(Context context) {
+        return ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+        ) == PackageManager.PERMISSION_GRANTED;
     }
 }

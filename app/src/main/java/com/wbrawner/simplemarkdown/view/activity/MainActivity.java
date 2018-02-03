@@ -41,6 +41,7 @@ public class MainActivity extends AppCompatActivity
     static final String EXTRA_FILE = "EXTRA_FILE";
     static final String EXTRA_FILE_PATH = "EXTRA_FILE_PATH";
     static final String EXTRA_REQUEST_CODE = "EXTRA_REQUEST_CODE";
+    static final String EXTRA_EXPLORER = "EXTRA_EXPLORER";
 
     @Inject
     MarkdownPresenter presenter;
@@ -70,6 +71,9 @@ public class MainActivity extends AppCompatActivity
             tabLayout.setVisibility(View.GONE);
         }
         newFileHandler = new NewFileHandler();
+        if (getIntent().getBooleanExtra(EXTRA_EXPLORER, false)) {
+            requestFileOp(OPEN_FILE_REQUEST);
+        }
     }
 
     @Override
@@ -99,19 +103,7 @@ public class MainActivity extends AppCompatActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_save:
-                if (ContextCompat.checkSelfPermission(
-                        MainActivity.this,
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE
-                ) == PackageManager.PERMISSION_GRANTED)
-                    requestSave();
-                else {
-                    if (Build.VERSION.SDK_INT >= 23) {
-                        requestPermissions(
-                                new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                                WRITE_PERMISSION_REQUEST
-                        );
-                    }
-                }
+                requestFileOp(SAVE_FILE_REQUEST);
                 break;
             case R.id.action_share:
                 Intent shareIntent = new Intent(Intent.ACTION_SEND);
@@ -123,19 +115,7 @@ public class MainActivity extends AppCompatActivity
                 ));
                 break;
             case R.id.action_load:
-                if (ContextCompat.checkSelfPermission(
-                        MainActivity.this,
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE
-                ) == PackageManager.PERMISSION_GRANTED)
-                    requestOpen();
-                else {
-                    if (Build.VERSION.SDK_INT >= 23) {
-                        requestPermissions(
-                                new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                                OPEN_FILE_REQUEST
-                        );
-                    }
-                }
+                requestFileOp(OPEN_FILE_REQUEST);
                 break;
             case R.id.action_new:
                 presenter.saveMarkdown(newFileHandler, null);
@@ -204,24 +184,13 @@ public class MainActivity extends AppCompatActivity
             @NonNull int[] grantResults
     ) {
         switch (requestCode) {
-            case WRITE_PERMISSION_REQUEST: {
+            case SAVE_FILE_REQUEST:
+            case OPEN_FILE_REQUEST: {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // Permission granted, open file save dialog
-                    requestSave();
-                } else {
-                    // Permission denied, do nothing
-                    Toast.makeText(MainActivity.this, R.string.no_permissions, Toast.LENGTH_SHORT)
-                            .show();
-                }
-                break;
-            }
-            case OPEN_FILE_REQUEST: {
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // Permission granted, open file save dialog
-                    requestOpen();
+                    requestFileOp(requestCode);
                 } else {
                     // Permission denied, do nothing
                     Toast.makeText(MainActivity.this, R.string.no_permissions, Toast.LENGTH_SHORT)
@@ -260,29 +229,28 @@ public class MainActivity extends AppCompatActivity
                 }
                 String path = data.getStringExtra(EXTRA_FILE_PATH);
                 presenter.saveMarkdown(null, path);
-                setTitle(presenter.getFileName());
                 break;
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-    private void requestOpen() {
-        Intent intent = new Intent(MainActivity.this, ExplorerActivity.class);
-        intent.putExtra(EXTRA_REQUEST_CODE, OPEN_FILE_REQUEST);
-        startActivityForResult(
-                intent,
-                OPEN_FILE_REQUEST
-        );
-    }
-
-    private void requestSave() {
-        Intent intent = new Intent(MainActivity.this, ExplorerActivity.class);
-        intent.putExtra(EXTRA_REQUEST_CODE, SAVE_FILE_REQUEST);
-        intent.putExtra(EXTRA_FILE, presenter.getFile());
-        startActivityForResult(
-                intent,
-                SAVE_FILE_REQUEST
-        );
+    private void requestFileOp(int requestType) {
+        if (Utils.canAccessFiles(MainActivity.this)) {
+            Intent intent = new Intent(MainActivity.this, ExplorerActivity.class);
+            intent.putExtra(EXTRA_REQUEST_CODE, requestType);
+            intent.putExtra(EXTRA_FILE, presenter.getFile());
+            startActivityForResult(
+                    intent,
+                    requestType
+            );
+        } else {
+            if (Build.VERSION.SDK_INT >= 23) {
+                requestPermissions(
+                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        requestType
+                );
+            }
+        }
     }
 
     @Override
