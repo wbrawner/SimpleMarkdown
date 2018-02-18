@@ -42,8 +42,16 @@ android {
     }
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    flavorDimensions "platform"
+    productFlavors {
+        standard {}
+        samsung {
+            applicationId "com.wbrawner.simplemarkdown.samsung"
+            minSdkVersion 21
         }
     }
     dexOptions {
@@ -61,29 +69,38 @@ ext {
 }
 
 dependencies {
-    testCompile 'junit:junit:4.12'
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
-        exclude group: 'com.android.support', module: 'support-annotations'
-    })
-    compile "com.android.support:appcompat-v7:$support_version"
-    compile 'com.android.support.constraint:constraint-layout:1.0.2'
-    compile "com.android.support:design:$support_version"
-    compile "com.android.support:support-v13:$support_version"
-    compile 'com.commonsware.cwac:anddown:0.3.0'
-    compile 'com.google.dagger:dagger:2.11'
-    compile 'com.jakewharton:butterknife:8.7.0'
-    compile 'com.jakewharton.rxbinding2:rxbinding:2.0.0'
-    compile 'com.jakewharton.rxbinding2:rxbinding-design:2.0.0'
-    compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
-    compile 'io.reactivex.rxjava2:rxjava:2.1.0'
-    testImplementation "org.robolectric:robolectric:3.6.1"
-    androidTestCompile 'com.android.support.test.espresso:espresso-core:3.0.1'
-    androidTestCompile 'com.android.support.test:runner:1.0.1'
-    androidTestCompile 'com.android.support.test.uiautomator:uiautomator-v18:2.1.3'
+
     annotationProcessor 'com.google.dagger:dagger-compiler:2.11'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.7.0'
-    compile('com.crashlytics.sdk.android:crashlytics:2.8.0@aar') {
+
+    testImplementation 'junit:junit:4.12'
+    testImplementation "org.robolectric:robolectric:3.6.1"
+
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
+    androidTestImplementation 'com.android.support.test:runner:1.0.1'
+    androidTestImplementation 'com.android.support.test.uiautomator:uiautomator-v18:2.1.3'
+
+    implementation "com.android.support:appcompat-v7:$support_version"
+    implementation 'com.android.support.constraint:constraint-layout:1.0.2'
+    implementation "com.android.support:design:$support_version"
+    implementation "com.android.support:support-v13:$support_version"
+    implementation 'com.commonsware.cwac:anddown:0.3.0'
+    implementation 'com.google.dagger:dagger:2.11'
+    implementation 'com.jakewharton:butterknife:8.7.0'
+    implementation 'com.jakewharton.rxbinding2:rxbinding:2.0.0'
+    implementation 'com.jakewharton.rxbinding2:rxbinding-design:2.0.0'
+    implementation 'io.reactivex.rxjava2:rxandroid:2.0.1'
+    implementation 'io.reactivex.rxjava2:rxjava:2.1.0'
+
+    samsungImplementation project(":IAP5Helper")
+
+    implementation('com.crashlytics.sdk.android:crashlytics:2.8.0@aar') {
         transitive = true
     }
 }
