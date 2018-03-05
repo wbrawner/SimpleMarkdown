@@ -9,7 +9,7 @@
     </style>
 
     <style name="AppTheme.Splash" parent="AppTheme">
-        <item name="android:windowBackground">@drawable/bg_splash</item>
+        <item name="android:windowBackground">@drawable/splash_bg</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
