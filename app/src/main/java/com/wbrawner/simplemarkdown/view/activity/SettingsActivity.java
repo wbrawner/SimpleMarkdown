@@ -9,11 +9,6 @@ import com.wbrawner.simplemarkdown.R;
 
 public class SettingsActivity extends AppCompatActivity {
 
-    public static final String KEY_AUTOSAVE = "autosave";
-    public static final String KEY_DOCS_PATH = "defaultRootDir";
-    public static final String EDIT_VIEW = "0";
-    public static final String FILE_VIEW = "1";
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

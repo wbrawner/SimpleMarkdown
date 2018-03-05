@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -20,6 +19,7 @@ import android.widget.Toast;
 import com.wbrawner.simplemarkdown.MarkdownApplication;
 import com.wbrawner.simplemarkdown.R;
 import com.wbrawner.simplemarkdown.presentation.MarkdownPresenter;
+import com.wbrawner.simplemarkdown.utility.Constants;
 import com.wbrawner.simplemarkdown.utility.Utils;
 import com.wbrawner.simplemarkdown.view.DisableableViewPager;
 import com.wbrawner.simplemarkdown.view.adapter.EditPagerAdapter;
@@ -34,14 +34,6 @@ import butterknife.ButterKnife;
 
 public class MainActivity extends AppCompatActivity
         implements ActivityCompat.OnRequestPermissionsResultCallback {
-
-    static final int WRITE_PERMISSION_REQUEST = 0;
-    static final int OPEN_FILE_REQUEST = 1;
-    static final int SAVE_FILE_REQUEST = 2;
-    static final String EXTRA_FILE = "EXTRA_FILE";
-    static final String EXTRA_FILE_PATH = "EXTRA_FILE_PATH";
-    static final String EXTRA_REQUEST_CODE = "EXTRA_REQUEST_CODE";
-    static final String EXTRA_EXPLORER = "EXTRA_EXPLORER";
 
     @Inject
     MarkdownPresenter presenter;
@@ -60,7 +52,6 @@ public class MainActivity extends AppCompatActivity
 
         ((MarkdownApplication) getApplication()).getComponent().inject(this);
         ButterKnife.bind(this);
-        presenter.setRootDir(Utils.getDocsPath(this));
         pager.setAdapter(
                 new EditPagerAdapter(getSupportFragmentManager(), MainActivity.this)
         );
@@ -71,8 +62,8 @@ public class MainActivity extends AppCompatActivity
             tabLayout.setVisibility(View.GONE);
         }
         newFileHandler = new NewFileHandler();
-        if (getIntent().getBooleanExtra(EXTRA_EXPLORER, false)) {
-            requestFileOp(OPEN_FILE_REQUEST);
+        if (getIntent().getBooleanExtra(Constants.EXTRA_EXPLORER, false)) {
+            requestFileOp(Constants.REQUEST_OPEN_FILE);
         }
     }
 
@@ -103,7 +94,7 @@ public class MainActivity extends AppCompatActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_save:
-                requestFileOp(SAVE_FILE_REQUEST);
+                requestFileOp(Constants.REQUEST_SAVE_FILE);
                 break;
             case R.id.action_share:
                 Intent shareIntent = new Intent(Intent.ACTION_SEND);
@@ -115,7 +106,7 @@ public class MainActivity extends AppCompatActivity
                 ));
                 break;
             case R.id.action_load:
-                requestFileOp(OPEN_FILE_REQUEST);
+                requestFileOp(Constants.REQUEST_OPEN_FILE);
                 break;
             case R.id.action_new:
                 presenter.saveMarkdown(newFileHandler, null);
@@ -184,8 +175,8 @@ public class MainActivity extends AppCompatActivity
             @NonNull int[] grantResults
     ) {
         switch (requestCode) {
-            case SAVE_FILE_REQUEST:
-            case OPEN_FILE_REQUEST: {
+            case Constants.REQUEST_SAVE_FILE:
+            case Constants.REQUEST_OPEN_FILE: {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -212,22 +203,22 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
-            case OPEN_FILE_REQUEST:
-                if (resultCode != RESULT_OK || data == null || !data.hasExtra(EXTRA_FILE)) {
+            case Constants.REQUEST_OPEN_FILE:
+                if (resultCode != RESULT_OK || data == null || !data.hasExtra(Constants.EXTRA_FILE)) {
                     break;
                 }
 
-                File markdownFile = (File) data.getSerializableExtra(EXTRA_FILE);
+                File markdownFile = (File) data.getSerializableExtra(Constants.EXTRA_FILE);
                 presenter.loadMarkdown(markdownFile);
                 break;
-            case SAVE_FILE_REQUEST:
+            case Constants.REQUEST_SAVE_FILE:
                 if (resultCode != RESULT_OK
                         || data == null
-                        || !data.hasExtra(EXTRA_FILE_PATH)
-                        || data.getStringExtra(EXTRA_FILE_PATH).isEmpty()) {
+                        || !data.hasExtra(Constants.EXTRA_FILE_PATH)
+                        || data.getStringExtra(Constants.EXTRA_FILE_PATH).isEmpty()) {
                     break;
                 }
-                String path = data.getStringExtra(EXTRA_FILE_PATH);
+                String path = data.getStringExtra(Constants.EXTRA_FILE_PATH);
                 presenter.saveMarkdown(null, path);
                 break;
         }
@@ -237,8 +228,8 @@ public class MainActivity extends AppCompatActivity
     private void requestFileOp(int requestType) {
         if (Utils.canAccessFiles(MainActivity.this)) {
             Intent intent = new Intent(MainActivity.this, ExplorerActivity.class);
-            intent.putExtra(EXTRA_REQUEST_CODE, requestType);
-            intent.putExtra(EXTRA_FILE, presenter.getFile());
+            intent.putExtra(Constants.EXTRA_REQUEST_CODE, requestType);
+            intent.putExtra(Constants.EXTRA_FILE, presenter.getFile());
             startActivityForResult(
                     intent,
                     requestType

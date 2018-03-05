@@ -6,10 +6,13 @@
         android:summary="@string/pref_description_autosave"
         android:title="@string/pref_title_autosave" />
     <ListPreference
-        android:key="@string/key_default_view"
+        android:defaultValue="@string/value_edit_view"
         android:entries="@array/pref_entries_default_view"
         android:entryValues="@array/pref_values_default_view"
-        android:defaultValue="@string/value_edit_view"
+        android:key="@string/key_default_view"
         android:title="@string/pref_title_default_view" />
+    <Preference
+        android:key="defaultRootDir"
+        android:title="@string/pref_description_default_root" />
 
 </PreferenceScreen>
