@@ -38,6 +38,8 @@
     <string name="pref_title_default_view">Default View</string>
     <string name="value_edit_view">Edit View</string>
     <string name="value_explorer_view">File Explorer View</string>
+    <string name="pref_description_default_root">Default Root Directory</string>
+    <string name="action_select">Select</string>
     <string-array name="pref_entries_default_view">
         <item>@string/value_edit_view</item>
         <item>@string/value_explorer_view</item>

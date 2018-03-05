@@ -16,6 +16,7 @@ import android.widget.ListView;
 import android.widget.SimpleAdapter;
 
 import com.wbrawner.simplemarkdown.R;
+import com.wbrawner.simplemarkdown.utility.Constants;
 import com.wbrawner.simplemarkdown.utility.Utils;
 
 import java.io.File;
@@ -24,14 +25,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.TreeSet;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class ExplorerActivity extends AppCompatActivity {
-    private Handler fileHandler = new Handler();
+    private Handler fileHandler = Utils.createSafeHandler("ExplorerThread");
     private ListView listView;
     private File[] mounts;
     private String docsDirPath;
-    private String filePath;
-    private boolean isSave = false;
+    private AtomicReference<String> filePath = new AtomicReference<>("");
+    private volatile boolean isSave = false;
+    private volatile boolean showFiles = true;
     private EditText fileName;
 
     @SuppressLint("SetTextI18n")
@@ -43,23 +46,26 @@ public class ExplorerActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         Intent intent = getIntent();
-        if (intent == null || !intent.hasExtra(MainActivity.EXTRA_REQUEST_CODE)) {
+        if (intent == null || !intent.hasExtra(Constants.EXTRA_REQUEST_CODE)) {
             finish();
             return;
         }
 
         docsDirPath = Utils.getDocsPath(this);
 
-        int requestCode = intent.getIntExtra(MainActivity.EXTRA_REQUEST_CODE, -1);
+        int requestCode = intent.getIntExtra(Constants.EXTRA_REQUEST_CODE, -1);
         switch (requestCode) {
-            case MainActivity.OPEN_FILE_REQUEST:
+            case Constants.REQUEST_OPEN_FILE:
                 break;
-            case MainActivity.SAVE_FILE_REQUEST:
+            case Constants.REQUEST_ROOT_DIR:
+                showFiles = false;
+                break;
+            case Constants.REQUEST_SAVE_FILE:
                 isSave = true;
                 fileName = findViewById(R.id.file_name);
                 fileName.setVisibility(View.VISIBLE);
-                if (intent.hasExtra(MainActivity.EXTRA_FILE)) {
-                    File file = (File) intent.getSerializableExtra(MainActivity.EXTRA_FILE);
+                if (intent.hasExtra(Constants.EXTRA_FILE)) {
+                    File file = (File) intent.getSerializableExtra(Constants.EXTRA_FILE);
                     if (file.exists() && file.canWrite()) {
                         docsDirPath = file.getParentFile().getAbsolutePath();
                         fileName.setText(file.getName());
@@ -74,10 +80,10 @@ public class ExplorerActivity extends AppCompatActivity {
                     String absolutePath = String.format(
                             Locale.ENGLISH,
                             "%s/%s",
-                            filePath,
+                            filePath.get(),
                             fileName.getText().toString()
                     );
-                    fileIntent.putExtra(MainActivity.EXTRA_FILE_PATH, absolutePath);
+                    fileIntent.putExtra(Constants.EXTRA_FILE_PATH, absolutePath);
                     setResult(RESULT_OK, fileIntent);
                     finish();
                 });
@@ -103,14 +109,20 @@ public class ExplorerActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_explorer, menu);
+
+        if (!showFiles) {
+            menu.findItem(R.id.action_select).setVisible(true);
+        }
+
         if (hasRemovableStorage()) {
-            getMenuInflater().inflate(R.menu.menu_explorer, menu);
-            if (filePath.contains(mounts[1].getAbsolutePath())) {
+            menu.findItem(R.id.action_use_sdcard).setVisible(true);
+            if (filePath.get().contains(mounts[1].getAbsolutePath())) {
                 menu.findItem(R.id.action_use_sdcard).setChecked(true);
             }
-            return true;
         }
-        return false;
+
+        return true;
     }
 
     @Override
@@ -127,6 +139,10 @@ public class ExplorerActivity extends AppCompatActivity {
                 } else {
                     updateListView(new File(docsDirPath));
                 }
+                break;
+            case R.id.action_select:
+                replyWithFile(new File(filePath.get()));
+                break;
         }
         return true;
     }
@@ -161,9 +177,10 @@ public class ExplorerActivity extends AppCompatActivity {
                     dirs.add(fileHashMap);
                     continue;
                 }
-                if (!file.getName().endsWith("md")
-                        && !file.getName().endsWith("markdown")
-                        && !file.getName().endsWith("text")) {
+                if (!showFiles ||
+                        (!file.getName().endsWith("md")
+                                && !file.getName().endsWith("markdown")
+                                && !file.getName().endsWith("text"))) {
                     continue;
                 }
                 HashMap<String, Object> fileHashMap = new HashMap<>();
@@ -181,7 +198,7 @@ public class ExplorerActivity extends AppCompatActivity {
 
     private void updateListView(File filesDir) {
         setTitle(filesDir.getName());
-        filePath = filesDir.getAbsolutePath();
+        filePath.set(filesDir.getAbsolutePath());
         fileHandler.post(() -> {
             List<HashMap<String, Object>> files = loadFiles(filesDir);
 
@@ -210,10 +227,14 @@ public class ExplorerActivity extends AppCompatActivity {
                 fileName.setText(file.getName());
             }
         } else {
-            Intent fileIntent = new Intent();
-            fileIntent.putExtra(MainActivity.EXTRA_FILE, file);
-            setResult(RESULT_OK, fileIntent);
-            finish();
+            replyWithFile(file);
         }
+    }
+
+    private void replyWithFile(File file) {
+        Intent fileIntent = new Intent();
+        fileIntent.putExtra(Constants.EXTRA_FILE, file);
+        setResult(RESULT_OK, fileIntent);
+        finish();
     }
 }
