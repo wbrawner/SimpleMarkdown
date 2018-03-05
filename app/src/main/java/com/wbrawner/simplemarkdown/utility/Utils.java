@@ -5,10 +5,12 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.preference.PreferenceManager;
 import android.support.v4.content.ContextCompat;
 
-import com.wbrawner.simplemarkdown.view.activity.SettingsActivity;
+import com.crashlytics.android.Crashlytics;
 
 import java.io.Closeable;
 import java.io.File;
@@ -22,7 +24,7 @@ public class Utils {
     public static String getDocsPath(Context context) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         return prefs.getString(
-                SettingsActivity.KEY_DOCS_PATH,
+                Constants.KEY_DOCS_PATH,
                 Environment.getExternalStorageDirectory() + "/" +
                         Environment.DIRECTORY_DOCUMENTS + "/"
         );
@@ -74,7 +76,7 @@ public class Utils {
     public static boolean isAutosaveEnabled(Context context) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         return prefs.getBoolean(
-                SettingsActivity.KEY_AUTOSAVE,
+                Constants.KEY_AUTOSAVE,
                 true
         );
     }
@@ -94,5 +96,17 @@ public class Utils {
                 context,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE
         ) == PackageManager.PERMISSION_GRANTED;
+    }
+
+
+    @SuppressWarnings("SameParameterValue")
+    public static Handler createSafeHandler(String name) {
+        HandlerThread handlerThread = new HandlerThread(name);
+        handlerThread.start();
+        handlerThread.setUncaughtExceptionHandler((t, e) -> {
+            Crashlytics.logException(e);
+            t.interrupt();
+        });
+        return new Handler(handlerThread.getLooper());
     }
 }

@@ -4,8 +4,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
+import com.wbrawner.simplemarkdown.utility.Constants;
 import com.wbrawner.simplemarkdown.utility.Utils;
-import com.wbrawner.simplemarkdown.view.activity.SettingsActivity;
 
 import org.junit.After;
 import org.junit.Before;
@@ -44,13 +44,13 @@ public class UtilsTest {
 
     @Test
     public void getDocsPath() throws Exception {
-        sharedPreferences.edit().putString(SettingsActivity.KEY_DOCS_PATH, rootDir).apply();
+        sharedPreferences.edit().putString(Constants.KEY_DOCS_PATH, rootDir).apply();
         assertEquals(rootDir, Utils.getDocsPath(context));
     }
 
     @Test
     public void getDefaultFileName() throws Exception {
-        sharedPreferences.edit().putString(SettingsActivity.KEY_DOCS_PATH, rootDir).apply();
+        sharedPreferences.edit().putString(Constants.KEY_DOCS_PATH, rootDir).apply();
 
         new File(rootDir, "dummy.md").createNewFile();
         new File(rootDir, "dummy1.md").createNewFile();
@@ -72,7 +72,7 @@ public class UtilsTest {
 
     @Test
     public void getDefaultFileNameDoubleDigitTest() throws IOException {
-        sharedPreferences.edit().putString(SettingsActivity.KEY_DOCS_PATH, rootDir).apply();
+        sharedPreferences.edit().putString(Constants.KEY_DOCS_PATH, rootDir).apply();
 
         for (int i = 0; i < 11; i++) {
             new File(rootDir, "Untitled-" + i + ".md").createNewFile();
@@ -85,7 +85,7 @@ public class UtilsTest {
     @Test
     public void isAutosaveEnabled() throws Exception {
         assertTrue(Utils.isAutosaveEnabled(context));
-        sharedPreferences.edit().putBoolean(SettingsActivity.KEY_AUTOSAVE, false).apply();
+        sharedPreferences.edit().putBoolean(Constants.KEY_AUTOSAVE, false).apply();
         assertFalse(Utils.isAutosaveEnabled(context));
     }
 
