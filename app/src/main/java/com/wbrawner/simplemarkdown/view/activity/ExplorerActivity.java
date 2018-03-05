@@ -15,6 +15,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 
+import com.crashlytics.android.Crashlytics;
 import com.wbrawner.simplemarkdown.R;
 import com.wbrawner.simplemarkdown.utility.Constants;
 import com.wbrawner.simplemarkdown.utility.Utils;
@@ -100,11 +101,7 @@ public class ExplorerActivity extends AppCompatActivity {
 //        );
 
         listView = findViewById(R.id.file_list);
-        File docsDir = new File(docsDirPath);
-        if (!docsDir.exists()) {
-            docsDir = Environment.getExternalStorageDirectory();
-        }
-        updateListView(docsDir);
+        updateListView();
     }
 
     @Override
@@ -117,7 +114,19 @@ public class ExplorerActivity extends AppCompatActivity {
 
         if (hasRemovableStorage()) {
             menu.findItem(R.id.action_use_sdcard).setVisible(true);
-            if (filePath.get().contains(mounts[1].getAbsolutePath())) {
+            boolean sdcardSelected = false;
+            try {
+                sdcardSelected = filePath.get().contains(mounts[1].getAbsolutePath());
+            } catch (NullPointerException e) {
+                updateListView();
+                menu.findItem(R.id.action_use_sdcard).setVisible(false);
+                Crashlytics.logException(e);
+                Crashlytics.log(mounts.length + " mounts found");
+                for (File mount : mounts) {
+                    Crashlytics.log(mount.getAbsolutePath());
+                }
+            }
+            if (sdcardSelected) {
                 menu.findItem(R.id.action_use_sdcard).setChecked(true);
             }
         }
@@ -194,6 +203,14 @@ public class ExplorerActivity extends AppCompatActivity {
         sortedFiles.addAll(files);
 
         return sortedFiles;
+    }
+
+    private void updateListView() {
+        File docsDir = new File(docsDirPath);
+        if (!docsDir.exists()) {
+            docsDir = Environment.getExternalStorageDirectory();
+        }
+        updateListView(docsDir);
     }
 
     private void updateListView(File filesDir) {
