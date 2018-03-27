@@ -1,7 +1,5 @@
 package com.wbrawner.simplemarkdown.utility;
 
-import com.crashlytics.android.Crashlytics;
-import com.wbrawner.simplemarkdown.BuildConfig;
 import com.wbrawner.simplemarkdown.presentation.MarkdownPresenter;
 
 import io.reactivex.Observable;
@@ -31,10 +29,7 @@ public class MarkdownObserver implements Observer<String> {
     public void onError(Throwable e) {
         System.err.println("An error occurred while handling the markdown");
         e.printStackTrace();
-        // TODO: Remove this once the error is confirmed to have disappeared
-        if (!BuildConfig.DEBUG) {
-            Crashlytics.logException(e);
-        }
+        // TODO: report this?
         obs.subscribe(this);
     }
 

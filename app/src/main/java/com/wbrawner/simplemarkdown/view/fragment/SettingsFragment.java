@@ -10,7 +10,6 @@ import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import com.crashlytics.android.Crashlytics;
 import com.wbrawner.simplemarkdown.R;
 import com.wbrawner.simplemarkdown.utility.Constants;
 import com.wbrawner.simplemarkdown.utility.Utils;
@@ -62,8 +61,8 @@ public class SettingsFragment extends PreferenceFragment
         try {
             index = Integer.valueOf(storedValue);
         } catch (NumberFormatException e) {
+            // TODO: Report this?
             Log.e("SimpleMarkdown", "Unable to parse " + storedValue + " to integer");
-            Crashlytics.logException(e);
         }
         String summary = listPreference.getEntries()[index].toString();
         preference.setSummary(summary);
@@ -80,7 +79,8 @@ public class SettingsFragment extends PreferenceFragment
             case Constants.REQUEST_ROOT_DIR:
                 File root = (File) data.getSerializableExtra(Constants.EXTRA_FILE);
                 if (root == null) {
-                    Crashlytics.logException(new RuntimeException("Got null/empty response from setting default root dir"));
+                    // TODO: Report this?
+//                    Crashlytics.logException(new RuntimeException("Got null/empty response from setting default root dir"));
                     return;
                 }
                 Preference defaultRoot = findPreference(Constants.KEY_DOCS_PATH);
