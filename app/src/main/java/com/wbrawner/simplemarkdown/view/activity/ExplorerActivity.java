@@ -15,7 +15,6 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 
-import com.crashlytics.android.Crashlytics;
 import com.wbrawner.simplemarkdown.R;
 import com.wbrawner.simplemarkdown.utility.Constants;
 import com.wbrawner.simplemarkdown.utility.Utils;
@@ -120,11 +119,12 @@ public class ExplorerActivity extends AppCompatActivity {
             } catch (NullPointerException e) {
                 updateListView();
                 menu.findItem(R.id.action_use_sdcard).setVisible(false);
-                Crashlytics.logException(e);
-                Crashlytics.log(mounts.length + " mounts found");
-                for (File mount : mounts) {
-                    Crashlytics.log(mount.getAbsolutePath());
-                }
+                // TODO: Report this?
+//                Crashlytics.logException(e);
+//                Crashlytics.log(mounts.length + " mounts found");
+//                for (File mount : mounts) {
+//                    Crashlytics.log(mount.getAbsolutePath());
+//                }
             }
             if (sdcardSelected) {
                 menu.findItem(R.id.action_use_sdcard).setChecked(true);

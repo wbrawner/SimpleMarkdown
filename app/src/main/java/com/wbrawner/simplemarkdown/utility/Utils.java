@@ -10,8 +10,6 @@ import android.os.HandlerThread;
 import android.preference.PreferenceManager;
 import android.support.v4.content.ContextCompat;
 
-import com.crashlytics.android.Crashlytics;
-
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
@@ -104,7 +102,8 @@ public class Utils {
         HandlerThread handlerThread = new HandlerThread(name);
         handlerThread.start();
         handlerThread.setUncaughtExceptionHandler((t, e) -> {
-            Crashlytics.logException(e);
+            // TODO: Report this?
+//            Crashlytics.logException(e);
             t.interrupt();
         });
         return new Handler(handlerThread.getLooper());
