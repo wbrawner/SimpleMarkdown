@@ -1,19 +1,20 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/markdown_edit_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.wbrawner.simplemarkdown.view.fragment.EditFragment">
-        <EditText
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/markdown_edit"
-            android:inputType="textMultiLine|textCapSentences"
 
-            android:background="@null"
-            android:imeOptions="flagNoExtractUi"
-            android:gravity="top"
-            android:paddingLeft="8dp"
-            android:paddingRight="8dp"
-            android:hint="@string/markdown_here"
-            android:scrollHorizontally="false" />
-</LinearLayout>
+    <EditText
+        android:id="@+id/markdown_edit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@null"
+        android:gravity="top"
+        android:hint="@string/markdown_here"
+        android:imeOptions="flagNoExtractUi"
+        android:inputType="textMultiLine|textCapSentences"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
+        android:scrollHorizontally="false" />
+</ScrollView>

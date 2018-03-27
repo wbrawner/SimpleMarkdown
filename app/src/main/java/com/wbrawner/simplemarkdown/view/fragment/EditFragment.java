@@ -1,14 +1,19 @@
 package com.wbrawner.simplemarkdown.view.fragment;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.ScrollView;
 import android.widget.Toast;
 
 import com.jakewharton.rxbinding2.widget.RxTextView;
@@ -35,12 +40,17 @@ public class EditFragment extends Fragment implements MarkdownEditView {
     MarkdownPresenter presenter;
     @BindView(R.id.markdown_edit)
     EditText markdownEditor;
+    @BindView(R.id.markdown_edit_container)
+    ScrollView markdownEditorScroller;
+
     private Unbinder unbinder;
+    private int lastScrollEvent = -1;
 
     public EditFragment() {
         // Required empty public constructor
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -65,6 +75,24 @@ public class EditFragment extends Fragment implements MarkdownEditView {
         super.onViewCreated(view, savedInstanceState);
         presenter.setEditView(EditFragment.this);
         presenter.loadMarkdown();
+        //noinspection AndroidLintClickableViewAccessibility
+        markdownEditorScroller.setOnTouchListener((v, event) -> {
+            // The focus should only be set if this was a click, and not a scroll
+            if (lastScrollEvent == MotionEvent.ACTION_DOWN && event.getAction() == MotionEvent.ACTION_UP) {
+                if (getActivity() == null) {
+                    return false;
+                }
+                InputMethodManager imm = (InputMethodManager) getActivity()
+                        .getSystemService(Context.INPUT_METHOD_SERVICE);
+                if (imm == null) {
+                    return false;
+                }
+                imm.showSoftInput(markdownEditor, InputMethodManager.SHOW_IMPLICIT);
+                markdownEditor.requestFocus();
+            }
+            lastScrollEvent = event.getAction();
+            return false;
+        });
     }
 
     @Override
