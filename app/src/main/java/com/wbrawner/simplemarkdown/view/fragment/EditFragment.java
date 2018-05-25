@@ -140,8 +140,9 @@ public class EditFragment extends Fragment implements MarkdownEditView {
 
     @Override
     public void onFileLoaded(boolean success) {
-        int message = success ? R.string.file_loaded : R.string.file_load_error;
-        Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
+        // TODO: Investigate why this fires off so often
+//        int message = success ? R.string.file_loaded : R.string.file_load_error;
+//        Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
     }
 
     @Override
