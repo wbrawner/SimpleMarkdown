@@ -9,6 +9,9 @@ import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
 import com.wbrawner.simplemarkdown.R;
 import com.wbrawner.simplemarkdown.utility.Constants;
@@ -40,6 +43,13 @@ public class SettingsFragment extends PreferenceFragment
             startActivityForResult(intent, Constants.REQUEST_ROOT_DIR);
             return true;
         });
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
+
+        return inflater.inflate(R.layout.preference_list_fragment_safe, container, false);
     }
 
     @Override
