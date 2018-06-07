@@ -8,7 +8,7 @@
     tools:context="com.wbrawner.simplemarkdown.view.activity.ExplorerActivity"
     tools:showIn="@layout/activity_explorer">
 
-    <ListView
+    <com.wbrawner.simplemarkdown.view.overrides.SafeListView
         android:id="@+id/file_list"
         android:layout_width="0dp"
         android:layout_height="0dp"
