@@ -48,6 +48,7 @@ class EditFragment : Fragment(), MarkdownEditView {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
         obs.subscribe(MarkdownObserver(presenter, obs))
+        obs.subscribe(ReadabilityObserver(markdownEditor))
         return view
     }
 
