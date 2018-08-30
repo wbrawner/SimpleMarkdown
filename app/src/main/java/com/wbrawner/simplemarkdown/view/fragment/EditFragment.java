@@ -21,6 +21,7 @@ import com.wbrawner.simplemarkdown.MarkdownApplication;
 import com.wbrawner.simplemarkdown.R;
 import com.wbrawner.simplemarkdown.presentation.MarkdownPresenter;
 import com.wbrawner.simplemarkdown.utility.MarkdownObserver;
+import com.wbrawner.simplemarkdown.utility.ReadabilityObserver;
 import com.wbrawner.simplemarkdown.utility.Utils;
 import com.wbrawner.simplemarkdown.view.MarkdownEditView;
 
@@ -67,6 +68,7 @@ public class EditFragment extends Fragment implements MarkdownEditView {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread());
         obs.subscribe(new MarkdownObserver(presenter, obs));
+        obs.subscribe(new ReadabilityObserver(markdownEditor));
         return view;
     }
 
