@@ -12,3 +12,4 @@ IAP5Helper/build
 app/standard
 app/samsung
 *~
+*.log
