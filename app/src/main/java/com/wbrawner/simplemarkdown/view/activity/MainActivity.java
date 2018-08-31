@@ -24,6 +24,8 @@ import com.wbrawner.simplemarkdown.utility.Utils;
 import com.wbrawner.simplemarkdown.view.DisableableViewPager;
 import com.wbrawner.simplemarkdown.view.adapter.EditPagerAdapter;
 
+import org.acra.ACRA;
+
 import java.io.File;
 import java.io.InputStream;
 
@@ -164,6 +166,7 @@ public class MainActivity extends AppCompatActivity
                 }
             });
         } catch (Exception e) {
+            ACRA.getErrorReporter().handleException(e, false);
             Toast.makeText(MainActivity.this, R.string.file_load_error, Toast.LENGTH_SHORT).show();
         }
     }
