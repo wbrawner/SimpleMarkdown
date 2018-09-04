@@ -45,6 +45,7 @@ public class MainActivity extends AppCompatActivity
     @BindView(R.id.layout_tab)
     TabLayout tabLayout;
 
+    private boolean shouldAutoSave = true;
     private NewFileHandler newFileHandler;
 
     @Override
@@ -70,9 +71,9 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
-        if (!presenter.getMarkdown().isEmpty() && Utils.isAutosaveEnabled(this)) {
+    protected void onUserLeaveHint() {
+        super.onUserLeaveHint();
+        if (shouldAutoSave && !presenter.getMarkdown().isEmpty() && Utils.isAutosaveEnabled(this)) {
             presenter.saveMarkdown(null, null);
         }
     }
@@ -230,6 +231,8 @@ public class MainActivity extends AppCompatActivity
 
     private void requestFileOp(int requestType) {
         if (Utils.canAccessFiles(MainActivity.this)) {
+            // If the user is going to save the file, we don't want to auto-save it for them
+            shouldAutoSave = false;
             Intent intent = new Intent(MainActivity.this, ExplorerActivity.class);
             intent.putExtra(Constants.EXTRA_REQUEST_CODE, requestType);
             intent.putExtra(Constants.EXTRA_FILE, presenter.getFile());
@@ -237,13 +240,11 @@ public class MainActivity extends AppCompatActivity
                     intent,
                     requestType
             );
-        } else {
-            if (Build.VERSION.SDK_INT >= 23) {
-                requestPermissions(
-                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                        requestType
-                );
-            }
+        } else if (Build.VERSION.SDK_INT >= 23) {
+            requestPermissions(
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    requestType
+            );
         }
     }
 
@@ -251,6 +252,7 @@ public class MainActivity extends AppCompatActivity
     protected void onResume() {
         super.onResume();
         setTitle(presenter.getFileName());
+        shouldAutoSave = true;
     }
 
     private class NewFileHandler implements MarkdownPresenter.MarkdownSavedListener {

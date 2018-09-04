@@ -174,7 +174,7 @@ public class ExplorerActivity extends AppCompatActivity {
         };
         if (docsDir.getParentFile() != null && docsDir.getParentFile().canRead()) {
             HashMap<String, Object> fileHashMap = new HashMap<>();
-            fileHashMap.put("name", "..");
+            fileHashMap.put("name", getString(R.string.directory_up));
             fileHashMap.put("file", docsDir.getParentFile());
 
             dirs.add(fileHashMap);

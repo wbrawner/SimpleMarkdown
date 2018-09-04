@@ -23,6 +23,7 @@ public class MarkdownFile {
     private String name;
     private String path;
     private String content;
+
     public MarkdownFile(String name, String path, String content) {
         this.name = name;
         if (path == null || path.isEmpty()) {
@@ -147,6 +148,11 @@ public class MarkdownFile {
         }
 
         File markdownFile = new File(path);
+        File parentFile = markdownFile.getParentFile();
+        if (!parentFile.exists() && !parentFile.mkdirs()) {
+            return false;
+        }
+
         if (!markdownFile.exists()) {
             try {
                 if (!markdownFile.createNewFile()) {
