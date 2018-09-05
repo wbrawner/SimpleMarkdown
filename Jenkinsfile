@@ -3,11 +3,21 @@ pipeline {
     stages {
         stage('Config') {
             steps {
-                withCredentials([file(
-                        credentialsId: '23ecf53c-2fc9-41ed-abfa-0b32d60d688f',
-                        variable     : 'ACRA_PROPERTIES_FILE'
-                )]) {
+                configFileProvider([
+                        configFile(
+                                fileId: 'ce0fea29-ab06-4921-8ff9-11b09ec8705b',
+                                variable: 'ACRA_PROPERTIES_FILE'
+                        )
+                ]) {
                     sh 'cp "$ACRA_PROPERTIES_FILE" app/acra.properties'
+                }
+                configFileProvider([
+                        configFile(
+                                fileId: '9f7d74a1-0971-41b7-8984-ac875ad6301f',
+                                variable: 'KEYSTORE_PROPERTIES'
+                        )
+                ]) {
+                    sh 'cp "$KEYSTORE_PROPERTIES" keystore.properties'
                 }
             }
         }
@@ -16,15 +26,10 @@ pipeline {
                 sh './gradlew assembleRelease test'
             }
         }
-        stage('Sign & Archive') {
+        stage('Archive') {
             steps {
-                [
-                        $class    : 'SignApksBuilder',
-                        apksToSign: 'app/build/outputs/apk/*/release/*.apk',
-                        keyAlias  : 'simplemarkdown',
-                        keyStoreId: '44651a2a-1e46-4708-80ab-d8befc6e94f0'
-                ]
-                archiveArtifacts 'app/build/outputs/mapping'
+                archiveArtifacts 'app/build/outputs/apk/*/release/*.apk'
+                archiveArtifacts 'app/build/outputs/mapping/**'
             }
         }
         stage('Report') {
