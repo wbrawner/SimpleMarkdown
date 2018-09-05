@@ -13,3 +13,4 @@ app/standard
 app/samsung
 *~
 *.log
+app/acra.properties
