@@ -172,13 +172,6 @@ public class ExplorerActivity extends AppCompatActivity {
         TreeSet<HashMap<String, Object>> dirs = new TreeSet<HashMap<String, Object>>((o1, o2) ->
                 ((String) o1.get("name")).compareToIgnoreCase((String) o2.get("name"))) {
         };
-        if (docsDir.getParentFile() != null && docsDir.getParentFile().canRead()) {
-            HashMap<String, Object> fileHashMap = new HashMap<>();
-            fileHashMap.put("name", getString(R.string.directory_up));
-            fileHashMap.put("file", docsDir.getParentFile());
-
-            dirs.add(fileHashMap);
-        }
 
         if (docsDir.listFiles() != null) {
             for (File file : docsDir.listFiles()) {
@@ -202,7 +195,16 @@ public class ExplorerActivity extends AppCompatActivity {
             }
         }
 
-        List<HashMap<String, Object>> sortedFiles = new ArrayList<>(dirs);
+        List<HashMap<String, Object>> sortedFiles = new ArrayList<>();
+        if (docsDir.getParentFile() != null && docsDir.getParentFile().canRead()) {
+            HashMap<String, Object> fileHashMap = new HashMap<>();
+            fileHashMap.put("name", getString(R.string.directory_up));
+            fileHashMap.put("file", docsDir.getParentFile());
+
+            sortedFiles.add(fileHashMap);
+        }
+
+        sortedFiles.addAll(dirs);
         sortedFiles.addAll(files);
 
         return sortedFiles;
