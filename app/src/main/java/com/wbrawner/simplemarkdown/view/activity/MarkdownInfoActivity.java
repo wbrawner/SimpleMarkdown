@@ -1,9 +1,10 @@
 package com.wbrawner.simplemarkdown.view.activity;
 
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
+import android.view.MenuItem;
 import android.webkit.WebView;
 
 import com.wbrawner.simplemarkdown.R;
@@ -39,5 +40,15 @@ public class MarkdownInfoActivity extends AppCompatActivity {
                 "UTF-8",
                 null
         );
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            onBackPressed();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }
