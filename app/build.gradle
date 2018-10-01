@@ -21,8 +21,8 @@ android {
         applicationId "com.wbrawner.simplemarkdown"
         minSdkVersion 19
         targetSdkVersion 28
-        versionCode 13
-        versionName "0.4.7"
+        versionCode 14
+        versionName "0.4.8"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
