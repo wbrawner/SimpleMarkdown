@@ -126,6 +126,9 @@ public class MainActivity extends AppCompatActivity
             case R.id.action_libraries:
                 showInfoActivity(R.id.action_libraries);
                 break;
+            case R.id.action_privacy:
+                showInfoActivity(R.id.action_privacy);
+                break;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -142,6 +145,10 @@ public class MainActivity extends AppCompatActivity
             case R.id.action_libraries:
                 fileName = "Libraries.md";
                 title = getString(R.string.action_libraries);
+                break;
+            case R.id.action_privacy:
+                fileName = "Privacy Policy.md";
+                title = getString(R.string.action_privacy);
                 break;
         }
         infoIntent.putExtra("title", title);
