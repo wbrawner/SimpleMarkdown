@@ -7,17 +7,17 @@
         android:title="@string/action_share"
         app:showAsAction="ifRoom" />
     <item
-        android:id="@+id/action_save"
-        android:icon="@drawable/ic_action_save"
-        android:title="@string/action_save"
+        android:id="@+id/action_new"
+        android:title="@string/action_new"
         app:showAsAction="never" />
     <item
         android:id="@+id/action_load"
         android:title="@string/action_open"
         app:showAsAction="never" />
     <item
-        android:id="@+id/action_new"
-        android:title="@string/action_new"
+        android:id="@+id/action_save"
+        android:icon="@drawable/ic_action_save"
+        android:title="@string/action_save"
         app:showAsAction="never" />
     <item
         android:id="@+id/action_lock_swipe"
@@ -35,5 +35,9 @@
     <item
         android:id="@+id/action_libraries"
         android:title="@string/action_libraries"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_privacy"
+        android:title="@string/action_privacy"
         app:showAsAction="never" />
 </menu>
