@@ -18,6 +18,16 @@ creating Android apps and have a little something to put into my portfolio.
 * [ ] Better insert for tables/images/links
 * [ ] Quick-insert toolbar for common Markdown syntax characters
 
+## Building
+
+Using Android Studio is the preferred way to build the project. To build from the command line, you can run
+
+    ./gradlew assembleDebug
+
+### Firebase
+
+SimpleMarkdown makes use of Firebase for crash reports. To integrate with your own project, create a project from the [Firebase Console](https://console.firebase.google.com/) and enable Crashlytics support. Download the `google-services.json` file and place it in the `app/` directory. Additionally, you'll need another `google-services.json` file enabled for the `app.package.name.samsung` version of the app, placed in the `app/src/samsung/` directory.
+
 ## Contributing
 
 I'd love any contributions, particularly in improving the existing code. Please just fork the

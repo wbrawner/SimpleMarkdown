@@ -41,6 +41,7 @@
     <string name="pref_description_default_root">Default Root Directory</string>
     <string name="action_select">Select</string>
     <string name="directory_up">\u2191 Go up</string>
+    <string name="action_privacy">Privacy</string>
     <string-array name="pref_entries_default_view">
         <item>@string/value_edit_view</item>
         <item>@string/value_explorer_view</item>
