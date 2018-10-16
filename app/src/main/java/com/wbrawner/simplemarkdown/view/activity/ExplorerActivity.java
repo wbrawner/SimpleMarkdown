@@ -122,12 +122,6 @@ public class ExplorerActivity extends AppCompatActivity {
                 ACRA.getErrorReporter().handleException(e, false);
                 updateListView();
                 menu.findItem(R.id.action_use_sdcard).setVisible(false);
-                // TODO: Report this?
-//                Crashlytics.logException(e);
-//                Crashlytics.log(mounts.length + " mounts found");
-//                for (File mount : mounts) {
-//                    Crashlytics.log(mount.getAbsolutePath());
-//                }
             }
             if (sdcardSelected) {
                 menu.findItem(R.id.action_use_sdcard).setChecked(true);
