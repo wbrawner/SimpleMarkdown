@@ -15,7 +15,7 @@ android {
         exclude 'META-INF/DEPENDENCIES'
     }
     compileSdkVersion 28
-    buildToolsVersion '28.0.2'
+    buildToolsVersion '28.0.3'
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -24,8 +24,8 @@ android {
         applicationId "com.wbrawner.simplemarkdown"
         minSdkVersion 19
         targetSdkVersion 28
-        versionCode 14
-        versionName "0.4.8"
+        versionCode 15
+        versionName "0.5.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         buildConfigField "String", "ACRA_URL", "\"${acra.getProperty("url")}\""
         buildConfigField "String", "ACRA_USER", "\"${acra.getProperty("user")}\""
