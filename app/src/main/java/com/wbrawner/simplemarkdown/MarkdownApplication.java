@@ -13,7 +13,6 @@ import static com.wbrawner.simplemarkdown.BuildConfig.ACRA_PASS;
 import static com.wbrawner.simplemarkdown.BuildConfig.ACRA_URL;
 import static com.wbrawner.simplemarkdown.BuildConfig.ACRA_USER;
 import static org.acra.ReportField.ANDROID_VERSION;
-import static org.acra.ReportField.APPLICATION_LOG;
 import static org.acra.ReportField.APP_VERSION_CODE;
 import static org.acra.ReportField.APP_VERSION_NAME;
 import static org.acra.ReportField.AVAILABLE_MEM_SIZE;
@@ -38,7 +37,6 @@ import static org.acra.ReportField.USER_CRASH_DATE;
                 ANDROID_VERSION,
                 APP_VERSION_CODE,
                 APP_VERSION_NAME,
-                APPLICATION_LOG,
                 AVAILABLE_MEM_SIZE,
                 BRAND,
                 BUILD_CONFIG,
