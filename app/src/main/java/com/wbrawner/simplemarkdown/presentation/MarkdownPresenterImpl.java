@@ -12,6 +12,8 @@ import com.wbrawner.simplemarkdown.utility.Utils;
 import com.wbrawner.simplemarkdown.view.MarkdownEditView;
 import com.wbrawner.simplemarkdown.view.MarkdownPreviewView;
 
+import org.acra.ACRA;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -51,7 +53,8 @@ public class MarkdownPresenterImpl implements MarkdownPresenter {
         try {
             InputStream in = new FileInputStream(file);
             loadMarkdown(file.getName(), in);
-        } catch (FileNotFoundException ignored) {
+        } catch (FileNotFoundException e) {
+            ACRA.getErrorReporter().handleException(e, false);
         }
     }
 
@@ -204,6 +207,7 @@ public class MarkdownPresenterImpl implements MarkdownPresenter {
             }
             loadMarkdown(fileName, in);
         } catch (Exception e) {
+            ACRA.getErrorReporter().handleException(e, false);
             if (editView != null) {
                 editView.onFileLoaded(false);
             }

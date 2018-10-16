@@ -24,9 +24,9 @@ Using Android Studio is the preferred way to build the project. To build from th
 
     ./gradlew assembleDebug
 
-### Firebase
+### ACRA
 
-SimpleMarkdown makes use of Firebase for crash reports. To integrate with your own project, create a project from the [Firebase Console](https://console.firebase.google.com/) and enable Crashlytics support. Download the `google-services.json` file and place it in the `app/` directory. Additionally, you'll need another `google-services.json` file enabled for the `app.package.name.samsung` version of the app, placed in the `app/src/samsung/` directory.
+SimpleMarkdown makes use of [ACRA](https://github.com/ACRA/acra) for crash reports. This requires the presence of the `app/acra.properties` file for building. For your convenience, a `app/acra.properties.sample` file has been provided.
 
 ## Contributing
 
