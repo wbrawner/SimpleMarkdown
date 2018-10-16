@@ -216,23 +216,25 @@ public class ExplorerActivity extends AppCompatActivity {
         setTitle(filesDir.getName());
         filePath.set(filesDir.getAbsolutePath());
         fileHandler.post(() -> {
-            List<HashMap<String, Object>> files = loadFiles(filesDir);
+            final List<HashMap<String, Object>> files = loadFiles(filesDir);
 
-            listView.setAdapter(new SimpleAdapter(
-                    this,
-                    files,
-                    android.R.layout.simple_list_item_1,
-                    new String[]{"name"},
-                    new int[]{android.R.id.text1}
-            ));
+            runOnUiThread(() -> {
+                listView.setAdapter(new SimpleAdapter(
+                        this,
+                        files,
+                        android.R.layout.simple_list_item_1,
+                        new String[]{"name"},
+                        new int[]{android.R.id.text1}
+                ));
 
-            listView.setOnItemClickListener((parent, view, position, id) -> {
-                File clickedFile = (File) files.get(position).get("file");
-                if (clickedFile.isFile()) {
-                    handleFileClick(clickedFile);
-                } else if (clickedFile.isDirectory()) {
-                    updateListView(clickedFile);
-                }
+                listView.setOnItemClickListener((parent, view, position, id) -> {
+                    File clickedFile = (File) files.get(position).get("file");
+                    if (clickedFile.isFile()) {
+                        handleFileClick(clickedFile);
+                    } else if (clickedFile.isDirectory()) {
+                        updateListView(clickedFile);
+                    }
+                });
             });
         });
     }
