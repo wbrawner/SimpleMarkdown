@@ -13,7 +13,7 @@ creating Android apps and have a little something to put into my portfolio.
 * [ ] Save to cloud (Dropbox, Google Drive, OneDrive)
 * [ ] Disable live preview in landscape mode
 * [ ] Disable preview tab for better performance in large files
-* [ ] Custom CSS for Markdown preview
+* [x] Custom CSS for Markdown preview
 * [ ] Auto-scroll preview to match edit view in landscape mode
 * [ ] Better insert for tables/images/links
 * [ ] Quick-insert toolbar for common Markdown syntax characters
@@ -57,6 +57,5 @@ repository, make your changes, squash your commits, and submit a pull request :)
 - [Butterknife](https://github.com/JakeWharton/butterknife)
 - [Dagger 2](https://github.com/google/dagger)
 - [Hoedown](https://github.com/hoedown/hoedown)
-- [Retrolambda](https://github.com/evant/gradle-retrolambda)
 - [RxAndroid](https://github.com/ReactiveX/RxAndroid)
 - [RxJava](https://github.com/ReactiveX/RxJava)

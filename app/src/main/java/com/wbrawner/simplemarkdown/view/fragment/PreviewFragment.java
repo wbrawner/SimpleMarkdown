@@ -1,7 +1,9 @@
 package com.wbrawner.simplemarkdown.view.fragment;
 
 import android.app.Activity;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -24,17 +26,18 @@ import butterknife.Unbinder;
 
 public class PreviewFragment extends Fragment implements MarkdownPreviewView {
     private static final String TAG = PreviewFragment.class.getSimpleName();
-    public static String style = "<style>" +
-            "pre {overflow:scroll; padding:15px; background: #F1F1F1;}" +
+    public static String FORMAT_CSS = "<style>" +
+            "%s" +
             "</style>";
     @Inject
     MarkdownPresenter presenter;
     @BindView(R.id.markdown_view)
     WebView markdownPreview;
     private Unbinder unbinder;
+    private SharedPreferences sharedPreferences;
 
     public PreviewFragment() {
-        // Required empty public constructor
+        // Required empty constructor
     }
 
     @Override
@@ -43,6 +46,7 @@ public class PreviewFragment extends Fragment implements MarkdownPreviewView {
             ViewGroup container,
             Bundle savedInstanceState
     ) {
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(container.getContext());
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_preview, container, false);
         unbinder = ButterKnife.bind(this, view);
@@ -60,7 +64,6 @@ public class PreviewFragment extends Fragment implements MarkdownPreviewView {
         super.onViewCreated(view, savedInstanceState);
     }
 
-
     @Override
     public void updatePreview(String html) {
         if (markdownPreview == null) {
@@ -70,6 +73,14 @@ public class PreviewFragment extends Fragment implements MarkdownPreviewView {
             if (markdownPreview == null) {
                 return;
             }
+
+            String style = String.format(
+                    FORMAT_CSS,
+                    sharedPreferences.getString(
+                            getString(R.string.pref_custom_css),
+                            ""
+                    )
+            );
 
             markdownPreview.loadDataWithBaseURL(
                     null,
