@@ -35,7 +35,7 @@ public class MarkdownInfoActivity extends AppCompatActivity {
         setTitle(intent.getStringExtra("title"));
         infoWebview.loadDataWithBaseURL(
                 null,
-                PreviewFragment.style + intent.getStringExtra("html"),
+                getString(R.string.pref_custom_css_default) + intent.getStringExtra("html"),
                 "text/html",
                 "UTF-8",
                 null
