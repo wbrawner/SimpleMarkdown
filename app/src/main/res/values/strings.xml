@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools"  tools:ignore="MissingTranslation">
     <string name="app_name">Simple Markdown</string>
     <string name="app_name_short">Markdown</string>
     <string name="action_settings">Settings</string>
@@ -49,6 +49,10 @@
     <string name="pref_error_reports_on">Error reports will be sent</string>
     <string name="pref_autosave_on">Files will automatically save</string>
     <string name="pref_autosave_off">Files will not be automatically saved</string>
+    <string name="pref_custom_css">pref.custom_css</string>
+    <string name="pref_title_custom_css">Custom CSS</string>
+    <string name="pref_description_custom_css">Paste or write your own CSS to be used for the preview pane</string>
+    <string name="pref_custom_css_default" translatable="false">pre {overflow:scroll; padding:15px; background: #F1F1F1;}</string>
     <string-array name="pref_entries_default_view">
         <item>@string/value_edit_view</item>
         <item>@string/value_explorer_view</item>
