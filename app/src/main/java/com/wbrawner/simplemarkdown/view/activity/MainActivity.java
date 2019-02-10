@@ -16,6 +16,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import com.google.ads.mediation.admob.AdMobAdapter;
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
 import com.wbrawner.simplemarkdown.MarkdownApplication;
 import com.wbrawner.simplemarkdown.R;
 import com.wbrawner.simplemarkdown.presentation.MarkdownPresenter;
@@ -44,6 +49,8 @@ public class MainActivity extends AppCompatActivity
     DisableableViewPager pager;
     @BindView(R.id.layout_tab)
     TabLayout tabLayout;
+    @BindView(R.id.adView)
+    AdView adView;
 
     private boolean shouldAutoSave = true;
     private NewFileHandler newFileHandler;
@@ -67,6 +74,25 @@ public class MainActivity extends AppCompatActivity
         newFileHandler = new NewFileHandler();
         if (getIntent().getBooleanExtra(Constants.EXTRA_EXPLORER, false)) {
             requestFileOp(Constants.REQUEST_OPEN_FILE);
+        }
+
+        // TODO: Change this to only load for users who haven't paid to remove ads
+        if (true) {
+            MobileAds.initialize(this, getString(R.string.admob_app_id));
+            Bundle extras = new Bundle();
+            extras.putString("npa", "1");
+            AdRequest adRequest = new AdRequest.Builder()
+                    .addTestDevice("7045AFE2F8D6C6386983BAF3D2A2377E")
+                    .addNetworkExtrasBundle(AdMobAdapter.class, extras)
+                    .build();
+            adView.setAdListener(new AdListener() {
+                @Override
+                public void onAdFailedToLoad(int i) {
+                    super.onAdFailedToLoad(i);
+                    ACRA.getErrorReporter().handleException(new RuntimeException("Failed to load ads: " + i), false);
+                }
+            });
+            adView.loadAd(adRequest);
         }
     }
 

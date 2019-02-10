@@ -1,13 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <com.wbrawner.simplemarkdown.view.DisableableViewPager
         android:id="@+id/pager"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="0dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/adView">
         <android.support.design.widget.TabLayout
             android:id="@+id/layout_tab"
             android:layout_width="match_parent"
@@ -26,4 +30,15 @@
         </android.support.design.widget.TabLayout>
     </com.wbrawner.simplemarkdown.view.DisableableViewPager>
 
-</LinearLayout>
+    <com.google.android.gms.ads.AdView xmlns:ads="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/adView"
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        ads:adSize="SMART_BANNER"
+        ads:adUnitId="@string/adbmob_ad_unit_id"
+        app:layout_constraintTop_toBottomOf="@+id/pager"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"></com.google.android.gms.ads.AdView>
+
+</android.support.constraint.ConstraintLayout>
