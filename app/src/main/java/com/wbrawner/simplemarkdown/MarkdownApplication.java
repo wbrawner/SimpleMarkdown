@@ -67,7 +67,7 @@ public class MarkdownApplication extends Application {
     public void onCreate() {
         super.onCreate();
         component = DaggerAppComponent.builder()
-                .appModule(new AppModule())
+                .appModule(new AppModule(this))
                 .build();
     }
 
@@ -78,8 +78,6 @@ public class MarkdownApplication extends Application {
     @Override
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(base);
-
-        // The following line triggers the initialization of ACRA
         ACRA.init(this);
     }
 }

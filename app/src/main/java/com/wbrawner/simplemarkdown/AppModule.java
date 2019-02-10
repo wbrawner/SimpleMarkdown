@@ -1,5 +1,7 @@
 package com.wbrawner.simplemarkdown;
 
+import android.content.Context;
+
 import com.wbrawner.simplemarkdown.model.MarkdownFile;
 import com.wbrawner.simplemarkdown.presentation.MarkdownPresenter;
 import com.wbrawner.simplemarkdown.presentation.MarkdownPresenterImpl;
@@ -15,6 +17,11 @@ import dagger.Provides;
 
 @Module
 public class AppModule {
+    private final Context context;
+
+    public AppModule(Context context) {
+        this.context = context;
+    }
     @Provides
     public MarkdownFile provideMarkdownFile() {
         return new MarkdownFile();
@@ -22,6 +29,6 @@ public class AppModule {
 
     @Provides @Singleton
     public MarkdownPresenter provideMarkdownPresenter(MarkdownFile file) {
-        return new MarkdownPresenterImpl(file);
+        return new MarkdownPresenterImpl(context.getApplicationContext(), file);
     }
 }

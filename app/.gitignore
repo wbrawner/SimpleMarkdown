@@ -1,3 +1,4 @@
 /build
 crashlytics.properties
 *.apk
+google-services.json
