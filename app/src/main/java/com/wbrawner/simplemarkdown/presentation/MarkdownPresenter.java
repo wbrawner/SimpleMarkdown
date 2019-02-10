@@ -3,13 +3,15 @@ package com.wbrawner.simplemarkdown.presentation;
 import android.content.Context;
 import android.net.Uri;
 
+import com.android.billingclient.api.BillingClientStateListener;
+import com.android.billingclient.api.PurchasesUpdatedListener;
 import com.wbrawner.simplemarkdown.view.MarkdownEditView;
 import com.wbrawner.simplemarkdown.view.MarkdownPreviewView;
 
 import java.io.File;
 import java.io.InputStream;
 
-public interface MarkdownPresenter {
+public interface MarkdownPresenter extends PurchasesUpdatedListener, BillingClientStateListener {
     File getFile();
     void loadMarkdown();
 

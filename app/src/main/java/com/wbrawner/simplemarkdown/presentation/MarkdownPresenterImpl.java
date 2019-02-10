@@ -5,7 +5,12 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Handler;
 import android.provider.OpenableColumns;
+import android.support.annotation.Nullable;
 
+import com.android.billingclient.api.BillingClient;
+import com.android.billingclient.api.BillingClientStateListener;
+import com.android.billingclient.api.Purchase;
+import com.android.billingclient.api.PurchasesUpdatedListener;
 import com.commonsware.cwac.anddown.AndDown;
 import com.wbrawner.simplemarkdown.model.MarkdownFile;
 import com.wbrawner.simplemarkdown.utility.Utils;
@@ -18,18 +23,27 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.List;
 
-public class MarkdownPresenterImpl implements MarkdownPresenter {
+public class MarkdownPresenterImpl
+        implements MarkdownPresenter, BillingClientStateListener, PurchasesUpdatedListener {
     private final Object fileLock = new Object();
     private MarkdownFile file;
     private volatile MarkdownEditView editView;
     private volatile MarkdownPreviewView previewView;
     private Handler fileHandler = new Handler();
+    private BillingClient billingClient;
 
-    public MarkdownPresenterImpl(MarkdownFile file) {
+    public MarkdownPresenterImpl(Context context, MarkdownFile file) {
         synchronized (fileLock) {
             this.file = file;
         }
+
+
+        billingClient = BillingClient.newBuilder(context.getApplicationContext())
+                .setListener(this)
+                .build();
+        billingClient.startConnection(this);
     }
 
     @Override
@@ -241,5 +255,25 @@ public class MarkdownPresenterImpl implements MarkdownPresenter {
                 currentEditView.onFileLoaded(false);
             }
         }
+    }
+
+    @Override
+    public void onBillingSetupFinished(int responseCode) {
+        if (responseCode != BillingClient.BillingResponse.OK) {
+            return;
+        }
+
+        // The billing client is ready. You can query purchases here.
+    }
+
+    @Override
+    public void onBillingServiceDisconnected() {
+        // TODO: Set a flag and just try again later
+        billingClient.startConnection(this);
+    }
+
+    @Override
+    public void onPurchasesUpdated(int responseCode, @Nullable List<Purchase> purchases) {
+
     }
 }
