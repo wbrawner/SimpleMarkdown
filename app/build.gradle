@@ -29,7 +29,7 @@ android {
         minSdkVersion 19
         targetSdkVersion 28
         versionCode 16
-        versionName "0.6.0"
+        versionName "0.6.0-beta1"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         buildConfigField "String", "ACRA_URL", "\"${acra.getProperty("url")}\""
         buildConfigField "String", "ACRA_USER", "\"${acra.getProperty("user")}\""
