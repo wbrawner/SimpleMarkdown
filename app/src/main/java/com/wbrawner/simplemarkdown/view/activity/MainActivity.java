@@ -16,6 +16,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import com.crashlytics.android.Crashlytics;
 import com.google.ads.mediation.admob.AdMobAdapter;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
@@ -28,8 +29,6 @@ import com.wbrawner.simplemarkdown.utility.Constants;
 import com.wbrawner.simplemarkdown.utility.Utils;
 import com.wbrawner.simplemarkdown.view.DisableableViewPager;
 import com.wbrawner.simplemarkdown.view.adapter.EditPagerAdapter;
-
-import org.acra.ACRA;
 
 import java.io.File;
 import java.io.InputStream;
@@ -89,7 +88,7 @@ public class MainActivity extends AppCompatActivity
                 @Override
                 public void onAdFailedToLoad(int i) {
                     super.onAdFailedToLoad(i);
-                    ACRA.getErrorReporter().handleException(new RuntimeException("Failed to load ads: " + i), false);
+                    Crashlytics.logException(new RuntimeException("Failed to load ads: " + i));
                 }
             });
             adView.loadAd(adRequest);
@@ -200,7 +199,7 @@ public class MainActivity extends AppCompatActivity
                 }
             });
         } catch (Exception e) {
-            ACRA.getErrorReporter().handleException(e, false);
+            Crashlytics.logException(e);
             Toast.makeText(MainActivity.this, R.string.file_load_error, Toast.LENGTH_SHORT).show();
         }
     }

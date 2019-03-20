@@ -15,11 +15,10 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 
+import com.crashlytics.android.Crashlytics;
 import com.wbrawner.simplemarkdown.R;
 import com.wbrawner.simplemarkdown.utility.Constants;
 import com.wbrawner.simplemarkdown.utility.Utils;
-
-import org.acra.ACRA;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -119,7 +118,7 @@ public class ExplorerActivity extends AppCompatActivity {
             try {
                 sdcardSelected = filePath.get().contains(mounts[1].getAbsolutePath());
             } catch (NullPointerException e) {
-                ACRA.getErrorReporter().handleException(e, false);
+                Crashlytics.logException(e);
                 updateListView();
                 menu.findItem(R.id.action_use_sdcard).setVisible(false);
             }

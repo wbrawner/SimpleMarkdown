@@ -10,7 +10,7 @@ import android.os.HandlerThread;
 import android.preference.PreferenceManager;
 import android.support.v4.content.ContextCompat;
 
-import org.acra.ACRA;
+import com.crashlytics.android.Crashlytics;
 
 import java.io.Closeable;
 import java.io.File;
@@ -104,7 +104,7 @@ public class Utils {
         HandlerThread handlerThread = new HandlerThread(name);
         handlerThread.start();
         handlerThread.setUncaughtExceptionHandler((t, e) -> {
-            ACRA.getErrorReporter().handleException(e);
+            Crashlytics.logException(e);
             t.interrupt();
         });
         return new Handler(handlerThread.getLooper());

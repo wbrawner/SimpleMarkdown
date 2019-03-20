@@ -12,12 +12,11 @@ import com.android.billingclient.api.BillingClientStateListener;
 import com.android.billingclient.api.Purchase;
 import com.android.billingclient.api.PurchasesUpdatedListener;
 import com.commonsware.cwac.anddown.AndDown;
+import com.crashlytics.android.Crashlytics;
 import com.wbrawner.simplemarkdown.model.MarkdownFile;
 import com.wbrawner.simplemarkdown.utility.Utils;
 import com.wbrawner.simplemarkdown.view.MarkdownEditView;
 import com.wbrawner.simplemarkdown.view.MarkdownPreviewView;
-
-import org.acra.ACRA;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -75,7 +74,7 @@ public class MarkdownPresenterImpl
             InputStream in = new FileInputStream(file);
             loadMarkdown(file.getName(), in);
         } catch (FileNotFoundException e) {
-            ACRA.getErrorReporter().handleException(e, false);
+            Crashlytics.logException(e);
         }
     }
 
@@ -249,7 +248,7 @@ public class MarkdownPresenterImpl
             }
             loadMarkdown(fileName, in);
         } catch (Exception e) {
-            ACRA.getErrorReporter().handleException(e, false);
+            Crashlytics.logException(e);
             MarkdownEditView currentEditView = editView;
             if (currentEditView != null) {
                 currentEditView.onFileLoaded(false);

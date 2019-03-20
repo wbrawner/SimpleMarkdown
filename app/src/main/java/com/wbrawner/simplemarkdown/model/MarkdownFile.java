@@ -1,8 +1,7 @@
 package com.wbrawner.simplemarkdown.model;
 
+import com.crashlytics.android.Crashlytics;
 import com.wbrawner.simplemarkdown.utility.Utils;
-
-import org.acra.ACRA;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -112,7 +111,7 @@ public class MarkdownFile {
             this.content = sb.toString();
             return true;
         } catch (IOException e) {
-            ACRA.getErrorReporter().handleException(e, false);
+            Crashlytics.logException(e);
             return false;
         } finally {
             Utils.closeQuietly(reader);
@@ -133,7 +132,7 @@ public class MarkdownFile {
             this.path = markdownFile.getParentFile().getAbsolutePath();
             return load(new FileInputStream(markdownFile));
         } catch (FileNotFoundException e) {
-            ACRA.getErrorReporter().handleException(e, false);
+            Crashlytics.logException(e);
             return false;
         }
     }
@@ -159,7 +158,7 @@ public class MarkdownFile {
                     return false;
                 }
             } catch (IOException e) {
-                ACRA.getErrorReporter().handleException(e, false);
+                Crashlytics.logException(e);
                 return false;
             }
         }
@@ -175,14 +174,14 @@ public class MarkdownFile {
             );
             writer.write(this.content);
         } catch (IOException e) {
-            ACRA.getErrorReporter().handleException(e, false);
+            Crashlytics.logException(e);
             return false;
         } finally {
             if (writer != null) {
                 try {
                     writer.close();
                 } catch (IOException e) {
-                    ACRA.getErrorReporter().handleException(e, false);
+                    Crashlytics.logException(e);
                     // closing the reader failed
                 }
             }
