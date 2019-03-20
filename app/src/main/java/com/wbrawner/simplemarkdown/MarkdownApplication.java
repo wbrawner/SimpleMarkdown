@@ -1,8 +1,8 @@
 package com.wbrawner.simplemarkdown;
 
-import android.app.Application;
+import android.support.multidex.MultiDexApplication;
 
-public class MarkdownApplication extends Application {
+public class MarkdownApplication extends MultiDexApplication {
 
     private AppComponent component;
 

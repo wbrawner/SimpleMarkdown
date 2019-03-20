@@ -101,6 +101,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-ads:17.2.0'
     implementation 'com.android.billingclient:billing:1.2'
     implementation 'com.crashlytics.sdk.android:crashlytics:2.9.9'
+    implementation 'com.android.support:multidex:1.0.3'
     samsungImplementation project(":IAP5Helper")
 }
 
