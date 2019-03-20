@@ -8,12 +8,14 @@ import android.view.MenuItem;
 import android.webkit.WebView;
 
 import com.wbrawner.simplemarkdown.R;
-import com.wbrawner.simplemarkdown.view.fragment.PreviewFragment;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class MarkdownInfoActivity extends AppCompatActivity {
+    public static String FORMAT_CSS = "<style>" +
+            "%s" +
+            "</style>";
 
     @BindView(R.id.info_webview)
     WebView infoWebview;
@@ -35,7 +37,9 @@ public class MarkdownInfoActivity extends AppCompatActivity {
         setTitle(intent.getStringExtra("title"));
         infoWebview.loadDataWithBaseURL(
                 null,
-                getString(R.string.pref_custom_css_default) + intent.getStringExtra("html"),
+                String.format(FORMAT_CSS,
+                        getString(R.string.pref_custom_css_default)
+                ) + intent.getStringExtra("html"),
                 "text/html",
                 "UTF-8",
                 null

@@ -71,6 +71,10 @@
             android:name=".view.activity.ExplorerActivity"
             android:label="@string/title_activity_explorer"
             android:theme="@style/AppTheme.NoActionBar" />
+
+        <meta-data
+            android:name="firebase_crashlytics_collection_enabled"
+            android:value="false" />
     </application>
 
 </manifest>
