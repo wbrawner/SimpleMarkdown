@@ -27,8 +27,8 @@ android {
         minSdkVersion 19
         targetSdkVersion 28
         multiDexEnabled true
-        versionCode 16
-        versionName "0.6.0-beta1"
+        versionCode 17
+        versionName "0.6.0-beta2"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     signingConfigs {
@@ -40,23 +40,15 @@ android {
         }
     }
     buildTypes {
-        debug {
-            resValue "string", "adbmob_ad_unit_id", "ca-app-pub-3940256099942544/6300978111"
-        }
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.release
-            resValue "string", "adbmob_ad_unit_id", "ca-app-pub-3319579963502409/4464724664"
         }
     }
     flavorDimensions "platform"
     productFlavors {
         standard {}
-        samsung {
-            applicationId "com.wbrawner.simplemarkdown.samsung"
-            minSdkVersion 21
-        }
     }
     dexOptions {
         jumboMode true
@@ -98,11 +90,9 @@ dependencies {
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.0'
     implementation 'io.reactivex.rxjava2:rxjava:2.2.6'
     implementation 'com.google.firebase:firebase-core:16.0.8'
-    implementation 'com.google.firebase:firebase-ads:17.2.0'
     implementation 'com.android.billingclient:billing:1.2'
     implementation 'com.crashlytics.sdk.android:crashlytics:2.9.9'
     implementation 'com.android.support:multidex:1.0.3'
-    samsungImplementation project(":IAP5Helper")
 }
 
 apply plugin: 'com.google.gms.google-services'
