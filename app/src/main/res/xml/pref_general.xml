@@ -21,10 +21,10 @@
         android:summaryOff="@string/pref_error_reports_off"
         android:summaryOn="@string/pref_error_reports_on"
         android:title="@string/pref_title_error_reports" />
-    <EditTextPreference
-        android:defaultValue="@string/pref_custom_css_default"
-        android:key="@string/pref_custom_css"
-        android:title="@string/pref_title_custom_css"
-        android:summary="@string/pref_description_custom_css" />
+    <!--<EditTextPreference-->
+    <!--android:defaultValue="@string/pref_custom_css_default"-->
+    <!--android:key="@string/pref_custom_css"-->
+    <!--android:title="@string/pref_title_custom_css"-->
+    <!--android:summary="@string/pref_description_custom_css" />-->
 
 </PreferenceScreen>
