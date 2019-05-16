@@ -4,22 +4,22 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <android.support.design.widget.TabLayout
+    <com.google.android.material.tabs.TabLayout
         android:id="@+id/layout_tab"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="top">
 
-        <android.support.design.widget.TabItem
+        <com.google.android.material.tabs.TabItem
             android:id="@+id/tab_edit"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="@string/action_edit" />
 
-        <android.support.design.widget.TabItem
+        <com.google.android.material.tabs.TabItem
             android:id="@+id/tab_preview"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="@string/action_preview" />
-    </android.support.design.widget.TabLayout>
+    </com.google.android.material.tabs.TabLayout>
 </com.wbrawner.simplemarkdown.view.DisableableViewPager>

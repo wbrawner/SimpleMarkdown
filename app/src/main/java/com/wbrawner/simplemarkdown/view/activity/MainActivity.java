@@ -7,16 +7,18 @@ import android.content.res.AssetManager;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.design.widget.TabLayout;
-import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.lifecycle.ViewModelProviders;
+
 import com.crashlytics.android.Crashlytics;
+import com.google.android.material.tabs.TabLayout;
 import com.wbrawner.simplemarkdown.MarkdownApplication;
 import com.wbrawner.simplemarkdown.R;
 import com.wbrawner.simplemarkdown.presentation.MarkdownPresenter;

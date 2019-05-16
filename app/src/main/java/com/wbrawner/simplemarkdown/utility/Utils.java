@@ -8,7 +8,8 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.preference.PreferenceManager;
-import android.support.v4.content.ContextCompat;
+
+import androidx.core.content.ContextCompat;
 
 import com.crashlytics.android.Crashlytics;
 
