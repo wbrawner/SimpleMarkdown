@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.Nullable;
 
+import com.wbrawner.simplemarkdown.BuildConfig;
 import com.wbrawner.simplemarkdown.R;
 import com.wbrawner.simplemarkdown.utility.Constants;
 import com.wbrawner.simplemarkdown.utility.Utils;
@@ -36,6 +37,9 @@ public class SettingsFragment extends PreferenceFragment
                 sharedPreferences,
                 findPreference(getString(R.string.key_default_view))
         );
+        if (!BuildConfig.ENABLE_CUSTOM_CSS) {
+            getPreferenceScreen().removePreference(findPreference(getString(R.string.pref_custom_css)));
+        }
         Preference defaultRoot = findPreference(Constants.KEY_DOCS_PATH);
         defaultRoot.setSummary(Utils.getDocsPath(getActivity()));
         defaultRoot.setOnPreferenceClickListener((preference) -> {
