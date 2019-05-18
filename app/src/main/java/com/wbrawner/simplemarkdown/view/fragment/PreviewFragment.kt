@@ -44,14 +44,7 @@ class PreviewFragment : Fragment(), MarkdownPreviewView {
     }
 
     override fun updatePreview(html: String) {
-        if (markdownPreview == null) {
-            return
-        }
-        markdownPreview!!.post {
-            if (markdownPreview == null) {
-                return@post
-            }
-
+        markdownPreview?.post {
             val isNightMode = AppCompatDelegate.getDefaultNightMode() ==
                     AppCompatDelegate.MODE_NIGHT_YES
                     || context!!.resources.configuration.uiMode and UI_MODE_NIGHT_MASK == UI_MODE_NIGHT_YES
@@ -60,6 +53,7 @@ class PreviewFragment : Fragment(), MarkdownPreviewView {
             } else {
                 R.string.pref_custom_css_default
             }
+            @Suppress("ConstantConditionIf")
             val css: String? = if (!BuildConfig.ENABLE_CUSTOM_CSS) {
                 getString(defaultCssId)
             } else {
@@ -71,7 +65,7 @@ class PreviewFragment : Fragment(), MarkdownPreviewView {
 
             val style = String.format(FORMAT_CSS, css)
 
-            markdownPreview!!.loadDataWithBaseURL(null,
+            markdownPreview?.loadDataWithBaseURL(null,
                     style + html,
                     "text/html",
                     "UTF-8", null

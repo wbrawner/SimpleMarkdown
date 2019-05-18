@@ -14,7 +14,8 @@ public interface MarkdownPresenter {
     void loadFromUri(Context context, Uri fileUri);
 
     void loadMarkdown(String fileName, InputStream in, OnTempFileLoadedListener listener);
-    void newFile(String path);
+
+    void newFile(String newName);
     void setEditView(MarkdownEditView editView);
     void setPreviewView(MarkdownPreviewView previewView);
 

@@ -17,7 +17,6 @@ import com.wbrawner.simplemarkdown.MarkdownApplication
 import com.wbrawner.simplemarkdown.R
 import com.wbrawner.simplemarkdown.presentation.MarkdownPresenter
 import com.wbrawner.simplemarkdown.utility.MarkdownObserver
-import com.wbrawner.simplemarkdown.utility.Utils
 import com.wbrawner.simplemarkdown.view.MarkdownEditView
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -101,10 +100,8 @@ class EditFragment : Fragment(), MarkdownEditView {
     }
 
     override fun onFileSaved(success: Boolean) {
-        val location = Utils.getDocsPath(activity) + presenter.fileName
-        val message: String
-        message = if (success) {
-            getString(R.string.file_saved, location)
+        val message: String = if (success) {
+            getString(R.string.file_saved, presenter.fileName)
         } else {
             getString(R.string.file_save_error)
         }

@@ -13,13 +13,13 @@ import android.view.MenuItem
 import android.view.View
 import android.webkit.MimeTypeMap
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.wbrawner.simplemarkdown.MarkdownApplication
 import com.wbrawner.simplemarkdown.R
 import com.wbrawner.simplemarkdown.presentation.MarkdownPresenter
-import com.wbrawner.simplemarkdown.utility.Constants
-import com.wbrawner.simplemarkdown.utility.Constants.REQUEST_DARK_MODE
+import com.wbrawner.simplemarkdown.utility.Constants.*
 import com.wbrawner.simplemarkdown.utility.ErrorHandler
 import com.wbrawner.simplemarkdown.utility.Utils
 import com.wbrawner.simplemarkdown.view.adapter.EditPagerAdapter
@@ -56,7 +56,6 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
             tabLayout!!.visibility = View.GONE
         }
-        newFileHandler = NewFileHandler()
     }
 
     override fun onUserLeaveHint() {
@@ -81,7 +80,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.action_save -> requestFileOp(Constants.REQUEST_SAVE_FILE)
+            R.id.action_save -> requestFileOp(REQUEST_SAVE_FILE)
             R.id.action_share -> {
                 val shareIntent = Intent(Intent.ACTION_SEND)
                 shareIntent.putExtra(Intent.EXTRA_TEXT, presenter.markdown)
@@ -91,8 +90,8 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
                         getString(R.string.share_file)
                 ))
             }
-            R.id.action_load -> requestFileOp(Constants.REQUEST_OPEN_FILE)
-//            R.id.action_new -> presenter.saveMarkdown(newFileHandler, null)
+            R.id.action_load -> requestFileOp(REQUEST_OPEN_FILE)
+            R.id.action_new -> promptSaveOrDiscardChanges()
             R.id.action_lock_swipe -> {
                 item.isChecked = !item.isChecked
                 pager!!.setSwipeLocked(item.isChecked)
@@ -157,7 +156,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
             grantResults: IntArray
     ) {
         when (requestCode) {
-            Constants.REQUEST_SAVE_FILE, Constants.REQUEST_OPEN_FILE -> {
+            REQUEST_SAVE_FILE, REQUEST_OPEN_FILE -> {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // Permission granted, open file save dialog
@@ -180,7 +179,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         when (requestCode) {
-            Constants.REQUEST_OPEN_FILE -> {
+            REQUEST_OPEN_FILE -> {
                 if (resultCode != Activity.RESULT_OK || data?.data == null) {
                     return
                 }
@@ -197,7 +196,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
                     presenter.loadMarkdown(fileName, fileInput)
                 }
             }
-            Constants.REQUEST_SAVE_FILE -> {
+            REQUEST_SAVE_FILE -> {
                 if (resultCode != Activity.RESULT_OK
                         || data?.data == null) {
                     return
@@ -211,7 +210,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
                         } ?: "Untitled.md"
 
                 presenter.saveMarkdown(
-                        null,
+                        newFileHandler,
                         fileName,
                         contentResolver.openOutputStream(data.data!!)
                 )
@@ -219,6 +218,21 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
             REQUEST_DARK_MODE -> recreate()
         }
         super.onActivityResult(requestCode, resultCode, data)
+    }
+
+    private fun promptSaveOrDiscardChanges() {
+        AlertDialog.Builder(this)
+                .setTitle(R.string.save_changes)
+                .setMessage(R.string.prompt_save_changes)
+                .setNegativeButton(R.string.action_discard) { d, _ ->
+                    presenter.newFile("Untitled.md")
+                }
+                .setPositiveButton(R.string.action_save) { d, _ ->
+                    newFileHandler = NewFileHandler()
+                    requestFileOp(REQUEST_SAVE_FILE)
+                }
+                .create()
+                .show()
     }
 
     private fun requestFileOp(requestType: Int) {
@@ -233,13 +247,13 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         // If the user is going to save the file, we don't want to auto-save it for them
         shouldAutoSave = false
         val intent = when (requestType) {
-            Constants.REQUEST_SAVE_FILE -> {
+            REQUEST_SAVE_FILE -> {
                 Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
                     type = "text/markdown"
                     putExtra(Intent.EXTRA_TITLE, presenter.fileName)
                 }
             }
-            Constants.REQUEST_OPEN_FILE -> {
+            REQUEST_OPEN_FILE -> {
                 Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
                     type = "*/*"
                     if (MimeTypeMap.getSingleton().hasMimeType("md")) {
@@ -258,6 +272,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         )
     }
 
+
     override fun onResume() {
         super.onResume()
         title = presenter.fileName
@@ -267,8 +282,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
     private inner class NewFileHandler : MarkdownPresenter.MarkdownSavedListener {
         override fun saveComplete(success: Boolean) {
             if (success) {
-                val newFile = Utils.getDefaultFileName(this@MainActivity)
-                presenter.newFile(newFile)
+                presenter.newFile("Untitled.md")
             } else {
                 Toast.makeText(
                         this@MainActivity,
