@@ -9,14 +9,14 @@ creating Android apps and have a little something to put into my portfolio.
 ## Roadmap
 
 * [x] Auto-save
-* [ ] Night mode
-* [ ] Save to cloud (Dropbox, Google Drive, OneDrive)
-* [ ] Disable live preview in landscape mode
-* [ ] Disable preview tab for better performance in large files
+* [x] Night mode
+* [x] Save to cloud (Dropbox, Google Drive, OneDrive)
 * [x] Custom CSS for Markdown preview
-* [ ] Auto-scroll preview to match edit view in landscape mode
 * [ ] Better insert for tables/images/links
 * [ ] Quick-insert toolbar for common Markdown syntax characters
+* [ ] Auto-scroll preview to match edit view in landscape mode
+* [ ] Disable live preview in landscape mode
+* [ ] Disable preview tab for better performance in large files
 
 ## Building
 
@@ -24,9 +24,11 @@ Using Android Studio is the preferred way to build the project. To build from th
 
     ./gradlew assembleDebug
 
-### ACRA
+### Crashlytics
 
-SimpleMarkdown makes use of [ACRA](https://github.com/ACRA/acra) for crash reports. This requires the presence of the `app/acra.properties` file for building. For your convenience, a `app/acra.properties.sample` file has been provided.
+SimpleMarkdown makes use of Firebase Crashlytics for error reporting. You'll need to follow the 
+[Get started with Firebase Crashlytics](https://firebase.google
+.com/docs/crashlytics/get-started?platform=android) guide in order to build the project.
 
 ## Contributing
 
@@ -36,7 +38,7 @@ repository, make your changes, squash your commits, and submit a pull request :)
 ## License
 
 ```
-   Copyright 2017 William Brawner
+   Copyright 2017-2019 William Brawner
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -54,7 +56,6 @@ repository, make your changes, squash your commits, and submit a pull request :)
 ## Libraries
 
 - [AndDown](https://github.com/commonsguy/cwac-anddown)
-- [Butterknife](https://github.com/JakeWharton/butterknife)
 - [Dagger 2](https://github.com/google/dagger)
 - [Hoedown](https://github.com/hoedown/hoedown)
 - [RxAndroid](https://github.com/ReactiveX/RxAndroid)
