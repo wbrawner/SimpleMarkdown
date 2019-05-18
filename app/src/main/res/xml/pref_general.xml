@@ -3,25 +3,25 @@
     <SwitchPreference
         android:defaultValue="true"
         android:key="autosave"
-        android:summaryOn="@string/pref_autosave_on"
         android:summaryOff="@string/pref_autosave_off"
+        android:summaryOn="@string/pref_autosave_on"
         android:title="@string/pref_title_autosave" />
+    <EditTextPreference
+        android:defaultValue="@string/pref_custom_css_default"
+        android:key="@string/pref_custom_css"
+        android:summary="@string/pref_description_custom_css"
+        android:title="@string/pref_title_custom_css" />
     <ListPreference
-        android:defaultValue="@string/value_edit_view"
-        android:entries="@array/pref_entries_default_view"
-        android:entryValues="@array/pref_values_default_view"
-        android:key="@string/key_default_view"
-        android:title="@string/pref_title_default_view" />
+        android:entries="@array/pref_entries_dark_mode"
+        android:entryValues="@array/pref_values_dark_mode"
+        android:defaultValue="@string/pref_value_auto"
+        android:key="@string/pref_key_dark_mode"
+        android:title="@string/title_dark_mode" />
     <SwitchPreference
         android:defaultValue="true"
         android:key="@string/error_reports_enabled"
         android:summaryOff="@string/pref_error_reports_off"
         android:summaryOn="@string/pref_error_reports_on"
         android:title="@string/pref_title_error_reports" />
-    <EditTextPreference
-        android:defaultValue="@string/pref_custom_css_default"
-        android:key="@string/pref_custom_css"
-        android:summary="@string/pref_description_custom_css"
-        android:title="@string/pref_title_custom_css" />
 
 </PreferenceScreen>

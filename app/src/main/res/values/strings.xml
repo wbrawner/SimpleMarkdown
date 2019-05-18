@@ -12,7 +12,6 @@
     <string name="markdown_here">Markdown here…</string>
     <string name="action_save">Save</string>
     <string name="action_share">Share</string>
-    <string name="hint_filename">File name</string>
     <string name="action_export">Export</string>
     <string name="no_shareable_apps">Unable to share file - no capable apps installed</string>
     <string name="share_file">Share file to…</string>
@@ -26,9 +25,7 @@
     <string name="error_write">An error occurred while writing the file</string>
     <string name="file_load_error">An error occurred while opening the file</string>
     <string name="action_libraries">Libraries</string>
-    <string name="title_activity_explorer">ExplorerActivity</string>
     <string name="action_new">New</string>
-    <string name="action_use_sdcard">Use SD Card</string>
     <string name="action_done">Done</string>
     <string name="action_open">Open</string>
     <string name="yes">Yes</string>
@@ -37,14 +34,7 @@
     <string name="pref_title_autosave">Enable autosave</string>
     <string name="pref_description_autosave">Automatically save files when closing the app</string>
     <string name="action_lock_swipe">Lock Swiping</string>
-    <string name="key_default_view">defaultView</string>
-    <string name="pref_description_default_view">Decide what you see first when you open the app</string>
-    <string name="pref_title_default_view">Default View</string>
-    <string name="value_edit_view">Edit View</string>
-    <string name="value_explorer_view">File Explorer View</string>
-    <string name="pref_description_default_root">Default Root Directory</string>
     <string name="action_select">Select</string>
-    <string name="directory_up">\u2191 Go up</string>
     <string name="action_privacy">Privacy</string>
     <string name="error_reports_enabled">crashlytics.enable</string>
     <string name="pref_title_error_reports">Enable automated error reports</string>
@@ -58,12 +48,22 @@
     <string name="pref_custom_css_default" translatable="false">pre {overflow:scroll; padding:15px; background: #F1F1F1;}</string>
     <string name="pref_custom_css_default_dark" translatable="false">body{background:
         #000000;color: #F1F1F1;}a{color:#7b91ff;}pre{background:#111111;}</string>
-    <string-array name="pref_entries_default_view">
-        <item>@string/value_edit_view</item>
-        <item>@string/value_explorer_view</item>
+    <string name="pref_key_dark_mode">darkMode</string>
+    <string name="title_dark_mode">Dark Mode</string>
+    <string name="pref_value_light">Light</string>
+    <string name="pref_value_dark">Dark</string>
+    <string name="pref_value_auto">Auto</string>
+    <string name="pref_key_dark_mode_light" translatable="false">light</string>
+    <string name="pref_key_dark_mode_dark" translatable="false">dark</string>
+    <string name="pref_key_dark_mode_auto" translatable="false">auto</string>
+    <string-array name="pref_entries_dark_mode">
+        <item>@string/pref_value_light</item>
+        <item>@string/pref_value_dark</item>
+        <item>@string/pref_value_auto</item>
     </string-array>
-    <string-array name="pref_values_default_view">
-        <item>0</item>
-        <item>1</item>
+    <string-array name="pref_values_dark_mode">
+        <item>@string/pref_key_dark_mode_light</item>
+        <item>@string/pref_key_dark_mode_dark</item>
+        <item>@string/pref_key_dark_mode_auto</item>
     </string-array>
 </resources>
