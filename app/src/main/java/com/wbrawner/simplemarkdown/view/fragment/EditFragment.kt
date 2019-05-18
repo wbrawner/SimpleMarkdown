@@ -55,8 +55,7 @@ class EditFragment : Fragment(), MarkdownEditView {
     @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        presenter!!.setEditView(this@EditFragment)
-        presenter!!.loadMarkdown()
+        presenter.setEditView(this@EditFragment)
 
         markdownEditorScroller!!.setOnTouchListener { v, event ->
             // The focus should only be set if this was a click, and not a scroll

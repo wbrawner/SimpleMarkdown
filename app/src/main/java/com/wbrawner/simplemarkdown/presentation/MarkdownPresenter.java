@@ -6,27 +6,23 @@ import android.net.Uri;
 import com.wbrawner.simplemarkdown.view.MarkdownEditView;
 import com.wbrawner.simplemarkdown.view.MarkdownPreviewView;
 
-import java.io.File;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 public interface MarkdownPresenter {
-    File getFile();
-    void loadMarkdown();
-
     void loadMarkdown(String fileName, InputStream in);
-    void loadMarkdown(File file);
     void loadFromUri(Context context, Uri fileUri);
 
     void loadMarkdown(String fileName, InputStream in, OnTempFileLoadedListener listener);
     void newFile(String path);
     void setEditView(MarkdownEditView editView);
     void setPreviewView(MarkdownPreviewView previewView);
-    void saveMarkdown(MarkdownSavedListener listener, String filePath);
+
+    void saveMarkdown(MarkdownSavedListener listener, String name, OutputStream outputStream);
     void onMarkdownEdited();
     void onMarkdownEdited(String markdown);
     String getFileName();
     void setFileName(String name);
-    void setRootDir(String path);
     String generateHTML();
     String generateHTML(String markdown);
     String getMarkdown();

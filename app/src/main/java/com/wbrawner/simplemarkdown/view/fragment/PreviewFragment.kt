@@ -72,8 +72,8 @@ class PreviewFragment : Fragment(), MarkdownPreviewView {
 
     override fun onResume() {
         super.onResume()
-        presenter!!.setPreviewView(this)
-        presenter!!.onMarkdownEdited()
+        presenter.setPreviewView(this)
+        presenter.onMarkdownEdited()
     }
 
     override fun onDestroyView() {
@@ -86,11 +86,10 @@ class PreviewFragment : Fragment(), MarkdownPreviewView {
 
     override fun onDestroy() {
         super.onDestroy()
-        presenter!!.setPreviewView(null)
+        presenter.setPreviewView(null)
     }
 
     companion object {
-        private val TAG = PreviewFragment::class.java.simpleName
         var FORMAT_CSS = "<style>" +
                 "%s" +
                 "</style>"

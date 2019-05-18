@@ -4,13 +4,10 @@ import com.crashlytics.android.Crashlytics;
 import com.wbrawner.simplemarkdown.utility.Utils;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 
 /**
@@ -18,41 +15,18 @@ import java.io.OutputStreamWriter;
  * as to keep track of the data itself in memory.
  */
 public class MarkdownFile {
-    private static String defaultRootDir = "";
     private String name;
-    private String path;
     private String content;
 
-    public MarkdownFile(String name, String path, String content) {
+    public MarkdownFile(String name, String content) {
         this.name = name;
-        if (path == null || path.isEmpty()) {
-            path = defaultRootDir;
-        }
-        this.path = path;
         this.content = content;
     }
 
-    public MarkdownFile(String path) {
-        if (load(path)) {
-            this.name = path.substring(
-                    path.lastIndexOf("/") + 1
-            );
-            this.path = path.substring(
-                    0,
-                    path.lastIndexOf("/")
-            );
-            this.content = "";
-        }
-    }
 
     public MarkdownFile() {
         this.name = "Untitled.md";
-        this.path = "";
         this.content = "";
-    }
-
-    public static void setDefaultRootDir(String defaultRootDir) {
-        MarkdownFile.defaultRootDir = defaultRootDir;
     }
 
     public String getName() {
@@ -63,34 +37,6 @@ public class MarkdownFile {
         this.name = name;
     }
 
-    public String getPath() {
-        return path;
-    }
-
-    public void setPath(String path) {
-        this.path = path;
-    }
-
-    public String getFullPath() {
-        String fullPath;
-
-        if (this.path.isEmpty()) {
-            this.path = defaultRootDir;
-        }
-
-        if (this.path.endsWith(this.name)) {
-            return this.path;
-        }
-
-        if (!this.path.endsWith("/")) {
-            fullPath = this.path + "/";
-        } else {
-            fullPath = this.path;
-        }
-
-        return fullPath + this.name;
-    }
-
     public String getContent() {
         return content;
     }
@@ -99,7 +45,7 @@ public class MarkdownFile {
         this.content = content;
     }
 
-    public boolean load(InputStream in) {
+    public boolean load(String name, InputStream in) {
         StringBuilder sb = new StringBuilder();
         BufferedReader reader = null;
         try {
@@ -108,6 +54,7 @@ public class MarkdownFile {
             while ((line = reader.readLine()) != null) {
                 sb.append(line).append('\n');
             }
+            this.name = name;
             this.content = sb.toString();
             return true;
         } catch (IOException e) {
@@ -118,61 +65,12 @@ public class MarkdownFile {
         }
     }
 
-    private boolean load(String path) {
-        return load(new File(path));
-    }
-
-    private boolean load(File markdownFile) {
-        if (!markdownFile.exists() || !markdownFile.canRead()) {
-            return false;
-        }
-
-        try {
-            this.name = markdownFile.getName();
-            this.path = markdownFile.getParentFile().getAbsolutePath();
-            return load(new FileInputStream(markdownFile));
-        } catch (FileNotFoundException e) {
-            Crashlytics.logException(e);
-            return false;
-        }
-    }
-
-    public boolean load() {
-        return !this.name.isEmpty() && load(getFullPath());
-    }
-
-    public boolean save(String path) {
-        if (path == null) {
-            path = this.getFullPath();
-        }
-
-        File markdownFile = new File(path);
-        File parentFile = markdownFile.getParentFile();
-        if (!parentFile.exists() && !parentFile.mkdirs()) {
-            return false;
-        }
-
-        if (!markdownFile.exists()) {
-            try {
-                if (!markdownFile.createNewFile()) {
-                    return false;
-                }
-            } catch (IOException e) {
-                Crashlytics.logException(e);
-                return false;
-            }
-        }
-
-        if (!markdownFile.canWrite()) {
-            return false;
-        }
-
+    public boolean save(String name, OutputStream outputStream) {
         OutputStreamWriter writer = null;
         try {
-            writer = new OutputStreamWriter(
-                    new FileOutputStream(markdownFile)
-            );
+            writer = new OutputStreamWriter(outputStream);
             writer.write(this.content);
+            this.name = name;
         } catch (IOException e) {
             Crashlytics.logException(e);
             return false;
@@ -182,13 +80,9 @@ public class MarkdownFile {
                     writer.close();
                 } catch (IOException e) {
                     Crashlytics.logException(e);
-                    // closing the reader failed
                 }
             }
         }
-
-        this.name = markdownFile.getName();
-        this.path = markdownFile.getParentFile().getAbsolutePath();
         return true;
     }
 }

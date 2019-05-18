@@ -12,9 +12,6 @@
         android:entryValues="@array/pref_values_default_view"
         android:key="@string/key_default_view"
         android:title="@string/pref_title_default_view" />
-    <Preference
-        android:key="defaultRootDir"
-        android:title="@string/pref_description_default_root" />
     <SwitchPreference
         android:defaultValue="true"
         android:key="@string/error_reports_enabled"
