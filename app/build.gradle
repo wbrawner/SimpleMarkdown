@@ -27,13 +27,13 @@ android {
     }
     defaultConfig {
         applicationId "com.wbrawner.simplemarkdown"
-        minSdkVersion 19
+        minSdkVersion 20
         targetSdkVersion 'Q'
         multiDexEnabled true
         versionCode 18
         versionName "0.6.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        buildConfigField "boolean", "ENABLE_CUSTOM_CSS", "true"
+        buildConfigField "boolean", "ENABLE_CUSTOM_CSS", "false"
     }
     signingConfigs {
         release {

@@ -56,6 +56,8 @@
     <string name="pref_title_custom_css">Custom CSS</string>
     <string name="pref_description_custom_css">Paste or write your own CSS to be used for the preview pane</string>
     <string name="pref_custom_css_default" translatable="false">pre {overflow:scroll; padding:15px; background: #F1F1F1;}</string>
+    <string name="pref_custom_css_default_dark" translatable="false">body{background:
+        #000000;color: #F1F1F1;}a{color:#7b91ff;}pre{background:#111111;}</string>
     <string-array name="pref_entries_default_view">
         <item>@string/value_edit_view</item>
         <item>@string/value_explorer_view</item>
