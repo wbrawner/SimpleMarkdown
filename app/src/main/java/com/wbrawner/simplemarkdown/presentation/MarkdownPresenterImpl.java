@@ -7,8 +7,8 @@ import android.os.Handler;
 import android.provider.OpenableColumns;
 
 import com.commonsware.cwac.anddown.AndDown;
-import com.crashlytics.android.Crashlytics;
 import com.wbrawner.simplemarkdown.model.MarkdownFile;
+import com.wbrawner.simplemarkdown.utility.ErrorHandler;
 import com.wbrawner.simplemarkdown.utility.Utils;
 import com.wbrawner.simplemarkdown.view.MarkdownEditView;
 import com.wbrawner.simplemarkdown.view.MarkdownPreviewView;
@@ -16,16 +16,23 @@ import com.wbrawner.simplemarkdown.view.MarkdownPreviewView;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+@Singleton
 public class MarkdownPresenterImpl implements MarkdownPresenter {
     private final Object fileLock = new Object();
     private MarkdownFile file;
     private volatile MarkdownEditView editView;
     private volatile MarkdownPreviewView previewView;
     private Handler fileHandler = new Handler();
+    private final ErrorHandler errorHandler;
 
-    public MarkdownPresenterImpl(Context context, MarkdownFile file) {
+    @Inject
+    public MarkdownPresenterImpl(ErrorHandler errorHandler) {
+        this.errorHandler = errorHandler;
         synchronized (fileLock) {
-            this.file = file;
+            this.file = new MarkdownFile(errorHandler);
         }
     }
 
@@ -41,7 +48,7 @@ public class MarkdownPresenterImpl implements MarkdownPresenter {
             final OnTempFileLoadedListener listener
     ) {
         Runnable fileLoader = () -> {
-            MarkdownFile tmpFile = new MarkdownFile();
+            MarkdownFile tmpFile = new MarkdownFile(errorHandler);
             if (tmpFile.load(fileName, in)) {
                 if (listener != null) {
                     String html = generateHTML(tmpFile.getContent());
@@ -76,7 +83,7 @@ public class MarkdownPresenterImpl implements MarkdownPresenter {
                 currentEditView.setTitle(newName);
                 currentEditView.setMarkdown("");
             }
-            file = new MarkdownFile(newName, "");
+            file = new MarkdownFile(errorHandler, newName, "");
         }
     }
 
@@ -194,7 +201,7 @@ public class MarkdownPresenterImpl implements MarkdownPresenter {
             }
             loadMarkdown(fileName, in);
         } catch (Exception e) {
-            Crashlytics.logException(e);
+            errorHandler.reportException(e);
             MarkdownEditView currentEditView = editView;
             if (currentEditView != null) {
                 currentEditView.onFileLoaded(false);

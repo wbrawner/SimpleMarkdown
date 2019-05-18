@@ -6,7 +6,7 @@ public class Constants {
     // Request codes
     public static final int REQUEST_OPEN_FILE = 1;
     public static final int REQUEST_SAVE_FILE = 2;
-    public static final int REQUEST_ROOT_DIR = 1000;
+    public static final int REQUEST_DARK_MODE = 3;
 
     // Extras
     public static final String EXTRA_FILE = "EXTRA_FILE";

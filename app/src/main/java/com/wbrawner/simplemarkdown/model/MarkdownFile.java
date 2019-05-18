@@ -1,6 +1,6 @@
 package com.wbrawner.simplemarkdown.model;
 
-import com.crashlytics.android.Crashlytics;
+import com.wbrawner.simplemarkdown.utility.ErrorHandler;
 import com.wbrawner.simplemarkdown.utility.Utils;
 
 import java.io.BufferedReader;
@@ -17,14 +17,17 @@ import java.io.OutputStreamWriter;
 public class MarkdownFile {
     private String name;
     private String content;
+    private final ErrorHandler errorHandler;
 
-    public MarkdownFile(String name, String content) {
+    public MarkdownFile(ErrorHandler errorHandler, String name, String content) {
+        this.errorHandler = errorHandler;
         this.name = name;
         this.content = content;
     }
 
 
-    public MarkdownFile() {
+    public MarkdownFile(ErrorHandler errorHandler) {
+        this.errorHandler = errorHandler;
         this.name = "Untitled.md";
         this.content = "";
     }
@@ -57,8 +60,7 @@ public class MarkdownFile {
             this.name = name;
             this.content = sb.toString();
             return true;
-        } catch (IOException e) {
-            Crashlytics.logException(e);
+        } catch (IOException ignored) {
             return false;
         } finally {
             Utils.closeQuietly(reader);
@@ -71,17 +73,10 @@ public class MarkdownFile {
             writer = new OutputStreamWriter(outputStream);
             writer.write(this.content);
             this.name = name;
-        } catch (IOException e) {
-            Crashlytics.logException(e);
+        } catch (IOException ignored) {
             return false;
         } finally {
-            if (writer != null) {
-                try {
-                    writer.close();
-                } catch (IOException e) {
-                    Crashlytics.logException(e);
-                }
-            }
+            Utils.closeQuietly(writer);
         }
         return true;
     }

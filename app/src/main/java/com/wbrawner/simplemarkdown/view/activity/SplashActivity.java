@@ -10,31 +10,30 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 
-import com.crashlytics.android.Crashlytics;
-import com.wbrawner.simplemarkdown.BuildConfig;
 import com.wbrawner.simplemarkdown.MarkdownApplication;
 import com.wbrawner.simplemarkdown.R;
 import com.wbrawner.simplemarkdown.presentation.MarkdownPresenter;
+import com.wbrawner.simplemarkdown.utility.ErrorHandler;
 import com.wbrawner.simplemarkdown.utility.Utils;
 
 import javax.inject.Inject;
-
-import io.fabric.sdk.android.Fabric;
 
 public class SplashActivity extends AppCompatActivity {
 
     @Inject
     MarkdownPresenter presenter;
 
+    @Inject
+    ErrorHandler errorHandler;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        if (sharedPreferences.getBoolean(getString(R.string.error_reports_enabled), true)
-                && !BuildConfig.DEBUG) {
-            Fabric.with(this, new Crashlytics());
-        }
         ((MarkdownApplication) getApplication()).getComponent().inject(this);
+        if (sharedPreferences.getBoolean(getString(R.string.error_reports_enabled), true)) {
+            errorHandler.init(this);
+        }
 
         String darkModeValue = sharedPreferences.getString(
                 getString(R.string.pref_key_dark_mode),

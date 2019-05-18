@@ -11,8 +11,6 @@ import android.preference.PreferenceManager;
 
 import androidx.core.content.ContextCompat;
 
-import com.crashlytics.android.Crashlytics;
-
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
@@ -101,11 +99,11 @@ public class Utils {
 
 
     @SuppressWarnings("SameParameterValue")
-    public static Handler createSafeHandler(String name) {
+    public static Handler createSafeHandler(ErrorHandler errorHandler, String name) {
         HandlerThread handlerThread = new HandlerThread(name);
         handlerThread.start();
         handlerThread.setUncaughtExceptionHandler((t, e) -> {
-            Crashlytics.logException(e);
+            errorHandler.reportException(e);
             t.interrupt();
         });
         return new Handler(handlerThread.getLooper());

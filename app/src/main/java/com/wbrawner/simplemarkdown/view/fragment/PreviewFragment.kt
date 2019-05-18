@@ -9,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.WebView
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.fragment.app.Fragment
 import com.wbrawner.simplemarkdown.BuildConfig
 import com.wbrawner.simplemarkdown.MarkdownApplication
@@ -51,7 +52,9 @@ class PreviewFragment : Fragment(), MarkdownPreviewView {
                 return@post
             }
 
-            val isNightMode = context!!.resources.configuration.uiMode and UI_MODE_NIGHT_MASK == UI_MODE_NIGHT_YES
+            val isNightMode = AppCompatDelegate.getDefaultNightMode() ==
+                    AppCompatDelegate.MODE_NIGHT_YES
+                    || context!!.resources.configuration.uiMode and UI_MODE_NIGHT_MASK == UI_MODE_NIGHT_YES
             val defaultCssId = if (isNightMode) {
                 R.string.pref_custom_css_default_dark
             } else {

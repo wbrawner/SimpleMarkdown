@@ -11,14 +11,16 @@ import android.provider.OpenableColumns
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.webkit.MimeTypeMap
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import com.crashlytics.android.Crashlytics
 import com.wbrawner.simplemarkdown.MarkdownApplication
 import com.wbrawner.simplemarkdown.R
 import com.wbrawner.simplemarkdown.presentation.MarkdownPresenter
 import com.wbrawner.simplemarkdown.utility.Constants
+import com.wbrawner.simplemarkdown.utility.Constants.REQUEST_DARK_MODE
+import com.wbrawner.simplemarkdown.utility.ErrorHandler
 import com.wbrawner.simplemarkdown.utility.Utils
 import com.wbrawner.simplemarkdown.view.adapter.EditPagerAdapter
 import kotlinx.android.synthetic.main.activity_main.*
@@ -30,7 +32,8 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
 
     @Inject
     lateinit var presenter: MarkdownPresenter
-
+    @Inject
+    lateinit var errorHandler: ErrorHandler
     private var shouldAutoSave = true
     private var newFileHandler: NewFileHandler? = null
 
@@ -54,9 +57,6 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
             tabLayout!!.visibility = View.GONE
         }
         newFileHandler = NewFileHandler()
-        if (intent.getBooleanExtra(Constants.EXTRA_EXPLORER, false)) {
-            requestFileOp(Constants.REQUEST_OPEN_FILE)
-        }
     }
 
     override fun onUserLeaveHint() {
@@ -100,7 +100,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
             R.id.action_help -> showInfoActivity(R.id.action_help)
             R.id.action_settings -> {
                 val settingsIntent = Intent(this@MainActivity, SettingsActivity::class.java)
-                startActivity(settingsIntent)
+                startActivityForResult(settingsIntent, REQUEST_DARK_MODE)
             }
             R.id.action_libraries -> showInfoActivity(R.id.action_libraries)
             R.id.action_privacy -> showInfoActivity(R.id.action_privacy)
@@ -145,7 +145,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
                 }
             })
         } catch (e: Exception) {
-            Crashlytics.logException(e)
+            errorHandler.reportException(e)
             Toast.makeText(this@MainActivity, R.string.file_load_error, Toast.LENGTH_SHORT).show()
         }
 
@@ -185,10 +185,6 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
                     return
                 }
 
-                val mimeType: String? = data.data?.let { returnUri ->
-                    contentResolver.getType(returnUri)
-                }
-
                 val fileName = contentResolver.query(data.data!!, null, null, null, null)
                         ?.use { cursor ->
                             val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
@@ -220,6 +216,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
                         contentResolver.openOutputStream(data.data!!)
                 )
             }
+            REQUEST_DARK_MODE -> recreate()
         }
         super.onActivityResult(requestCode, resultCode, data)
     }
@@ -245,7 +242,11 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
             Constants.REQUEST_OPEN_FILE -> {
                 Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
                     type = "*/*"
-                    putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("text/plain", "text/markdown"))
+                    if (MimeTypeMap.getSingleton().hasMimeType("md")) {
+                        // If the device doesn't recognize markdown files then we're not going to be
+                        // able to open them at all, so there's no sense in filtering them out.
+                        putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("text/plain", "text/markdown"))
+                    }
                 }
             }
             else -> null
