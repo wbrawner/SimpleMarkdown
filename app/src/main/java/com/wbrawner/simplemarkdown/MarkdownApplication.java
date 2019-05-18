@@ -10,7 +10,7 @@ public class MarkdownApplication extends MultiDexApplication {
     public void onCreate() {
         super.onCreate();
         component = DaggerAppComponent.builder()
-                .appModule(new AppModule(this))
+                .context(this)
                 .build();
     }
 

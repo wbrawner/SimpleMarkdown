@@ -14,44 +14,61 @@
         android:clipChildren="false"
         android:fitsSystemWindows="true"
         android:clipToPadding="false"
+        android:paddingBottom="90dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/tabLayout" />
+        app:layout_constraintBottom_toBottomOf="parent" />
 
-    <com.google.android.material.tabs.TabLayout
-        android:id="@+id/tabLayout"
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/bottomSheet"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/colorBackground"
+        android:translationY="16dp"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="4dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/toolbar">
+        app:layout_constraintBottom_toBottomOf="parent">
 
-        <com.google.android.material.tabs.TabItem
-            android:id="@+id/editTab"
-            android:layout_width="0dp"
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/action_edit" />
+            android:paddingBottom="16dp">
 
-        <com.google.android.material.tabs.TabItem
-            android:id="@+id/previewTab"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="@string/action_preview" />
-    </com.google.android.material.tabs.TabLayout>
+            <com.google.android.material.tabs.TabLayout
+                android:id="@+id/tabLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/colorBackground"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toTopOf="@+id/toolbar">
 
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:background="@color/colorBackground"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:clipChildren="false"
-        android:fitsSystemWindows="true"
-        android:clipToPadding="false"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent" />
+                <com.google.android.material.tabs.TabItem
+                    android:id="@+id/editTab"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/action_edit" />
+
+                <com.google.android.material.tabs.TabItem
+                    android:id="@+id/previewTab"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/action_preview" />
+            </com.google.android.material.tabs.TabLayout>
+
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:background="@color/colorBackground"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:clipChildren="false"
+                android:fitsSystemWindows="true"
+                android:clipToPadding="false" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

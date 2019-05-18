@@ -1,10 +1,9 @@
 package com.wbrawner.simplemarkdown;
 
-import android.content.Context;
-
-import com.wbrawner.simplemarkdown.model.MarkdownFile;
 import com.wbrawner.simplemarkdown.presentation.MarkdownPresenter;
 import com.wbrawner.simplemarkdown.presentation.MarkdownPresenterImpl;
+import com.wbrawner.simplemarkdown.utility.CrashlyticsErrorHandler;
+import com.wbrawner.simplemarkdown.utility.ErrorHandler;
 
 import javax.inject.Singleton;
 
@@ -17,18 +16,14 @@ import dagger.Provides;
 
 @Module
 public class AppModule {
-    private final Context context;
-
-    public AppModule(Context context) {
-        this.context = context;
-    }
-    @Provides
-    public MarkdownFile provideMarkdownFile() {
-        return new MarkdownFile();
-    }
-
     @Provides @Singleton
-    public MarkdownPresenter provideMarkdownPresenter(MarkdownFile file) {
-        return new MarkdownPresenterImpl(context.getApplicationContext(), file);
+    public MarkdownPresenter provideMarkdownPresenter(ErrorHandler errorHandler) {
+        return new MarkdownPresenterImpl(errorHandler);
+    }
+
+    @Provides
+    @Singleton
+    ErrorHandler provideErrorHandler() {
+        return new CrashlyticsErrorHandler();
     }
 }
