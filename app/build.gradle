@@ -19,7 +19,7 @@ android {
         exclude 'META-INF/LICENSE'
         exclude 'META-INF/DEPENDENCIES'
     }
-    compileSdkVersion 'android-Q'
+    compileSdkVersion 28
     buildToolsVersion '28.0.3'
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -27,8 +27,8 @@ android {
     }
     defaultConfig {
         applicationId "com.wbrawner.simplemarkdown"
-        minSdkVersion 20
-        targetSdkVersion 'Q'
+        minSdkVersion 21
+        targetSdkVersion 28
         multiDexEnabled true
         versionCode 18
         versionName "0.6.0"
@@ -93,7 +93,7 @@ dependencies {
     implementation 'androidx.multidex:multidex:2.0.1'
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
     kapt "androidx.lifecycle:lifecycle-compiler:$lifecycle_version"
-    compile "androidx.core:core-ktx:1.0.2"
+    implementation "androidx.core:core-ktx:1.0.2"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'androidx.lifecycle:lifecycle-extensions:2.0.0'
 }
