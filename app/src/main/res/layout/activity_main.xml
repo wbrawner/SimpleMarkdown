@@ -5,19 +5,19 @@
     android:layout_height="match_parent">
 
     <com.google.android.material.tabs.TabLayout
-        android:id="@+id/layout_tab"
+        android:id="@+id/tabLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="top">
 
         <com.google.android.material.tabs.TabItem
-            android:id="@+id/tab_edit"
+            android:id="@+id/editTab"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="@string/action_edit" />
 
         <com.google.android.material.tabs.TabItem
-            android:id="@+id/tab_preview"
+            android:id="@+id/previewTab"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="@string/action_preview" />
