@@ -19,7 +19,7 @@ android {
         exclude 'META-INF/LICENSE'
         exclude 'META-INF/DEPENDENCIES'
     }
-    compileSdkVersion 28
+    compileSdkVersion 'android-Q'
     buildToolsVersion '28.0.3'
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -28,7 +28,7 @@ android {
     defaultConfig {
         applicationId "com.wbrawner.simplemarkdown"
         minSdkVersion 19
-        targetSdkVersion 28
+        targetSdkVersion 'Q'
         multiDexEnabled true
         versionCode 18
         versionName "0.6.0"
