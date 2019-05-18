@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
+import android.provider.OpenableColumns
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -21,7 +22,7 @@ import com.wbrawner.simplemarkdown.utility.Constants
 import com.wbrawner.simplemarkdown.utility.Utils
 import com.wbrawner.simplemarkdown.view.adapter.EditPagerAdapter
 import kotlinx.android.synthetic.main.activity_main.*
-import java.io.File
+import java.io.FileInputStream
 import java.io.InputStream
 import javax.inject.Inject
 
@@ -53,7 +54,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
     override fun onUserLeaveHint() {
         super.onUserLeaveHint()
         if (shouldAutoSave && presenter.markdown.isNotEmpty() && Utils.isAutosaveEnabled(this)) {
-            presenter.saveMarkdown(null, null)
+//            presenter.saveMarkdown(null, null)
         }
     }
 
@@ -83,7 +84,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
                 ))
             }
             R.id.action_load -> requestFileOp(Constants.REQUEST_OPEN_FILE)
-            R.id.action_new -> presenter.saveMarkdown(newFileHandler, null)
+//            R.id.action_new -> presenter.saveMarkdown(newFileHandler, null)
             R.id.action_lock_swipe -> {
                 item.isChecked = !item.isChecked
                 pager!!.setSwipeLocked(item.isChecked)
@@ -172,44 +173,80 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         when (requestCode) {
             Constants.REQUEST_OPEN_FILE -> {
-                if (resultCode != Activity.RESULT_OK || data == null || !data.hasExtra(Constants.EXTRA_FILE)) {
+                if (resultCode != Activity.RESULT_OK || data?.data == null) {
                     return
                 }
 
-                val markdownFile = data.getSerializableExtra(Constants.EXTRA_FILE) as? File?: return
-                presenter.loadMarkdown(markdownFile)
+                val mimeType: String? = data.data?.let { returnUri ->
+                    contentResolver.getType(returnUri)
+                }
+
+                val fileName = contentResolver.query(data.data!!, null, null, null, null)
+                        ?.use { cursor ->
+                            val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                            cursor.moveToFirst()
+                            cursor.getString(nameIndex)
+                        } ?: "Untitled.md"
+
+                contentResolver.openFileDescriptor(data.data!!, "r")?.let {
+                    val fileInput = FileInputStream(it.fileDescriptor)
+                    presenter.loadMarkdown(fileName, fileInput)
+                }
             }
             Constants.REQUEST_SAVE_FILE -> {
                 if (resultCode != Activity.RESULT_OK
-                        || data == null
-                        || !data.hasExtra(Constants.EXTRA_FILE_PATH)
-                        || data.getStringExtra(Constants.EXTRA_FILE_PATH).isEmpty()) {
+                        || data?.data == null) {
                     return
                 }
-                val path = data.getStringExtra(Constants.EXTRA_FILE_PATH)
-                presenter.saveMarkdown(null, path)
+
+                val fileName = contentResolver.query(data.data!!, null, null, null, null)
+                        ?.use { cursor ->
+                            val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                            cursor.moveToFirst()
+                            cursor.getString(nameIndex)
+                        } ?: "Untitled.md"
+
+                presenter.saveMarkdown(
+                        null,
+                        fileName,
+                        contentResolver.openOutputStream(data.data!!)
+                )
             }
         }
         super.onActivityResult(requestCode, resultCode, data)
     }
 
     private fun requestFileOp(requestType: Int) {
-        if (Utils.canAccessFiles(this@MainActivity)) {
-            // If the user is going to save the file, we don't want to auto-save it for them
-            shouldAutoSave = false
-            val intent = Intent(this@MainActivity, ExplorerActivity::class.java)
-            intent.putExtra(Constants.EXTRA_REQUEST_CODE, requestType)
-            intent.putExtra(Constants.EXTRA_FILE, presenter.file)
-            startActivityForResult(
-                    intent,
-                    requestType
-            )
-        } else if (Build.VERSION.SDK_INT >= 23) {
+        if (!Utils.canAccessFiles(this@MainActivity)) {
+            if (Build.VERSION.SDK_INT < 23) return
             requestPermissions(
                     arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
                     requestType
             )
+            return
         }
+        // If the user is going to save the file, we don't want to auto-save it for them
+        shouldAutoSave = false
+        val intent = when (requestType) {
+            Constants.REQUEST_SAVE_FILE -> {
+                Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+                    type = "text/markdown"
+                    putExtra(Intent.EXTRA_TITLE, presenter.fileName)
+                }
+            }
+            Constants.REQUEST_OPEN_FILE -> {
+                Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+                    type = "*/*"
+                    putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("text/plain", "text/markdown"))
+                }
+            }
+            else -> null
+        } ?: return
+        intent.addCategory(Intent.CATEGORY_OPENABLE)
+        startActivityForResult(
+                intent,
+                requestType
+        )
     }
 
     override fun onResume() {

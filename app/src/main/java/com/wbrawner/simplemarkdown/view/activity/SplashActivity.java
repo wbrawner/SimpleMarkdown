@@ -9,6 +9,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.crashlytics.android.Crashlytics;
+import com.wbrawner.simplemarkdown.BuildConfig;
 import com.wbrawner.simplemarkdown.MarkdownApplication;
 import com.wbrawner.simplemarkdown.R;
 import com.wbrawner.simplemarkdown.presentation.MarkdownPresenter;
@@ -28,7 +29,8 @@ public class SplashActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        if (sharedPreferences.getBoolean(getString(R.string.error_reports_enabled), true)) {
+        if (sharedPreferences.getBoolean(getString(R.string.error_reports_enabled), true)
+                && !BuildConfig.DEBUG) {
             Fabric.with(this, new Crashlytics());
         }
         ((MarkdownApplication) getApplication()).getComponent().inject(this);
@@ -41,10 +43,6 @@ public class SplashActivity extends AppCompatActivity {
         } else {
             presenter.setFileName(defaultName);
         }
-
-        String defaultRootDir =
-                sharedPreferences.getString(Constants.KEY_DOCS_PATH, Utils.getDocsPath(this));
-        presenter.setRootDir(defaultRootDir);
 
         Intent startIntent = new Intent(this, MainActivity.class);
         String startScreen = PreferenceManager.getDefaultSharedPreferences(this)

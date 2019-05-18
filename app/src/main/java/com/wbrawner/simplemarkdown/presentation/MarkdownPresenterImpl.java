@@ -13,10 +13,8 @@ import com.wbrawner.simplemarkdown.utility.Utils;
 import com.wbrawner.simplemarkdown.view.MarkdownEditView;
 import com.wbrawner.simplemarkdown.view.MarkdownPreviewView;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 public class MarkdownPresenterImpl implements MarkdownPresenter {
     private final Object fileLock = new Object();
@@ -28,39 +26,6 @@ public class MarkdownPresenterImpl implements MarkdownPresenter {
     public MarkdownPresenterImpl(Context context, MarkdownFile file) {
         synchronized (fileLock) {
             this.file = file;
-        }
-    }
-
-    @Override
-    public File getFile() {
-        return new File(file.getFullPath());
-    }
-
-    @Override
-    public void loadMarkdown() {
-        Runnable fileLoader = () -> {
-            boolean result;
-            synchronized (fileLock) {
-                result = this.file.load();
-            }
-
-            MarkdownEditView currentEditView = editView;
-            if (currentEditView != null) {
-                currentEditView.onFileLoaded(result);
-                currentEditView.setMarkdown(getMarkdown());
-                onMarkdownEdited();
-            }
-        };
-        fileHandler.post(fileLoader);
-    }
-
-    @Override
-    public void loadMarkdown(File file) {
-        try {
-            InputStream in = new FileInputStream(file);
-            loadMarkdown(file.getName(), in);
-        } catch (FileNotFoundException e) {
-            Crashlytics.logException(e);
         }
     }
 
@@ -77,8 +42,7 @@ public class MarkdownPresenterImpl implements MarkdownPresenter {
     ) {
         Runnable fileLoader = () -> {
             MarkdownFile tmpFile = new MarkdownFile();
-            if (tmpFile.load(in)) {
-                tmpFile.setName(fileName);
+            if (tmpFile.load(fileName, in)) {
                 if (listener != null) {
                     String html = generateHTML(tmpFile.getContent());
                     listener.onSuccess(html);
@@ -112,13 +76,14 @@ public class MarkdownPresenterImpl implements MarkdownPresenter {
                 currentEditView.setTitle(newName);
                 currentEditView.setMarkdown("");
             }
-            file = new MarkdownFile(newName, "", "");
+            file = new MarkdownFile(newName, "");
         }
     }
 
     @Override
     public void setEditView(MarkdownEditView editView) {
         this.editView = editView;
+        onMarkdownEdited();
     }
 
     @Override
@@ -127,11 +92,11 @@ public class MarkdownPresenterImpl implements MarkdownPresenter {
     }
 
     @Override
-    public void saveMarkdown(MarkdownSavedListener listener, String filePath) {
+    public void saveMarkdown(MarkdownSavedListener listener, String name, OutputStream outputStream) {
         Runnable fileSaver = () -> {
             boolean result;
             synchronized (fileLock) {
-                result = file.save(filePath);
+                result = file.save(name, outputStream);
             }
             if (listener != null) {
                 listener.saveComplete(result);
@@ -189,11 +154,6 @@ public class MarkdownPresenterImpl implements MarkdownPresenter {
         synchronized (fileLock) {
             file.setName(name);
         }
-    }
-
-    @Override
-    public void setRootDir(String path) {
-        MarkdownFile.setDefaultRootDir(path);
     }
 
     @Override
