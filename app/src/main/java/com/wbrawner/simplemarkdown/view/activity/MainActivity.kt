@@ -37,11 +37,23 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
+        setSupportActionBar(toolbar)
+        window.decorView.apply {
+            systemUiVisibility = (
+                    View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                            or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                            or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                    )
+//            setOnApplyWindowInsetsListener { v, insets ->
+//                pager.updatePadding(top = insets.systemWindowInsetTop)
+//                insets
+//            }
+        }
         (application as MarkdownApplication).component.inject(this)
         pager.adapter = EditPagerAdapter(supportFragmentManager, this@MainActivity)
         pager.pageMargin = 1
         pager.setPageMarginDrawable(R.color.colorAccent)
+        tabLayout.setupWithViewPager(pager)
         if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
             tabLayout!!.visibility = View.GONE
         }

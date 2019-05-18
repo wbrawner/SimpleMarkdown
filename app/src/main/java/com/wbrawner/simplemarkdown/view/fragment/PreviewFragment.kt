@@ -1,6 +1,8 @@
 package com.wbrawner.simplemarkdown.view.fragment
 
 import android.content.SharedPreferences
+import android.content.res.Configuration.UI_MODE_NIGHT_MASK
+import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.os.Bundle
 import android.preference.PreferenceManager
 import android.view.LayoutInflater
@@ -14,6 +16,7 @@ import com.wbrawner.simplemarkdown.R
 import com.wbrawner.simplemarkdown.presentation.MarkdownPresenter
 import com.wbrawner.simplemarkdown.view.MarkdownPreviewView
 import javax.inject.Inject
+
 
 class PreviewFragment : Fragment(), MarkdownPreviewView {
     @Inject
@@ -48,15 +51,18 @@ class PreviewFragment : Fragment(), MarkdownPreviewView {
                 return@post
             }
 
+            val isNightMode = context!!.resources.configuration.uiMode and UI_MODE_NIGHT_MASK == UI_MODE_NIGHT_YES
+            val defaultCssId = if (isNightMode) {
+                R.string.pref_custom_css_default_dark
+            } else {
+                R.string.pref_custom_css_default
+            }
             val css: String? = if (!BuildConfig.ENABLE_CUSTOM_CSS) {
-                sharedPreferences!!.getString(
-                        getString(R.string.pref_custom_css_default),
-                        ""
-                )
+                getString(defaultCssId)
             } else {
                 sharedPreferences!!.getString(
                         getString(R.string.pref_custom_css),
-                        getString(R.string.pref_custom_css_default)
+                        getString(defaultCssId)
                 )
             }
 

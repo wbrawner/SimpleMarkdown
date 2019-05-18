@@ -76,13 +76,13 @@ class EditFragment : Fragment(), MarkdownEditView {
 
     override fun onResume() {
         super.onResume()
-        presenter!!.setEditView(this)
-        markdown = presenter!!.markdown
+        presenter.setEditView(this)
+        markdown = presenter.markdown
     }
 
     override fun onPause() {
         super.onPause()
-        presenter!!.setEditView(null)
+        presenter.setEditView(null)
     }
 
     override fun getMarkdown(): String {
@@ -101,7 +101,7 @@ class EditFragment : Fragment(), MarkdownEditView {
     }
 
     override fun onFileSaved(success: Boolean) {
-        val location = Utils.getDocsPath(activity) + presenter!!.fileName
+        val location = Utils.getDocsPath(activity) + presenter.fileName
         val message: String
         message = if (success) {
             getString(R.string.file_saved, location)
