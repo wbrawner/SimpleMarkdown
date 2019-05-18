@@ -14,7 +14,6 @@ import com.wbrawner.simplemarkdown.MarkdownApplication;
 import com.wbrawner.simplemarkdown.R;
 import com.wbrawner.simplemarkdown.presentation.MarkdownPresenter;
 import com.wbrawner.simplemarkdown.utility.ErrorHandler;
-import com.wbrawner.simplemarkdown.utility.Utils;
 
 import javax.inject.Inject;
 
@@ -56,13 +55,11 @@ public class SplashActivity extends AppCompatActivity {
         }
         AppCompatDelegate.setDefaultNightMode(darkMode);
 
-        String defaultName = Utils.getDefaultFileName(this);
-
         Intent intent = getIntent();
         if (intent != null && intent.getData() != null) {
             presenter.loadFromUri(getApplicationContext(), intent.getData());
         } else {
-            presenter.setFileName(defaultName);
+            presenter.setFileName("Untitled.md");
         }
 
         Intent startIntent = new Intent(this, MainActivity.class);

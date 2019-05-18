@@ -9,7 +9,6 @@ import android.provider.OpenableColumns;
 import com.commonsware.cwac.anddown.AndDown;
 import com.wbrawner.simplemarkdown.model.MarkdownFile;
 import com.wbrawner.simplemarkdown.utility.ErrorHandler;
-import com.wbrawner.simplemarkdown.utility.Utils;
 import com.wbrawner.simplemarkdown.view.MarkdownEditView;
 import com.wbrawner.simplemarkdown.view.MarkdownPreviewView;
 
@@ -197,7 +196,7 @@ public class MarkdownPresenterImpl implements MarkdownPresenter {
                 fileName = fileUri.getLastPathSegment();
             }
             if (fileName == null) {
-                fileName = Utils.getDefaultFileName(context);
+                fileName = "Untitled.md";
             }
             loadMarkdown(fileName, in);
         } catch (Exception e) {
