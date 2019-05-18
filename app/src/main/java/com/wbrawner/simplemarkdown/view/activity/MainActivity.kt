@@ -52,8 +52,8 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
 
     override fun onUserLeaveHint() {
         super.onUserLeaveHint()
-        if (shouldAutoSave && !presenter!!.markdown.isEmpty() && Utils.isAutosaveEnabled(this)) {
-            presenter!!.saveMarkdown(null, null)
+        if (shouldAutoSave && presenter.markdown.isNotEmpty() && Utils.isAutosaveEnabled(this)) {
+            presenter.saveMarkdown(null, null)
         }
     }
 
@@ -75,7 +75,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
             R.id.action_save -> requestFileOp(Constants.REQUEST_SAVE_FILE)
             R.id.action_share -> {
                 val shareIntent = Intent(Intent.ACTION_SEND)
-                shareIntent.putExtra(Intent.EXTRA_TEXT, presenter!!.markdown)
+                shareIntent.putExtra(Intent.EXTRA_TEXT, presenter.markdown)
                 shareIntent.type = "text/plain"
                 startActivity(Intent.createChooser(
                         shareIntent,
@@ -83,7 +83,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
                 ))
             }
             R.id.action_load -> requestFileOp(Constants.REQUEST_OPEN_FILE)
-            R.id.action_new -> presenter!!.saveMarkdown(newFileHandler, null)
+            R.id.action_new -> presenter.saveMarkdown(newFileHandler, null)
             R.id.action_lock_swipe -> {
                 item.isChecked = !item.isChecked
                 pager!!.setSwipeLocked(item.isChecked)
@@ -124,7 +124,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
             if (assetManager != null) {
                 `in` = assetManager.open(fileName)
             }
-            presenter!!.loadMarkdown(fileName, `in`, object : MarkdownPresenter.OnTempFileLoadedListener {
+            presenter.loadMarkdown(fileName, `in`, object : MarkdownPresenter.OnTempFileLoadedListener {
                 override fun onSuccess(html: String) {
                     infoIntent.putExtra("html", html)
                     startActivity(infoIntent)
@@ -150,7 +150,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         when (requestCode) {
             Constants.REQUEST_SAVE_FILE, Constants.REQUEST_OPEN_FILE -> {
                 // If request is cancelled, the result arrays are empty.
-                if (grantResults.size > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // Permission granted, open file save dialog
                     requestFileOp(requestCode)
                 } else {
@@ -176,8 +176,8 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
                     return
                 }
 
-                val markdownFile = data.getSerializableExtra(Constants.EXTRA_FILE) as File
-                presenter!!.loadMarkdown(markdownFile)
+                val markdownFile = data.getSerializableExtra(Constants.EXTRA_FILE) as? File?: return
+                presenter.loadMarkdown(markdownFile)
             }
             Constants.REQUEST_SAVE_FILE -> {
                 if (resultCode != Activity.RESULT_OK
@@ -187,7 +187,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
                     return
                 }
                 val path = data.getStringExtra(Constants.EXTRA_FILE_PATH)
-                presenter!!.saveMarkdown(null, path)
+                presenter.saveMarkdown(null, path)
             }
         }
         super.onActivityResult(requestCode, resultCode, data)
@@ -199,7 +199,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
             shouldAutoSave = false
             val intent = Intent(this@MainActivity, ExplorerActivity::class.java)
             intent.putExtra(Constants.EXTRA_REQUEST_CODE, requestType)
-            intent.putExtra(Constants.EXTRA_FILE, presenter!!.file)
+            intent.putExtra(Constants.EXTRA_FILE, presenter.file)
             startActivityForResult(
                     intent,
                     requestType
@@ -214,7 +214,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
 
     override fun onResume() {
         super.onResume()
-        title = presenter!!.fileName
+        title = presenter.fileName
         shouldAutoSave = true
     }
 
@@ -222,7 +222,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         override fun saveComplete(success: Boolean) {
             if (success) {
                 val newFile = Utils.getDefaultFileName(this@MainActivity)
-                presenter!!.newFile(newFile)
+                presenter.newFile(newFile)
             } else {
                 Toast.makeText(
                         this@MainActivity,
