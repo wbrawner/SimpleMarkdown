@@ -13,7 +13,8 @@ public interface MarkdownPresenter {
     void loadMarkdown(String fileName, InputStream in);
     void loadFromUri(Context context, Uri fileUri);
 
-    void loadMarkdown(String fileName, InputStream in, OnTempFileLoadedListener listener);
+    void loadMarkdown(String fileName, InputStream in, FileLoadedListener listener,
+                      boolean replaceCurrentFile);
 
     void newFile(String newName);
     void setEditView(MarkdownEditView editView);
@@ -29,7 +30,7 @@ public interface MarkdownPresenter {
     String getMarkdown();
     void setMarkdown(String markdown);
 
-    interface OnTempFileLoadedListener {
+    interface FileLoadedListener {
         void onSuccess(String markdown);
 
         void onError();

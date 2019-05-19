@@ -37,14 +37,15 @@ public class MarkdownPresenterImpl implements MarkdownPresenter {
 
     @Override
     public void loadMarkdown(final String fileName, final InputStream in) {
-        this.loadMarkdown(fileName, in, null);
+        this.loadMarkdown(fileName, in, null, true);
     }
 
     @Override
     public void loadMarkdown(
             final String fileName,
             final InputStream in,
-            final OnTempFileLoadedListener listener
+            final FileLoadedListener listener,
+            boolean replaceCurrentFile
     ) {
         Runnable fileLoader = () -> {
             MarkdownFile tmpFile = new MarkdownFile(errorHandler);
@@ -52,7 +53,8 @@ public class MarkdownPresenterImpl implements MarkdownPresenter {
                 if (listener != null) {
                     String html = generateHTML(tmpFile.getContent());
                     listener.onSuccess(html);
-                } else {
+                }
+                if (replaceCurrentFile) {
                     synchronized (fileLock) {
                         this.file = tmpFile;
                         MarkdownEditView currentEditView = editView;

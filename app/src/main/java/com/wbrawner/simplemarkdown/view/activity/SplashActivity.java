@@ -15,6 +15,10 @@ import com.wbrawner.simplemarkdown.R;
 import com.wbrawner.simplemarkdown.presentation.MarkdownPresenter;
 import com.wbrawner.simplemarkdown.utility.ErrorHandler;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+
 import javax.inject.Inject;
 
 public class SplashActivity extends AppCompatActivity {
@@ -60,6 +64,30 @@ public class SplashActivity extends AppCompatActivity {
             presenter.loadFromUri(getApplicationContext(), intent.getData());
         } else {
             presenter.setFileName("Untitled.md");
+            final File autosave = new File(getFilesDir(), "autosave.md");
+            if (autosave.exists()) {
+                try {
+                    FileInputStream fileInputStream = new FileInputStream(autosave);
+                    presenter.loadMarkdown(
+                            "Untitled.md",
+                            fileInputStream,
+                            new MarkdownPresenter.FileLoadedListener() {
+                                @Override
+                                public void onSuccess(String markdown) {
+                                    autosave.delete();
+                                }
+
+                                @Override
+                                public void onError() {
+                                    autosave.delete();
+                                }
+                            },
+                            true
+                    );
+                } catch (FileNotFoundException ignored) {
+                    return;
+                }
+            }
         }
 
         Intent startIntent = new Intent(this, MainActivity.class);
