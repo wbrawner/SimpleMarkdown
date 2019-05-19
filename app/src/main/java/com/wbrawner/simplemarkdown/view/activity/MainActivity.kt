@@ -24,6 +24,7 @@ import com.wbrawner.simplemarkdown.utility.ErrorHandler
 import com.wbrawner.simplemarkdown.utility.Utils
 import com.wbrawner.simplemarkdown.view.adapter.EditPagerAdapter
 import kotlinx.android.synthetic.main.activity_main.*
+import java.io.File
 import java.io.FileInputStream
 import java.io.InputStream
 import javax.inject.Inject
@@ -61,7 +62,8 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
     override fun onUserLeaveHint() {
         super.onUserLeaveHint()
         if (shouldAutoSave && presenter.markdown.isNotEmpty() && Utils.isAutosaveEnabled(this)) {
-//            presenter.saveMarkdown(null, null)
+
+            presenter.saveMarkdown(null, "autosave.md", File(filesDir, "autosave.md").outputStream())
         }
     }
 
@@ -132,7 +134,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
             if (assetManager != null) {
                 `in` = assetManager.open(fileName)
             }
-            presenter.loadMarkdown(fileName, `in`, object : MarkdownPresenter.OnTempFileLoadedListener {
+            presenter.loadMarkdown(fileName, `in`, object : MarkdownPresenter.FileLoadedListener {
                 override fun onSuccess(html: String) {
                     infoIntent.putExtra("html", html)
                     startActivity(infoIntent)
@@ -142,7 +144,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
                     Toast.makeText(this@MainActivity, R.string.file_load_error, Toast.LENGTH_SHORT)
                             .show()
                 }
-            })
+            }, false)
         } catch (e: Exception) {
             errorHandler.reportException(e)
             Toast.makeText(this@MainActivity, R.string.file_load_error, Toast.LENGTH_SHORT).show()
