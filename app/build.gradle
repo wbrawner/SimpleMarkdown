@@ -96,6 +96,7 @@ dependencies {
     implementation "androidx.core:core-ktx:1.0.2"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'androidx.lifecycle:lifecycle-extensions:2.0.0'
+    implementation 'eu.crydee:syllable-counter:4.0.2'
 }
 
 apply plugin: 'com.google.gms.google-services'
