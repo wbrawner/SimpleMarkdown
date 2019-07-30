@@ -101,7 +101,7 @@ class EditFragment : Fragment(), MarkdownEditView {
     }
 
     override fun setMarkdown(markdown: String) {
-        markdownEditor!!.setText(markdown)
+        markdownEditor?.setText(markdown)
     }
 
     override fun setTitle(title: String) {
