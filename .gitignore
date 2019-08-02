@@ -5,13 +5,9 @@
 /.idea/libraries
 .DS_Store
 /build
-IAP5Helper/build
 /captures
 .externalNativeBuild
 .idea/
-app/standard
-app/samsung
 *~
 *.log
-app/acra.properties
 keystore.properties

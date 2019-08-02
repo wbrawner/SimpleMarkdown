@@ -1,6 +1,7 @@
 # [Simple Markdown](https://wbrawner.com/portfolio/simple-markdown/)
 
-[![Build Status](https://ci.wbrawner.com/job/Simple%20Markdown/badge/icon)](https://ci.wbrawner.com/job/Simple%20Markdown/)
+[![pipeline status](https://gitlab.com/billybrawner/SimpleMarkdown/badges/master/pipeline.svg)](https://gitlab.com/billybrawner/SimpleMarkdown/commits/master)
+[![coverage report](https://gitlab.com/billybrawner/SimpleMarkdown/badges/master/coverage.svg)](https://gitlab.com/billybrawner/SimpleMarkdown/commits/master)
 
 Simple Markdown is simply a Markdown editor :) I wrote it to offer up an open source alternative to
 the other Markdown editors available on the Play Store. I also wanted to get some practice in
@@ -27,8 +28,7 @@ Using Android Studio is the preferred way to build the project. To build from th
 ### Crashlytics
 
 SimpleMarkdown makes use of Firebase Crashlytics for error reporting. You'll need to follow the 
-[Get started with Firebase Crashlytics](https://firebase.google
-.com/docs/crashlytics/get-started?platform=android) guide in order to build the project.
+[Get started with Firebase Crashlytics](https://firebase.google.com/docs/crashlytics/get-started?platform=android) guide in order to build the project.
 
 ## Contributing
 

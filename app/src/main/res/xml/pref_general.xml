@@ -23,5 +23,11 @@
         android:summaryOff="@string/pref_error_reports_off"
         android:summaryOn="@string/pref_error_reports_on"
         android:title="@string/pref_title_error_reports" />
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="@string/readability_enabled"
+        android:summaryOff="@string/pref_readability_off"
+        android:summaryOn="@string/pref_readability_on"
+        android:title="@string/pref_title_readability" />
 
 </PreferenceScreen>
