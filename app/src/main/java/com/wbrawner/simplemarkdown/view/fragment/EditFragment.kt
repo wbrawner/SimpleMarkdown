@@ -3,6 +3,7 @@ package com.wbrawner.simplemarkdown.view.fragment
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
+import android.preference.PreferenceManager
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
@@ -17,6 +18,7 @@ import com.wbrawner.simplemarkdown.MarkdownApplication
 import com.wbrawner.simplemarkdown.R
 import com.wbrawner.simplemarkdown.presentation.MarkdownPresenter
 import com.wbrawner.simplemarkdown.utility.MarkdownObserver
+import com.wbrawner.simplemarkdown.utility.ReadabilityObserver
 import com.wbrawner.simplemarkdown.view.MarkdownEditView
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -48,6 +50,16 @@ class EditFragment : Fragment(), MarkdownEditView {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
         obs.subscribe(MarkdownObserver(presenter, obs))
+        val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
+        val enableReadability = sharedPrefs.getBoolean(getString(R.string.readability_enabled), false)
+        if (enableReadability) {
+            val readabilityObserver = RxTextView.textChanges(markdownEditor!!)
+                    .debounce(250, TimeUnit.MILLISECONDS)
+                    .map { it.toString() }
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+            readabilityObserver.subscribe(ReadabilityObserver(markdownEditor))
+        }
         return view
     }
 
@@ -89,7 +101,7 @@ class EditFragment : Fragment(), MarkdownEditView {
     }
 
     override fun setMarkdown(markdown: String) {
-        markdownEditor!!.setText(markdown)
+        markdownEditor?.setText(markdown)
     }
 
     override fun setTitle(title: String) {

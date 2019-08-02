@@ -15,9 +15,7 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 
 import java.io.File;
-import java.io.IOException;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -40,46 +38,6 @@ public class UtilsTest {
     @After
     public void tearDown() {
         rmdir(new File(rootDir));
-    }
-
-    @Test
-    public void getDocsPath() throws Exception {
-        sharedPreferences.edit().putString(Constants.KEY_DOCS_PATH, rootDir).apply();
-        assertEquals(rootDir, Utils.getDocsPath(context));
-    }
-
-    @Test
-    public void getDefaultFileName() throws Exception {
-        sharedPreferences.edit().putString(Constants.KEY_DOCS_PATH, rootDir).apply();
-
-        new File(rootDir, "dummy.md").createNewFile();
-        new File(rootDir, "dummy1.md").createNewFile();
-        new File(rootDir, "Untitled-a.md").createNewFile();
-
-        String firstDefaultName = Utils.getDefaultFileName(context);
-        assertEquals("Untitled.md", firstDefaultName);
-        File firstFile = new File(rootDir, firstDefaultName);
-        firstFile.createNewFile();
-
-        String secondDefaultName = Utils.getDefaultFileName(context);
-        assertEquals("Untitled-1.md", secondDefaultName);
-        File secondFile = new File(rootDir, secondDefaultName);
-        secondFile.createNewFile();
-
-        String thirdDefaultName = Utils.getDefaultFileName(context);
-        assertEquals("Untitled-2.md", thirdDefaultName);
-    }
-
-    @Test
-    public void getDefaultFileNameDoubleDigitTest() throws IOException {
-        sharedPreferences.edit().putString(Constants.KEY_DOCS_PATH, rootDir).apply();
-
-        for (int i = 0; i < 11; i++) {
-            new File(rootDir, "Untitled-" + i + ".md").createNewFile();
-        }
-        assertTrue(new File(rootDir, "Untitled-10.md").exists());
-        String defaultName = Utils.getDefaultFileName(context);
-        assertEquals("Untitled-11.md", defaultName);
     }
 
     @Test
