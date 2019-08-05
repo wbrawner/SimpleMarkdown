@@ -50,7 +50,9 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
                     )
         }
         (application as MarkdownApplication).component.inject(this)
-        pager.adapter = EditPagerAdapter(supportFragmentManager, this@MainActivity)
+        val adapter = EditPagerAdapter(supportFragmentManager, this@MainActivity)
+        pager.adapter = adapter
+        pager.addOnPageChangeListener(adapter)
         pager.pageMargin = 1
         pager.setPageMarginDrawable(R.color.colorAccent)
         tabLayout.setupWithViewPager(pager)

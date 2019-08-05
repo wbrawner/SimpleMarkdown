@@ -1,14 +1,12 @@
 package com.wbrawner.simplemarkdown.view.fragment
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.os.Bundle
 import android.preference.PreferenceManager
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.ScrollView
 import android.widget.Toast
@@ -19,19 +17,21 @@ import com.wbrawner.simplemarkdown.R
 import com.wbrawner.simplemarkdown.presentation.MarkdownPresenter
 import com.wbrawner.simplemarkdown.utility.MarkdownObserver
 import com.wbrawner.simplemarkdown.utility.ReadabilityObserver
+import com.wbrawner.simplemarkdown.utility.hideKeyboard
+import com.wbrawner.simplemarkdown.utility.showKeyboard
 import com.wbrawner.simplemarkdown.view.MarkdownEditView
+import com.wbrawner.simplemarkdown.view.ViewPagerPage
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import kotlin.math.abs
 
-class EditFragment : Fragment(), MarkdownEditView {
+class EditFragment : Fragment(), MarkdownEditView, ViewPagerPage {
     @Inject
     lateinit var presenter: MarkdownPresenter
     private var markdownEditor: EditText? = null
     private var markdownEditorScroller: ScrollView? = null
-
-    private var lastScrollEvent = -1
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -68,19 +68,26 @@ class EditFragment : Fragment(), MarkdownEditView {
         super.onViewCreated(view, savedInstanceState)
         presenter.setEditView(this@EditFragment)
 
-        markdownEditorScroller!!.setOnTouchListener { v, event ->
-            // The focus should only be set if this was a click, and not a scroll
-            if (lastScrollEvent == MotionEvent.ACTION_DOWN && event.action == MotionEvent.ACTION_UP) {
-                if (activity == null) {
-                    return@setOnTouchListener false
+        var touchDown = 0L
+        var oldX = 0f
+        var oldY = 0f
+        markdownEditorScroller!!.setOnTouchListener { _, event ->
+            // The ScrollView's onClickListener doesn't seem to be called, so I've had to
+            // implement a sort of custom click listener that checks that the tap was both quick
+            // and didn't drag.
+            when (event?.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    touchDown = System.currentTimeMillis()
+                    oldX = event.rawX
+                    oldY = event.rawY
                 }
-                val imm = activity
-                        ?.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
-                        ?: return@setOnTouchListener false
-                imm.showSoftInput(markdownEditor, InputMethodManager.SHOW_IMPLICIT)
-                markdownEditor!!.requestFocus()
+                MotionEvent.ACTION_UP -> {
+                    if (System.currentTimeMillis() - touchDown < 150
+                            && abs(event.rawX - oldX) < 25
+                            && abs(event.rawY - oldY) < 25)
+                        markdownEditor?.showKeyboard()
+                }
             }
-            lastScrollEvent = event.action
             false
         }
     }
@@ -94,6 +101,15 @@ class EditFragment : Fragment(), MarkdownEditView {
     override fun onPause() {
         super.onPause()
         presenter.setEditView(null)
+        markdownEditor?.hideKeyboard()
+    }
+
+    override fun onSelected() {
+        markdownEditor?.showKeyboard()
+    }
+
+    override fun onDeselected() {
+        markdownEditor?.hideKeyboard()
     }
 
     override fun getMarkdown(): String {
