@@ -29,18 +29,13 @@ class PreviewFragment : Fragment(), MarkdownPreviewView {
             inflater: LayoutInflater,
             container: ViewGroup?,
             savedInstanceState: Bundle?
-    ): View? {
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(container!!.context)
-        // Inflate the layout for this fragment
-        val view = inflater.inflate(R.layout.fragment_preview, container, false)
+    ): View? = inflater.inflate(R.layout.fragment_preview, container, false)
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(view.context)
         markdownPreview = view.findViewById(R.id.markdown_view)
-        val activity = activity
-        if (activity != null) {
-            (activity.application as MarkdownApplication).component.inject(this)
-        }
-        if (BuildConfig.DEBUG)
-            WebView.setWebContentsDebuggingEnabled(true)
-        return view
+        (activity?.application as? MarkdownApplication)?.component?.inject(this)
+        WebView.setWebContentsDebuggingEnabled(BuildConfig.DEBUG)
     }
 
     override fun updatePreview(html: String) {
