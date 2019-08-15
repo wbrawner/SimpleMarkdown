@@ -53,7 +53,7 @@ constructor(private val errorHandler: ErrorHandler) : MarkdownPresenter {
             listener: MarkdownPresenter.FileLoadedListener?,
             replaceCurrentFile: Boolean
     ) {
-        val fileLoader = {
+        fileHandler.post {
             val tmpFile = MarkdownFile()
             if (tmpFile.load(fileName, `in`)) {
                 if (listener != null) {
@@ -76,7 +76,6 @@ constructor(private val errorHandler: ErrorHandler) : MarkdownPresenter {
                 listener?.onError()
             }
         }
-        fileHandler.post(fileLoader)
     }
 
     override fun newFile(newName: String) {
@@ -119,12 +118,11 @@ constructor(private val errorHandler: ErrorHandler) : MarkdownPresenter {
     }
 
     override fun onMarkdownEdited(markdown: String?) {
-        markdown = markdown
-        val generateMarkdown = {
+        this.markdown = markdown ?: file?.content ?: ""
+        fileHandler.post {
             val currentPreviewView = previewView
             currentPreviewView?.updatePreview(generateHTML(null))
         }
-        fileHandler.post(generateMarkdown)
     }
 
     override fun generateHTML(markdown: String?): String {
