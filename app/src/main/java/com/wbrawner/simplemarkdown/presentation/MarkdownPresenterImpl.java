@@ -31,7 +31,7 @@ public class MarkdownPresenterImpl implements MarkdownPresenter {
     public MarkdownPresenterImpl(ErrorHandler errorHandler) {
         this.errorHandler = errorHandler;
         synchronized (fileLock) {
-            this.file = new MarkdownFile(errorHandler);
+            this.file = new MarkdownFile();
         }
     }
 
@@ -48,7 +48,7 @@ public class MarkdownPresenterImpl implements MarkdownPresenter {
             boolean replaceCurrentFile
     ) {
         Runnable fileLoader = () -> {
-            MarkdownFile tmpFile = new MarkdownFile(errorHandler);
+            MarkdownFile tmpFile = new MarkdownFile();
             if (tmpFile.load(fileName, in)) {
                 if (listener != null) {
                     String html = generateHTML(tmpFile.getContent());
@@ -84,7 +84,7 @@ public class MarkdownPresenterImpl implements MarkdownPresenter {
                 currentEditView.setTitle(newName);
                 currentEditView.setMarkdown("");
             }
-            file = new MarkdownFile(errorHandler, newName, "");
+            file = new MarkdownFile(newName, "");
         }
     }
 
