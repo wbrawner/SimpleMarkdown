@@ -36,11 +36,6 @@ public class MarkdownPresenterImpl implements MarkdownPresenter {
     }
 
     @Override
-    public void loadMarkdown(final String fileName, final InputStream in) {
-        this.loadMarkdown(fileName, in, null, true);
-    }
-
-    @Override
     public void loadMarkdown(
             final String fileName,
             final InputStream in,
@@ -62,7 +57,7 @@ public class MarkdownPresenterImpl implements MarkdownPresenter {
                             currentEditView.onFileLoaded(true);
                             currentEditView.setTitle(fileName);
                             currentEditView.setMarkdown(this.file.getContent());
-                            onMarkdownEdited();
+                            onMarkdownEdited(null);
                         }
                     }
                 }
@@ -91,7 +86,7 @@ public class MarkdownPresenterImpl implements MarkdownPresenter {
     @Override
     public void setEditView(MarkdownEditView editView) {
         this.editView = editView;
-        onMarkdownEdited();
+        onMarkdownEdited(null);
     }
 
     @Override
@@ -126,14 +121,9 @@ public class MarkdownPresenterImpl implements MarkdownPresenter {
         Runnable generateMarkdown = () -> {
             MarkdownPreviewView currentPreviewView = previewView;
             if (currentPreviewView != null)
-                currentPreviewView.updatePreview(generateHTML());
+                currentPreviewView.updatePreview(generateHTML(null));
         };
         fileHandler.post(generateMarkdown);
-    }
-
-    @Override
-    public String generateHTML() {
-        return generateHTML(getMarkdown());
     }
 
     @Override
@@ -143,11 +133,6 @@ public class MarkdownPresenterImpl implements MarkdownPresenter {
                 AndDown.HOEDOWN_EXT_UNDERLINE | AndDown.HOEDOWN_EXT_SUPERSCRIPT |
                 AndDown.HOEDOWN_EXT_FENCED_CODE;
         return andDown.markdownToHtml(markdown, HOEDOWN_FLAGS, 0);
-    }
-
-    @Override
-    public void onMarkdownEdited() {
-        onMarkdownEdited(getMarkdown());
     }
 
     @Override
@@ -200,7 +185,7 @@ public class MarkdownPresenterImpl implements MarkdownPresenter {
             if (fileName == null) {
                 fileName = "Untitled.md";
             }
-            loadMarkdown(fileName, in);
+            loadMarkdown(fileName, in, null, true);
         } catch (Exception e) {
             errorHandler.reportException(e);
             MarkdownEditView currentEditView = editView;

@@ -12,25 +12,24 @@ import java.io.OutputStream
 interface MarkdownPresenter {
     var fileName: String
     var markdown: String
-    fun loadMarkdown(fileName: String, `in`: InputStream)
     fun loadFromUri(context: Context, fileUri: Uri)
 
-    fun loadMarkdown(fileName: String, `in`: InputStream, listener: FileLoadedListener,
-                     replaceCurrentFile: Boolean)
+    fun loadMarkdown(
+            fileName: String,
+            `in`: InputStream,
+            listener: FileLoadedListener? = null,
+            replaceCurrentFile: Boolean = true
+    )
 
     fun newFile(newName: String)
     fun setEditView(editView: MarkdownEditView)
     fun setPreviewView(previewView: MarkdownPreviewView)
-
     fun saveMarkdown(listener: MarkdownSavedListener, name: String, outputStream: OutputStream)
-    fun onMarkdownEdited()
-    fun onMarkdownEdited(markdown: String)
-    fun generateHTML(): String
-    fun generateHTML(markdown: String): String
+    fun onMarkdownEdited(markdown: String? = null)
+    fun generateHTML(markdown: String? = null): String
 
     interface FileLoadedListener {
         fun onSuccess(markdown: String)
-
         fun onError()
     }
 
