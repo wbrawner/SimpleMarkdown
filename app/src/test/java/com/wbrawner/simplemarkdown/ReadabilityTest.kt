@@ -38,12 +38,9 @@ class ReadabilityTest {
         assertEquals(39, thisIsATest.end().toLong())
     }
 
-
     @Test
     fun get_syllable_count_for_sentence() {
         assertEquals(8, Sentence("This is the song that never ends").syllableCount().toLong())
         assertEquals(10, Sentence("facility facility downing").syllableCount().toLong())
     }
-
-
 }
