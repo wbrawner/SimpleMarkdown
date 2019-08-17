@@ -19,7 +19,6 @@ import androidx.core.app.ActivityCompat
 import com.wbrawner.simplemarkdown.MarkdownApplication
 import com.wbrawner.simplemarkdown.R
 import com.wbrawner.simplemarkdown.presentation.MarkdownPresenter
-import com.wbrawner.simplemarkdown.utility.Constants.*
 import com.wbrawner.simplemarkdown.utility.ErrorHandler
 import com.wbrawner.simplemarkdown.utility.Utils
 import com.wbrawner.simplemarkdown.view.adapter.EditPagerAdapter
@@ -285,5 +284,12 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         coroutineContext[Job]?.let {
             cancel()
         }
+    }
+
+    companion object {
+        // Request codes
+        const val REQUEST_OPEN_FILE = 1
+        const val REQUEST_SAVE_FILE = 2
+        const val REQUEST_DARK_MODE = 4
     }
 }

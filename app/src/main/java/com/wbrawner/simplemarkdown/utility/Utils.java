@@ -15,10 +15,12 @@ import java.io.IOException;
 
 public class Utils {
 
+    public static final String KEY_AUTOSAVE = "autosave";
+
     public static boolean isAutosaveEnabled(Context context) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         return prefs.getBoolean(
-                Constants.KEY_AUTOSAVE,
+                KEY_AUTOSAVE,
                 true
         );
     }
