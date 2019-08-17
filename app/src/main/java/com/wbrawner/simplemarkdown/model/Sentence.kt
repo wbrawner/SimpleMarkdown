@@ -2,7 +2,7 @@ package com.wbrawner.simplemarkdown.model
 
 import eu.crydee.syllablecounter.SyllableCounter
 
-class Sentence(content: String, private var start: Int = 0, private val end: Int = 0) {
+class Sentence(content: String, private var start: Int = 0, private val end: Int = content.length) {
 
     private var sentence = content.substring(start, end)
     private val sc = SyllableCounter()
