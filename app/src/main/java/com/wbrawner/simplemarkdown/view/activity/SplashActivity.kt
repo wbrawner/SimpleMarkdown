@@ -10,25 +10,28 @@ import com.wbrawner.simplemarkdown.MarkdownApplication
 import com.wbrawner.simplemarkdown.R
 import com.wbrawner.simplemarkdown.presentation.MarkdownPresenter
 import com.wbrawner.simplemarkdown.utility.ErrorHandler
+import kotlinx.coroutines.*
 import java.io.File
-import java.io.FileInputStream
 import java.io.FileNotFoundException
 import javax.inject.Inject
+import kotlin.coroutines.CoroutineContext
 
-class SplashActivity : AppCompatActivity() {
+class SplashActivity : AppCompatActivity(), CoroutineScope {
+
+    override val coroutineContext: CoroutineContext = Dispatchers.Main
 
     @Inject
-    internal var presenter: MarkdownPresenter? = null
+    lateinit var presenter: MarkdownPresenter
 
     @Inject
-    internal var errorHandler: ErrorHandler? = null
+    lateinit var errorHandler: ErrorHandler
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
         (application as MarkdownApplication).component.inject(this)
         if (sharedPreferences.getBoolean(getString(R.string.error_reports_enabled), true)) {
-            errorHandler!!.init(this)
+            errorHandler.init(this)
         }
 
         val darkModeValue = sharedPreferences.getString(
@@ -36,11 +39,10 @@ class SplashActivity : AppCompatActivity() {
                 getString(R.string.pref_value_auto)
         )
 
-        var darkMode: Int
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
-            darkMode = AppCompatDelegate.MODE_NIGHT_AUTO
+        var darkMode = if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
+            AppCompatDelegate.MODE_NIGHT_AUTO
         } else {
-            darkMode = AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+            AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
         }
 
         if (darkModeValue != null && !darkModeValue.isEmpty()) {
@@ -52,38 +54,38 @@ class SplashActivity : AppCompatActivity() {
         }
         AppCompatDelegate.setDefaultNightMode(darkMode)
 
-        val intent = intent
-        if (intent != null && intent.data != null) {
-            presenter!!.loadFromUri(applicationContext, intent.data)
+        if (intent?.data != null) {
+            launch {
+                presenter.loadFromUri(applicationContext, intent.data!!)
+            }
         } else {
-            presenter!!.fileName = "Untitled.md"
+            presenter.fileName = "Untitled.md"
             val autosave = File(filesDir, "autosave.md")
             if (autosave.exists()) {
                 try {
-                    val fileInputStream = FileInputStream(autosave)
-                    presenter!!.loadMarkdown(
-                            "Untitled.md",
-                            fileInputStream,
-                            object : MarkdownPresenter.FileLoadedListener {
-                                override fun onSuccess(markdown: String) {
-                                    autosave.delete()
-                                }
-
-                                override fun onError() {
-                                    autosave.delete()
-                                }
-                            },
-                            true
-                    )
+                    launch {
+                        presenter.loadMarkdown(
+                                "Untitled.md",
+                                autosave.inputStream(),
+                                true
+                        )
+                        autosave.delete()
+                    }
                 } catch (ignored: FileNotFoundException) {
                     return
                 }
-
             }
         }
 
         val startIntent = Intent(this, MainActivity::class.java)
         startActivity(startIntent)
         finish()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        coroutineContext[Job]?.let {
+            cancel()
+        }
     }
 }
