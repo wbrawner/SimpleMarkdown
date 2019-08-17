@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
+import android.preference.PreferenceManager
 import android.provider.OpenableColumns
 import android.view.Menu
 import android.view.MenuItem
@@ -16,27 +17,27 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.wbrawner.simplemarkdown.MarkdownApplication
 import com.wbrawner.simplemarkdown.R
 import com.wbrawner.simplemarkdown.presentation.MarkdownPresenter
-import com.wbrawner.simplemarkdown.utility.Constants.*
 import com.wbrawner.simplemarkdown.utility.ErrorHandler
-import com.wbrawner.simplemarkdown.utility.Utils
 import com.wbrawner.simplemarkdown.view.adapter.EditPagerAdapter
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.*
 import java.io.File
 import java.io.FileInputStream
-import java.io.InputStream
 import javax.inject.Inject
+import kotlin.coroutines.CoroutineContext
 
-class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsResultCallback {
+class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsResultCallback, CoroutineScope {
 
     @Inject
     lateinit var presenter: MarkdownPresenter
     @Inject
     lateinit var errorHandler: ErrorHandler
     private var shouldAutoSave = true
-    private var newFileHandler: NewFileHandler? = null
+    override val coroutineContext: CoroutineContext = Dispatchers.Main
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,9 +64,13 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
 
     override fun onUserLeaveHint() {
         super.onUserLeaveHint()
-        if (shouldAutoSave && presenter.markdown.isNotEmpty() && Utils.isAutosaveEnabled(this)) {
+        val isAutoSaveEnabled = PreferenceManager.getDefaultSharedPreferences(this)
+                .getBoolean(KEY_AUTOSAVE, true)
+        if (shouldAutoSave && presenter.markdown.isNotEmpty() && isAutoSaveEnabled) {
 
-            presenter.saveMarkdown(null, "autosave.md", File(filesDir, "autosave.md").outputStream())
+            launch {
+                presenter.saveMarkdown("autosave.md", File(filesDir, "autosave.md").outputStream())
+            }
         }
     }
 
@@ -130,28 +135,18 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
             }
         }
         infoIntent.putExtra("title", title)
-        var `in`: InputStream? = null
-        try {
-            val assetManager = assets
-            if (assetManager != null) {
-                `in` = assetManager.open(fileName)
+        launch {
+            try {
+                val inputStream = assets?.open(fileName)
+                        ?: throw RuntimeException("Unable to open stream to $fileName")
+                val html = presenter.loadMarkdown(fileName, inputStream, false)
+                infoIntent.putExtra("html", html)
+                startActivity(infoIntent)
+            } catch (e: Exception) {
+                errorHandler.reportException(e)
+                Toast.makeText(this@MainActivity, R.string.file_load_error, Toast.LENGTH_SHORT).show()
             }
-            presenter.loadMarkdown(fileName, `in`, object : MarkdownPresenter.FileLoadedListener {
-                override fun onSuccess(html: String) {
-                    infoIntent.putExtra("html", html)
-                    startActivity(infoIntent)
-                }
-
-                override fun onError() {
-                    Toast.makeText(this@MainActivity, R.string.file_load_error, Toast.LENGTH_SHORT)
-                            .show()
-                }
-            }, false)
-        } catch (e: Exception) {
-            errorHandler.reportException(e)
-            Toast.makeText(this@MainActivity, R.string.file_load_error, Toast.LENGTH_SHORT).show()
         }
-
     }
 
     override fun onRequestPermissionsResult(
@@ -197,12 +192,13 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
 
                 contentResolver.openFileDescriptor(data.data!!, "r")?.let {
                     val fileInput = FileInputStream(it.fileDescriptor)
-                    presenter.loadMarkdown(fileName, fileInput)
+                    launch {
+                        presenter.loadMarkdown(fileName, fileInput)
+                    }
                 }
             }
             REQUEST_SAVE_FILE -> {
-                if (resultCode != Activity.RESULT_OK
-                        || data?.data == null) {
+                if (resultCode != Activity.RESULT_OK || data?.data == null) {
                     return
                 }
 
@@ -213,11 +209,14 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
                             cursor.getString(nameIndex)
                         } ?: "Untitled.md"
 
-                presenter.saveMarkdown(
-                        newFileHandler,
-                        fileName,
-                        contentResolver.openOutputStream(data.data!!)
-                )
+                launch {
+                    val outputStream = contentResolver.openOutputStream(data.data!!)
+                            ?: throw RuntimeException("Unable to open output stream to save file")
+                    presenter.saveMarkdown(
+                            fileName,
+                            outputStream
+                    )
+                }
             }
             REQUEST_DARK_MODE -> recreate()
         }
@@ -228,11 +227,10 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         AlertDialog.Builder(this)
                 .setTitle(R.string.save_changes)
                 .setMessage(R.string.prompt_save_changes)
-                .setNegativeButton(R.string.action_discard) { d, _ ->
+                .setNegativeButton(R.string.action_discard) { _, _ ->
                     presenter.newFile("Untitled.md")
                 }
-                .setPositiveButton(R.string.action_save) { d, _ ->
-                    newFileHandler = NewFileHandler()
+                .setPositiveButton(R.string.action_save) { _, _ ->
                     requestFileOp(REQUEST_SAVE_FILE)
                 }
                 .create()
@@ -240,8 +238,8 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
     }
 
     private fun requestFileOp(requestType: Int) {
-        if (!Utils.canAccessFiles(this@MainActivity)) {
-            if (Build.VERSION.SDK_INT < 23) return
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED && Build.VERSION.SDK_INT > 22) {
             requestPermissions(
                     arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
                     requestType
@@ -283,17 +281,19 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         shouldAutoSave = true
     }
 
-    private inner class NewFileHandler : MarkdownPresenter.MarkdownSavedListener {
-        override fun saveComplete(success: Boolean) {
-            if (success) {
-                presenter.newFile("Untitled.md")
-            } else {
-                Toast.makeText(
-                        this@MainActivity,
-                        R.string.file_save_error,
-                        Toast.LENGTH_SHORT
-                ).show()
-            }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        coroutineContext[Job]?.let {
+            cancel()
         }
+    }
+
+    companion object {
+        // Request codes
+        const val REQUEST_OPEN_FILE = 1
+        const val REQUEST_SAVE_FILE = 2
+        const val REQUEST_DARK_MODE = 4
+        const val KEY_AUTOSAVE = "autosave"
     }
 }
