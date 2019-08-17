@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
+import android.preference.PreferenceManager
 import android.provider.OpenableColumns
 import android.view.Menu
 import android.view.MenuItem
@@ -16,11 +17,11 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.wbrawner.simplemarkdown.MarkdownApplication
 import com.wbrawner.simplemarkdown.R
 import com.wbrawner.simplemarkdown.presentation.MarkdownPresenter
 import com.wbrawner.simplemarkdown.utility.ErrorHandler
-import com.wbrawner.simplemarkdown.utility.Utils
 import com.wbrawner.simplemarkdown.view.adapter.EditPagerAdapter
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
@@ -63,7 +64,9 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
 
     override fun onUserLeaveHint() {
         super.onUserLeaveHint()
-        if (shouldAutoSave && presenter.markdown.isNotEmpty() && Utils.isAutosaveEnabled(this)) {
+        val isAutoSaveEnabled = PreferenceManager.getDefaultSharedPreferences(this)
+                .getBoolean(KEY_AUTOSAVE, true)
+        if (shouldAutoSave && presenter.markdown.isNotEmpty() && isAutoSaveEnabled) {
 
             launch {
                 presenter.saveMarkdown("autosave.md", File(filesDir, "autosave.md").outputStream())
@@ -235,8 +238,8 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
     }
 
     private fun requestFileOp(requestType: Int) {
-        if (!Utils.canAccessFiles(this@MainActivity)) {
-            if (Build.VERSION.SDK_INT < 23) return
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED && Build.VERSION.SDK_INT > 22) {
             requestPermissions(
                     arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
                     requestType
@@ -291,5 +294,6 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         const val REQUEST_OPEN_FILE = 1
         const val REQUEST_SAVE_FILE = 2
         const val REQUEST_DARK_MODE = 4
+        const val KEY_AUTOSAVE = "autosave"
     }
 }
