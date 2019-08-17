@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
-import com.wbrawner.simplemarkdown.utility.Constants;
 import com.wbrawner.simplemarkdown.utility.Utils;
 
 import org.junit.After;
@@ -43,7 +42,7 @@ public class UtilsTest {
     @Test
     public void isAutosaveEnabled() throws Exception {
         assertTrue(Utils.isAutosaveEnabled(context));
-        sharedPreferences.edit().putBoolean(Constants.KEY_AUTOSAVE, false).apply();
+        sharedPreferences.edit().putBoolean(Utils.KEY_AUTOSAVE, false).apply();
         assertFalse(Utils.isAutosaveEnabled(context));
     }
 
