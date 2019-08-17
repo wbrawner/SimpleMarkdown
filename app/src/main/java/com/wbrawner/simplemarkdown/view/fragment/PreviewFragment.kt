@@ -15,7 +15,7 @@ import com.wbrawner.simplemarkdown.BuildConfig
 import com.wbrawner.simplemarkdown.MarkdownApplication
 import com.wbrawner.simplemarkdown.R
 import com.wbrawner.simplemarkdown.presentation.MarkdownPresenter
-import com.wbrawner.simplemarkdown.view.MarkdownPreviewView
+import com.wbrawner.simplemarkdown.presentation.MarkdownPreviewView
 import javax.inject.Inject
 
 
@@ -50,7 +50,7 @@ class PreviewFragment : Fragment(), MarkdownPreviewView {
             }
             @Suppress("ConstantConditionIf")
             val css: String? = if (!BuildConfig.ENABLE_CUSTOM_CSS) {
-                getString(defaultCssId)
+                context?.getString(defaultCssId)
             } else {
                 sharedPreferences!!.getString(
                         getString(R.string.pref_custom_css),
@@ -70,7 +70,7 @@ class PreviewFragment : Fragment(), MarkdownPreviewView {
 
     override fun onResume() {
         super.onResume()
-        presenter.setPreviewView(this)
+        presenter.previewView = this
         presenter.onMarkdownEdited()
     }
 
@@ -78,13 +78,14 @@ class PreviewFragment : Fragment(), MarkdownPreviewView {
         markdownPreview?.let {
             (it.parent as ViewGroup).removeView(it)
             it.destroy()
+            markdownPreview = null
         }
         super.onDestroyView()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        presenter.setPreviewView(null)
+        presenter.previewView = null
     }
 
     companion object {
