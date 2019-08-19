@@ -64,6 +64,7 @@
     <string name="save_changes">Save Changes</string>
     <string name="prompt_save_changes">Would you like to save your changes?</string>
     <string name="action_discard">Discard</string>
+    <string name="action_save_as">Save as...</string>
     <string-array name="pref_entries_dark_mode">
         <item>@string/pref_value_light</item>
         <item>@string/pref_value_dark</item>

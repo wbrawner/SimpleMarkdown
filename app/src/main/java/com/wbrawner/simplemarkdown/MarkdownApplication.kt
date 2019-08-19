@@ -15,11 +15,11 @@ class MarkdownApplication : Application() {
                     .detectAll()
                     .penaltyDeath()
                     .build())
-//        StrictMode.setVmPolicy(StrictMode.VmPolicy.Builder()
-//                .detectAll()
-//                .penaltyLog()
-//                .penaltyDeath()
-//                .build())
+            StrictMode.setVmPolicy(StrictMode.VmPolicy.Builder()
+                    .detectAll()
+                    .penaltyLog()
+                    .penaltyDeath()
+                    .build())
         }
         super.onCreate()
     }

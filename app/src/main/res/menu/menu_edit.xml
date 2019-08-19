@@ -18,6 +18,9 @@
         android:id="@+id/action_save"
         android:title="@string/action_save" />
     <item
+        android:id="@+id/action_save_as"
+        android:title="@string/action_save_as" />
+    <item
         android:id="@+id/action_lock_swipe"
         android:checkable="true"
         android:title="@string/action_lock_swipe"
