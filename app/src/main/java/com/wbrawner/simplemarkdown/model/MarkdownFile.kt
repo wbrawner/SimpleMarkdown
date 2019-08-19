@@ -10,25 +10,4 @@ import java.io.Reader
  */
 class MarkdownFile(var name: String = "Untitled.md", var content: String = "") {
 
-    fun load(name: String, inputStream: InputStream): Boolean {
-        this.name = name
-        return try {
-            this.content = inputStream.reader().use(Reader::readText)
-            true
-        } catch (e: Throwable) {
-            false
-        }
-    }
-
-    fun save(name: String, outputStream: OutputStream): Boolean {
-        this.name = name
-        return try {
-            outputStream.writer().use {
-                it.write(this.content)
-            }
-            true
-        } catch (e: Throwable) {
-            false
-        }
-    }
 }
