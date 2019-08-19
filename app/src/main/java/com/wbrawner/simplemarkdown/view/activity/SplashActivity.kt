@@ -1,85 +1,73 @@
 package com.wbrawner.simplemarkdown.view.activity
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.preference.PreferenceManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.lifecycle.ViewModelProviders
 import com.wbrawner.simplemarkdown.MarkdownApplication
 import com.wbrawner.simplemarkdown.R
-import com.wbrawner.simplemarkdown.presentation.MarkdownPresenter
-import com.wbrawner.simplemarkdown.utility.ErrorHandler
+import com.wbrawner.simplemarkdown.viewmodel.MarkdownViewModel
 import kotlinx.coroutines.*
-import java.io.File
-import java.io.FileNotFoundException
-import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 
 class SplashActivity : AppCompatActivity(), CoroutineScope {
 
     override val coroutineContext: CoroutineContext = Dispatchers.Main
 
-    @Inject
-    lateinit var presenter: MarkdownPresenter
-
-    @Inject
-    lateinit var errorHandler: ErrorHandler
+    lateinit var viewModel: MarkdownViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
-        (application as MarkdownApplication).component.inject(this)
-        if (sharedPreferences.getBoolean(getString(R.string.error_reports_enabled), true)) {
-            errorHandler.init(this)
-        }
+        viewModel = ViewModelProviders.of(
+                this,
+                (application as MarkdownApplication).viewModelFactory
+        ).get(MarkdownViewModel::class.java)
 
-        val darkModeValue = sharedPreferences.getString(
-                getString(R.string.pref_key_dark_mode),
-                getString(R.string.pref_value_auto)
-        )
-
-        var darkMode = if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
-            AppCompatDelegate.MODE_NIGHT_AUTO
-        } else {
-            AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
-        }
-
-        if (darkModeValue != null && !darkModeValue.isEmpty()) {
-            if (darkModeValue.equals(getString(R.string.pref_value_light), ignoreCase = true)) {
-                darkMode = AppCompatDelegate.MODE_NIGHT_NO
-            } else if (darkModeValue.equals(getString(R.string.pref_value_dark), ignoreCase = true)) {
-                darkMode = AppCompatDelegate.MODE_NIGHT_YES
-            }
-        }
-        AppCompatDelegate.setDefaultNightMode(darkMode)
-
-        if (intent?.data != null) {
-            launch {
-                presenter.loadFromUri(applicationContext, intent.data!!)
-            }
-        } else {
-            presenter.fileName = "Untitled.md"
-            val autosave = File(filesDir, "autosave.md")
-            if (autosave.exists()) {
-                try {
-                    launch {
-                        presenter.loadMarkdown(
-                                "Untitled.md",
-                                autosave.inputStream(),
-                                true
+        launch {
+            val darkMode = withContext(Dispatchers.IO) {
+                val darkModeValue = PreferenceManager.getDefaultSharedPreferences(this@SplashActivity)
+                        .getString(
+                                getString(R.string.pref_key_dark_mode),
+                                getString(R.string.pref_value_auto)
                         )
-                        autosave.delete()
-                    }
-                } catch (ignored: FileNotFoundException) {
-                    return
-                }
-            }
-        }
 
-        val startIntent = Intent(this, MainActivity::class.java)
-        startActivity(startIntent)
-        finish()
+                return@withContext when {
+                    darkModeValue.equals(getString(R.string.pref_value_light), ignoreCase = true) -> AppCompatDelegate.MODE_NIGHT_NO
+                    darkModeValue.equals(getString(R.string.pref_value_dark), ignoreCase = true) -> AppCompatDelegate.MODE_NIGHT_YES
+                    else -> {
+                        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
+                            AppCompatDelegate.MODE_NIGHT_AUTO
+                        } else {
+                            AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+                        }
+                    }
+                }
+
+            }
+
+            AppCompatDelegate.setDefaultNightMode(darkMode)
+            withContext(Dispatchers.IO) {
+                var uri = intent?.data
+                if (uri == null) {
+                    uri = PreferenceManager.getDefaultSharedPreferences(this@SplashActivity)
+                            .getString(
+                                    getString(R.string.pref_key_autosave_uri),
+                                    null
+                            )?.let {
+                                Uri.parse(it)
+                            }
+                }
+
+                viewModel.load(this@SplashActivity, uri)
+            }
+            val startIntent = Intent(this@SplashActivity, MainActivity::class.java)
+            startActivity(startIntent)
+            finish()
+        }
     }
 
     override fun onDestroy() {

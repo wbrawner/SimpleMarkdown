@@ -1,6 +1,5 @@
 package com.wbrawner.simplemarkdown.view.fragment
 
-import android.content.SharedPreferences
 import android.content.res.Configuration.UI_MODE_NIGHT_MASK
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.os.Bundle
@@ -11,19 +10,20 @@ import android.view.ViewGroup
 import android.webkit.WebView
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import com.wbrawner.simplemarkdown.BuildConfig
 import com.wbrawner.simplemarkdown.MarkdownApplication
 import com.wbrawner.simplemarkdown.R
-import com.wbrawner.simplemarkdown.presentation.MarkdownPresenter
-import com.wbrawner.simplemarkdown.presentation.MarkdownPreviewView
-import javax.inject.Inject
+import com.wbrawner.simplemarkdown.utility.toHtml
+import com.wbrawner.simplemarkdown.viewmodel.MarkdownViewModel
+import kotlinx.coroutines.*
+import kotlin.coroutines.CoroutineContext
 
-
-class PreviewFragment : Fragment(), MarkdownPreviewView {
-    @Inject
-    lateinit var presenter: MarkdownPresenter
+class PreviewFragment : Fragment(), CoroutineScope {
+    override val coroutineContext: CoroutineContext = Dispatchers.Main
+    lateinit var viewModel: MarkdownViewModel
     private var markdownPreview: WebView? = null
-    private var sharedPreferences: SharedPreferences? = null
 
     override fun onCreateView(
             inflater: LayoutInflater,
@@ -32,46 +32,48 @@ class PreviewFragment : Fragment(), MarkdownPreviewView {
     ): View? = inflater.inflate(R.layout.fragment_preview, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(view.context)
         markdownPreview = view.findViewById(R.id.markdown_view)
-        (activity?.application as? MarkdownApplication)?.component?.inject(this)
         WebView.setWebContentsDebuggingEnabled(BuildConfig.DEBUG)
     }
 
-    override fun updatePreview(html: String) {
-        markdownPreview?.post {
-            val isNightMode = AppCompatDelegate.getDefaultNightMode() ==
-                    AppCompatDelegate.MODE_NIGHT_YES
-                    || context!!.resources.configuration.uiMode and UI_MODE_NIGHT_MASK == UI_MODE_NIGHT_YES
-            val defaultCssId = if (isNightMode) {
-                R.string.pref_custom_css_default_dark
-            } else {
-                R.string.pref_custom_css_default
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        viewModel = ViewModelProviders.of(
+                this,
+                (requireActivity().application as MarkdownApplication).viewModelFactory
+        ).get(MarkdownViewModel::class.java)
+        viewModel.markdownUpdates.observe(this, Observer<String> {
+            markdownPreview?.post {
+                val isNightMode = AppCompatDelegate.getDefaultNightMode() ==
+                        AppCompatDelegate.MODE_NIGHT_YES
+                        || context!!.resources.configuration.uiMode and UI_MODE_NIGHT_MASK == UI_MODE_NIGHT_YES
+                val defaultCssId = if (isNightMode) {
+                    R.string.pref_custom_css_default_dark
+                } else {
+                    R.string.pref_custom_css_default
+                }
+                launch {
+                    val css = withContext(Dispatchers.IO) {
+                        @Suppress("ConstantConditionIf")
+                        if (!BuildConfig.ENABLE_CUSTOM_CSS) {
+                            requireActivity().getString(defaultCssId)
+                        } else {
+                            PreferenceManager.getDefaultSharedPreferences(requireActivity())
+                                    .getString(
+                                            getString(R.string.pref_custom_css),
+                                            getString(defaultCssId)
+                                    )?: ""
+                        }
+                    }
+                    val style = String.format(FORMAT_CSS, css)
+                    markdownPreview?.loadDataWithBaseURL(null,
+                            style + it.toHtml(),
+                            "text/html",
+                            "UTF-8", null
+                    )
+                }
             }
-            @Suppress("ConstantConditionIf")
-            val css: String? = if (!BuildConfig.ENABLE_CUSTOM_CSS) {
-                context?.getString(defaultCssId)
-            } else {
-                sharedPreferences!!.getString(
-                        getString(R.string.pref_custom_css),
-                        getString(defaultCssId)
-                )
-            }
-
-            val style = String.format(FORMAT_CSS, css)
-
-            markdownPreview?.loadDataWithBaseURL(null,
-                    style + html,
-                    "text/html",
-                    "UTF-8", null
-            )
-        }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        presenter.previewView = this
-        presenter.onMarkdownEdited()
+        })
     }
 
     override fun onDestroyView() {
@@ -84,8 +86,10 @@ class PreviewFragment : Fragment(), MarkdownPreviewView {
     }
 
     override fun onDestroy() {
+        coroutineContext[Job]?.let {
+            cancel()
+        }
         super.onDestroy()
-        presenter.previewView = null
     }
 
     companion object {
