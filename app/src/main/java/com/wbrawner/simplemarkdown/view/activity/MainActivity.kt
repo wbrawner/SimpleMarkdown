@@ -95,7 +95,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
                     } else {
                         null
                     }
-                }?: return@withContext
+                } ?: return@withContext
                 sharedPrefs.edit()
                         .putString(getString(R.string.pref_key_autosave_uri), uri.toString())
                         .apply()
@@ -130,6 +130,9 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
                         ).show()
                     }
                 }
+            }
+            R.id.action_save_as -> {
+                requestFileOp(REQUEST_SAVE_FILE)
             }
             R.id.action_share -> {
                 val shareIntent = Intent(Intent.ACTION_SEND)

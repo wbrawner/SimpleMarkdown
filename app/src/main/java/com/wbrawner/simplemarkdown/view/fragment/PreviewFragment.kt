@@ -24,6 +24,7 @@ class PreviewFragment : Fragment(), CoroutineScope {
     override val coroutineContext: CoroutineContext = Dispatchers.Main
     lateinit var viewModel: MarkdownViewModel
     private var markdownPreview: WebView? = null
+    private var style: String = ""
 
     override fun onCreateView(
             inflater: LayoutInflater,
@@ -42,38 +43,45 @@ class PreviewFragment : Fragment(), CoroutineScope {
                 this,
                 (requireActivity().application as MarkdownApplication).viewModelFactory
         ).get(MarkdownViewModel::class.java)
-        viewModel.markdownUpdates.observe(this, Observer<String> {
-            markdownPreview?.post {
-                val isNightMode = AppCompatDelegate.getDefaultNightMode() ==
-                        AppCompatDelegate.MODE_NIGHT_YES
-                        || context!!.resources.configuration.uiMode and UI_MODE_NIGHT_MASK == UI_MODE_NIGHT_YES
-                val defaultCssId = if (isNightMode) {
-                    R.string.pref_custom_css_default_dark
+        launch {
+            val isNightMode = AppCompatDelegate.getDefaultNightMode() ==
+                    AppCompatDelegate.MODE_NIGHT_YES
+                    || context!!.resources.configuration.uiMode and UI_MODE_NIGHT_MASK == UI_MODE_NIGHT_YES
+            val defaultCssId = if (isNightMode) {
+                R.string.pref_custom_css_default_dark
+            } else {
+                R.string.pref_custom_css_default
+            }
+            val css = withContext(Dispatchers.IO) {
+                @Suppress("ConstantConditionIf")
+                if (!BuildConfig.ENABLE_CUSTOM_CSS) {
+                    requireActivity().getString(defaultCssId)
                 } else {
-                    R.string.pref_custom_css_default
-                }
-                launch {
-                    val css = withContext(Dispatchers.IO) {
-                        @Suppress("ConstantConditionIf")
-                        if (!BuildConfig.ENABLE_CUSTOM_CSS) {
-                            requireActivity().getString(defaultCssId)
-                        } else {
-                            PreferenceManager.getDefaultSharedPreferences(requireActivity())
-                                    .getString(
-                                            getString(R.string.pref_custom_css),
-                                            getString(defaultCssId)
-                                    )?: ""
-                        }
-                    }
-                    val style = String.format(FORMAT_CSS, css)
-                    markdownPreview?.loadDataWithBaseURL(null,
-                            style + it.toHtml(),
-                            "text/html",
-                            "UTF-8", null
-                    )
+                    PreferenceManager.getDefaultSharedPreferences(requireActivity())
+                            .getString(
+                                    getString(R.string.pref_custom_css),
+                                    getString(defaultCssId)
+                            ) ?: ""
                 }
             }
-        })
+            style = String.format(FORMAT_CSS, css)
+            updateWebContent(viewModel.markdownUpdates.value ?: "")
+            viewModel.markdownUpdates.observe(this@PreviewFragment, Observer<String> {
+                updateWebContent(it)
+            })
+        }
+    }
+
+    private fun updateWebContent(markdown: String) {
+        markdownPreview?.post {
+            launch {
+                markdownPreview?.loadDataWithBaseURL(null,
+                        style + markdown.toHtml(),
+                        "text/html",
+                        "UTF-8", null
+                )
+            }
+        }
     }
 
     override fun onDestroyView() {
