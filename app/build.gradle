@@ -9,7 +9,7 @@ def keystoreProperties = new Properties()
 try {
     def keystorePropertiesFile = rootProject.file("keystore.properties")
     keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
-} catch (FileNotFoundException e) {
+} catch (FileNotFoundException ignored) {
     logger.warn("Unable to load keystore properties. Automatic signing won't be available")
     keystoreProperties['keyAlias'] = ""
     keystoreProperties['keyPassword'] = ""
@@ -29,7 +29,7 @@ android {
         exclude 'META-INF/LICENSE'
         exclude 'META-INF/DEPENDENCIES'
     }
-    compileSdkVersion 28
+    compileSdkVersion 29
     buildToolsVersion '28.0.3'
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -38,7 +38,7 @@ android {
     defaultConfig {
         applicationId "com.wbrawner.simplemarkdown"
         minSdkVersion 21
-        targetSdkVersion 28
+        targetSdkVersion 29
         versionCode 20
         versionName "0.7.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -70,6 +70,7 @@ android {
         unitTests {
             includeAndroidResources = true
         }
+        execution 'ANDROIDX_TEST_ORCHESTRATOR'
     }
 }
 
@@ -77,12 +78,15 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     testImplementation 'org.robolectric:robolectric:4.2'
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    androidTestImplementation('androidx.test.espresso:espresso-core:3.1.0', {
-        exclude group: 'com.android.support', module: 'support-annotations'
-    })
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
-    androidTestImplementation 'androidx.test:runner:1.2.0'
-    androidTestImplementation 'androidx.test:rules:1.2.0'
+    def espresso_version = '3.2.0'
+    androidTestImplementation "androidx.test.espresso:espresso-core:$espresso_version"
+    androidTestImplementation "androidx.test.espresso:espresso-web:$espresso_version"
+    androidTestImplementation "androidx.test.espresso:espresso-intents:$espresso_version"
+    def android_test = '1.2.0'
+    androidTestImplementation "androidx.test:runner:$android_test"
+    androidTestImplementation "androidx.test:rules:$android_test"
+    androidTestUtil "androidx.test:orchestrator:$android_test"
+    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.uiautomator:uiautomator:2.2.0'
     implementation 'androidx.appcompat:appcompat:1.1.0-rc01'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
@@ -93,7 +97,7 @@ dependencies {
     annotationProcessor 'com.google.dagger:dagger-compiler:2.22.1'
     kapt 'com.google.dagger:dagger-android-processor:2.22.1'
     kapt 'com.google.dagger:dagger-compiler:2.22.1'
-    implementation 'com.google.firebase:firebase-core:17.0.1'
+    implementation 'com.google.firebase:firebase-core:17.1.0'
     implementation 'com.android.billingclient:billing:1.2'
     implementation 'com.crashlytics.sdk.android:crashlytics:2.10.1'
     implementation "androidx.core:core-ktx:1.0.2"
@@ -101,7 +105,10 @@ dependencies {
     def coroutines_version = "1.3.0-RC2"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version"
-    implementation 'androidx.lifecycle:lifecycle-extensions:2.0.0'
+
+    def lifecycle_version = "2.0.0"
+    implementation "androidx.lifecycle:lifecycle-extensions:$lifecycle_version"
+    kapt "androidx.lifecycle:lifecycle-compiler:$lifecycle_version"
     implementation 'eu.crydee:syllable-counter:4.0.2'
 }
 
@@ -132,6 +139,7 @@ task jacocoTestReport(type: JacocoReport, dependsOn: ['testDebugUnitTest']) {
     sourceDirectories = files([mainSrc])
     classDirectories = files([javaDebugTree, kotlinDebugTree])
     executionData = fileTree(dir: project.buildDir, includes: [
-            'jacoco/testDebugUnitTest.exec', 'outputs/code-coverage/connected/*coverage.ec'
+            'jacoco/testDebugUnitTest.exec',
+            'outputs/code-coverage/connected/*coverage.ec'
     ])
 }

@@ -14,7 +14,7 @@
     <ListPreference
         android:entries="@array/pref_entries_dark_mode"
         android:entryValues="@array/pref_values_dark_mode"
-        android:defaultValue="@string/pref_value_auto"
+        android:defaultValue="@string/pref_key_dark_mode_auto"
         android:key="@string/pref_key_dark_mode"
         android:title="@string/title_dark_mode" />
     <SwitchPreference

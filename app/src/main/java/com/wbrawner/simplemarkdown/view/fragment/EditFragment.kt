@@ -16,32 +16,26 @@ import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.ScrollView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import com.wbrawner.simplemarkdown.MarkdownApplication
 import com.wbrawner.simplemarkdown.R
 import com.wbrawner.simplemarkdown.model.Readability
-import com.wbrawner.simplemarkdown.presentation.MarkdownEditView
-import com.wbrawner.simplemarkdown.presentation.MarkdownPresenter
 import com.wbrawner.simplemarkdown.utility.hideKeyboard
 import com.wbrawner.simplemarkdown.utility.showKeyboard
 import com.wbrawner.simplemarkdown.view.ViewPagerPage
+import com.wbrawner.simplemarkdown.viewmodel.MarkdownViewModel
 import kotlinx.coroutines.*
-import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 import kotlin.math.abs
 
-class EditFragment : Fragment(), MarkdownEditView, ViewPagerPage, CoroutineScope {
-    @Inject
-    lateinit var presenter: MarkdownPresenter
+class EditFragment : Fragment(), ViewPagerPage, CoroutineScope {
     private var markdownEditor: EditText? = null
     private var markdownEditorScroller: ScrollView? = null
-    override var markdown: String
-        get() = markdownEditor?.text?.toString() ?: ""
-        set(value) {
-            markdownEditor?.setText(value)
-        }
+    private lateinit var viewModel: MarkdownViewModel
     override val coroutineContext: CoroutineContext = Dispatchers.Main
+    private var readabilityWatcher: TextWatcher? = null
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -67,7 +61,7 @@ class EditFragment : Fragment(), MarkdownEditView, ViewPagerPage, CoroutineScope
                     delay(50)
                     if (searchText != searchFor)
                         return@launch
-                    presenter.onMarkdownEdited(searchText)
+                    viewModel.updateMarkdown(searchText)
                 }
             }
 
@@ -78,49 +72,6 @@ class EditFragment : Fragment(), MarkdownEditView, ViewPagerPage, CoroutineScope
             }
 
         })
-        val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
-        val enableReadability = sharedPrefs.getBoolean(getString(R.string.readability_enabled), false)
-        if (enableReadability) {
-            markdownEditor?.addTextChangedListener(object : TextWatcher {
-                private var previousValue = ""
-                private var searchFor = ""
-
-                override fun afterTextChanged(s: Editable?) {
-                    val searchText = s.toString().trim()
-                    if (searchText == searchFor)
-                        return
-
-                    searchFor = searchText
-
-                    launch {
-                        delay(250)
-                        if (searchText != searchFor)
-                            return@launch
-                        val start = System.currentTimeMillis()
-                        if (markdown.isEmpty()) return@launch
-                        if (previousValue == markdown) return@launch
-                        val readability = Readability(markdown)
-                        val span = SpannableString(markdown)
-                        for (sentence in readability.sentences()) {
-                            var color = Color.TRANSPARENT
-                            if (sentence.syllableCount() > 25) color = Color.argb(100, 229, 232, 42)
-                            if (sentence.syllableCount() > 35) color = Color.argb(100, 193, 66, 66)
-                            span.setSpan(BackgroundColorSpan(color), sentence.start(), sentence.end(), 0)
-                        }
-                        markdownEditor?.setTextKeepState(span, TextView.BufferType.SPANNABLE)
-                        previousValue = markdown
-                        val timeTakenMs = System.currentTimeMillis() - start
-                        Log.d("SimpleMarkdown", "Handled markdown in " + timeTakenMs + "ms")
-                    }
-                }
-
-                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-                }
-
-                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                }
-            })
-        }
 
         var touchDown = 0L
         var oldX = 0f
@@ -148,21 +99,37 @@ class EditFragment : Fragment(), MarkdownEditView, ViewPagerPage, CoroutineScope
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        @Suppress("CAST_NEVER_SUCCEEDS")
-        (activity?.application as? MarkdownApplication)?.component?.inject(this)
-        presenter.editView = this@EditFragment
+        viewModel = ViewModelProviders.of(
+                this,
+                (requireActivity().application as MarkdownApplication).viewModelFactory
+        ).get(MarkdownViewModel::class.java)
+        viewModel.originalMarkdown.observe(this, Observer<String> {
+            markdownEditor?.setText(it)
+        })
     }
 
-    override fun onResume() {
-        super.onResume()
-        presenter.editView = this
-        markdown = presenter.markdown
-    }
+    override fun onStart() {
+        super.onStart()
+        launch {
+            val enableReadability = withContext(Dispatchers.IO) {
+                context?.let {
+                    PreferenceManager.getDefaultSharedPreferences(it)
+                            .getBoolean(getString(R.string.readability_enabled), false)
+                }?: false
+            }
+            if (enableReadability) {
+                if (readabilityWatcher == null) {
+                    readabilityWatcher = ReadabilityTextWatcher()
+                }
+                markdownEditor?.addTextChangedListener(readabilityWatcher)
+            } else {
+                readabilityWatcher?.let {
+                    markdownEditor?.removeTextChangedListener(it)
+                }
+                readabilityWatcher = null
+            }
 
-    override fun onPause() {
-        super.onPause()
-        presenter.editView = null
-        markdownEditor?.hideKeyboard()
+        }
     }
 
     override fun onDestroy() {
@@ -180,25 +147,44 @@ class EditFragment : Fragment(), MarkdownEditView, ViewPagerPage, CoroutineScope
         markdownEditor?.hideKeyboard()
     }
 
-    override fun setTitle(title: String) {
-        val activity = activity
-        if (activity != null) {
-            activity.title = title
+    inner class ReadabilityTextWatcher : TextWatcher {
+        private var previousValue = ""
+        private var searchFor = ""
+
+        override fun afterTextChanged(s: Editable?) {
+            val searchText = s.toString().trim()
+            if (searchText == searchFor)
+                return
+
+            searchFor = searchText
+
+            launch {
+                delay(250)
+                if (searchText != searchFor)
+                    return@launch
+                val start = System.currentTimeMillis()
+                if (searchFor.isEmpty()) return@launch
+                if (previousValue == searchFor) return@launch
+                val readability = Readability(searchFor)
+                val span = SpannableString(searchFor)
+                for (sentence in readability.sentences()) {
+                    var color = Color.TRANSPARENT
+                    if (sentence.syllableCount() > 25) color = Color.argb(100, 229, 232, 42)
+                    if (sentence.syllableCount() > 35) color = Color.argb(100, 193, 66, 66)
+                    Log.d("SimpleMarkdown", "Sentence start: ${sentence.start()} end: ${sentence.end()}")
+                    span.setSpan(BackgroundColorSpan(color), sentence.start(), sentence.end(), 0)
+                }
+                markdownEditor?.setTextKeepState(span, TextView.BufferType.SPANNABLE)
+                previousValue = searchFor
+                val timeTakenMs = System.currentTimeMillis() - start
+                Log.d("SimpleMarkdown", "Handled markdown in $timeTakenMs ms")
+            }
+        }
+
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+        }
+
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
         }
     }
-
-    override fun onFileSaved(success: Boolean) {
-        val message: String = if (success) {
-            getString(R.string.file_saved, presenter.fileName)
-        } else {
-            getString(R.string.file_save_error)
-        }
-        Toast.makeText(activity, message, Toast.LENGTH_SHORT).show()
-    }
-
-    override fun onFileLoaded(success: Boolean) {
-        // TODO: Investigate why this fires off so often
-        //        int message = success ? R.string.file_loaded : R.string.file_load_error;
-        //        Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
-    }
-}// Required empty public constructor
+}

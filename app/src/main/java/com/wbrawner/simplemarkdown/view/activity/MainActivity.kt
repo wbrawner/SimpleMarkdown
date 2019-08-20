@@ -5,10 +5,10 @@ import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Configuration
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.preference.PreferenceManager
-import android.provider.OpenableColumns
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -18,11 +18,16 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import com.wbrawner.simplemarkdown.MarkdownApplication
 import com.wbrawner.simplemarkdown.R
-import com.wbrawner.simplemarkdown.presentation.MarkdownPresenter
 import com.wbrawner.simplemarkdown.utility.ErrorHandler
+import com.wbrawner.simplemarkdown.utility.getName
+import com.wbrawner.simplemarkdown.utility.readAssetToString
+import com.wbrawner.simplemarkdown.utility.toHtml
 import com.wbrawner.simplemarkdown.view.adapter.EditPagerAdapter
+import com.wbrawner.simplemarkdown.viewmodel.MarkdownViewModel
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
 import java.io.File
@@ -33,11 +38,10 @@ import kotlin.coroutines.CoroutineContext
 class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsResultCallback, CoroutineScope {
 
     @Inject
-    lateinit var presenter: MarkdownPresenter
-    @Inject
     lateinit var errorHandler: ErrorHandler
     private var shouldAutoSave = true
     override val coroutineContext: CoroutineContext = Dispatchers.Main
+    private lateinit var viewModel: MarkdownViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,7 +54,10 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
                             or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                     )
         }
-        (application as MarkdownApplication).component.inject(this)
+        viewModel = ViewModelProviders.of(
+                this,
+                (application as MarkdownApplication).viewModelFactory
+        ).get(MarkdownViewModel::class.java)
         val adapter = EditPagerAdapter(supportFragmentManager, this@MainActivity)
         pager.adapter = adapter
         pager.addOnPageChangeListener(adapter)
@@ -60,16 +67,38 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
             tabLayout!!.visibility = View.GONE
         }
+        @Suppress("CAST_NEVER_SUCCEEDS")
+        viewModel.fileName.observe(this, Observer<String> {
+            title = it
+        })
     }
 
     override fun onUserLeaveHint() {
         super.onUserLeaveHint()
-        val isAutoSaveEnabled = PreferenceManager.getDefaultSharedPreferences(this)
-                .getBoolean(KEY_AUTOSAVE, true)
-        if (shouldAutoSave && presenter.markdown.isNotEmpty() && isAutoSaveEnabled) {
+        launch {
+            withContext(Dispatchers.IO) {
+                val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this@MainActivity)
+                val isAutoSaveEnabled = sharedPrefs.getBoolean(KEY_AUTOSAVE, true)
+                if (!shouldAutoSave || !isAutoSaveEnabled) {
+                    return@withContext
+                }
 
-            launch {
-                presenter.saveMarkdown("autosave.md", File(filesDir, "autosave.md").outputStream())
+                val uri = if (viewModel.save(this@MainActivity)) {
+                    viewModel.uri.value
+                } else {
+                    // The user has left the app, with autosave enabled, and we don't already have a
+                    // Uri for them or for some reason we were unable to save to the original Uri. In
+                    // this case, we need to just save to internal file storage so that we can recover
+                    val fileUri = Uri.fromFile(File(filesDir, viewModel.fileName.value))
+                    if (viewModel.save(this@MainActivity, fileUri)) {
+                        fileUri
+                    } else {
+                        null
+                    }
+                } ?: return@withContext
+                sharedPrefs.edit()
+                        .putString(getString(R.string.pref_key_autosave_uri), uri.toString())
+                        .apply()
             }
         }
     }
@@ -89,10 +118,25 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.action_save -> requestFileOp(REQUEST_SAVE_FILE)
+            R.id.action_save -> {
+                launch {
+                    if (!viewModel.save(this@MainActivity)) {
+                        requestFileOp(REQUEST_SAVE_FILE)
+                    } else {
+                        Toast.makeText(
+                                this@MainActivity,
+                                getString(R.string.file_saved, viewModel.fileName.value),
+                                Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+            }
+            R.id.action_save_as -> {
+                requestFileOp(REQUEST_SAVE_FILE)
+            }
             R.id.action_share -> {
                 val shareIntent = Intent(Intent.ACTION_SEND)
-                shareIntent.putExtra(Intent.EXTRA_TEXT, presenter.markdown)
+                shareIntent.putExtra(Intent.EXTRA_TEXT, viewModel.markdownUpdates.value)
                 shareIntent.type = "text/plain"
                 startActivity(Intent.createChooser(
                         shareIntent,
@@ -137,9 +181,9 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         infoIntent.putExtra("title", title)
         launch {
             try {
-                val inputStream = assets?.open(fileName)
+                val html = assets?.readAssetToString(fileName)
+                        ?.toHtml()
                         ?: throw RuntimeException("Unable to open stream to $fileName")
-                val html = presenter.loadMarkdown(fileName, inputStream, false)
                 infoIntent.putExtra("html", html)
                 startActivity(infoIntent)
             } catch (e: Exception) {
@@ -183,17 +227,11 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
                     return
                 }
 
-                val fileName = contentResolver.query(data.data!!, null, null, null, null)
-                        ?.use { cursor ->
-                            val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-                            cursor.moveToFirst()
-                            cursor.getString(nameIndex)
-                        } ?: "Untitled.md"
-
-                contentResolver.openFileDescriptor(data.data!!, "r")?.let {
-                    val fileInput = FileInputStream(it.fileDescriptor)
-                    launch {
-                        presenter.loadMarkdown(fileName, fileInput)
+                launch {
+                    val fileLoaded = viewModel.load(this@MainActivity, data.data)
+                    if (!fileLoaded) {
+                        Toast.makeText(this@MainActivity, R.string.file_load_error, Toast.LENGTH_SHORT)
+                                .show()
                     }
                 }
             }
@@ -202,20 +240,8 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
                     return
                 }
 
-                val fileName = contentResolver.query(data.data!!, null, null, null, null)
-                        ?.use { cursor ->
-                            val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-                            cursor.moveToFirst()
-                            cursor.getString(nameIndex)
-                        } ?: "Untitled.md"
-
                 launch {
-                    val outputStream = contentResolver.openOutputStream(data.data!!)
-                            ?: throw RuntimeException("Unable to open output stream to save file")
-                    presenter.saveMarkdown(
-                            fileName,
-                            outputStream
-                    )
+                    viewModel.save(this@MainActivity, data.data)
                 }
             }
             REQUEST_DARK_MODE -> recreate()
@@ -224,11 +250,15 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
     }
 
     private fun promptSaveOrDiscardChanges() {
+        if (viewModel.originalMarkdown.value == viewModel.markdownUpdates.value) {
+            viewModel.reset("Untitled.md")
+            return
+        }
         AlertDialog.Builder(this)
                 .setTitle(R.string.save_changes)
                 .setMessage(R.string.prompt_save_changes)
                 .setNegativeButton(R.string.action_discard) { _, _ ->
-                    presenter.newFile("Untitled.md")
+                    viewModel.reset("Untitled.md")
                 }
                 .setPositiveButton(R.string.action_save) { _, _ ->
                     requestFileOp(REQUEST_SAVE_FILE)
@@ -252,7 +282,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
             REQUEST_SAVE_FILE -> {
                 Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
                     type = "text/markdown"
-                    putExtra(Intent.EXTRA_TITLE, presenter.fileName)
+                    putExtra(Intent.EXTRA_TITLE, viewModel.fileName.value)
                 }
             }
             REQUEST_OPEN_FILE -> {
@@ -274,13 +304,10 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         )
     }
 
-
     override fun onResume() {
         super.onResume()
-        title = presenter.fileName
         shouldAutoSave = true
     }
-
 
     override fun onDestroy() {
         super.onDestroy()
