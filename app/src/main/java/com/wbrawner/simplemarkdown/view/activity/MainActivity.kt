@@ -8,7 +8,6 @@ import android.content.res.Configuration
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.preference.PreferenceManager
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -20,25 +19,19 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.preference.PreferenceManager
 import com.wbrawner.simplemarkdown.MarkdownApplication
 import com.wbrawner.simplemarkdown.R
-import com.wbrawner.simplemarkdown.utility.ErrorHandler
-import com.wbrawner.simplemarkdown.utility.getName
-import com.wbrawner.simplemarkdown.utility.readAssetToString
-import com.wbrawner.simplemarkdown.utility.toHtml
 import com.wbrawner.simplemarkdown.view.adapter.EditPagerAdapter
+import com.wbrawner.simplemarkdown.view.fragment.MainMenuFragment
 import com.wbrawner.simplemarkdown.viewmodel.MarkdownViewModel
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
 import java.io.File
-import java.io.FileInputStream
-import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 
 class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsResultCallback, CoroutineScope {
 
-    @Inject
-    lateinit var errorHandler: ErrorHandler
     private var shouldAutoSave = true
     override val coroutineContext: CoroutineContext = Dispatchers.Main
     private lateinit var viewModel: MarkdownViewModel
@@ -47,6 +40,8 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
+        supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_menu_black_24dp)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
         window.decorView.apply {
             systemUiVisibility = (
                     View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
@@ -89,7 +84,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
                     // The user has left the app, with autosave enabled, and we don't already have a
                     // Uri for them or for some reason we were unable to save to the original Uri. In
                     // this case, we need to just save to internal file storage so that we can recover
-                    val fileUri = Uri.fromFile(File(filesDir, viewModel.fileName.value))
+                    val fileUri = Uri.fromFile(File(filesDir, viewModel.fileName.value!!))
                     if (viewModel.save(this@MainActivity, fileUri)) {
                         fileUri
                     } else {
@@ -118,6 +113,13 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
+            android.R.id.home -> {
+                MainMenuFragment()
+                        .apply {
+                            errorHandler = (application as MarkdownApplication).errorHandler
+                        }
+                        .show(supportFragmentManager, null)
+            }
             R.id.action_save -> {
                 launch {
                     if (!viewModel.save(this@MainActivity)) {
@@ -149,48 +151,8 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
                 item.isChecked = !item.isChecked
                 pager!!.setSwipeLocked(item.isChecked)
             }
-            R.id.action_help -> showInfoActivity(R.id.action_help)
-            R.id.action_settings -> {
-                val settingsIntent = Intent(this@MainActivity, SettingsActivity::class.java)
-                startActivityForResult(settingsIntent, REQUEST_DARK_MODE)
-            }
-            R.id.action_libraries -> showInfoActivity(R.id.action_libraries)
-            R.id.action_privacy -> showInfoActivity(R.id.action_privacy)
         }
         return super.onOptionsItemSelected(item)
-    }
-
-    private fun showInfoActivity(action: Int) {
-        val infoIntent = Intent(this@MainActivity, MarkdownInfoActivity::class.java)
-        var fileName = ""
-        var title = ""
-        when (action) {
-            R.id.action_help -> {
-                fileName = "Cheatsheet.md"
-                title = getString(R.string.action_help)
-            }
-            R.id.action_libraries -> {
-                fileName = "Libraries.md"
-                title = getString(R.string.action_libraries)
-            }
-            R.id.action_privacy -> {
-                fileName = "Privacy Policy.md"
-                title = getString(R.string.action_privacy)
-            }
-        }
-        infoIntent.putExtra("title", title)
-        launch {
-            try {
-                val html = assets?.readAssetToString(fileName)
-                        ?.toHtml()
-                        ?: throw RuntimeException("Unable to open stream to $fileName")
-                infoIntent.putExtra("html", html)
-                startActivity(infoIntent)
-            } catch (e: Exception) {
-                errorHandler.reportException(e)
-                Toast.makeText(this@MainActivity, R.string.file_load_error, Toast.LENGTH_SHORT).show()
-            }
-        }
     }
 
     override fun onRequestPermissionsResult(
@@ -244,7 +206,6 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
                     viewModel.save(this@MainActivity, data.data)
                 }
             }
-            REQUEST_DARK_MODE -> recreate()
         }
         super.onActivityResult(requestCode, resultCode, data)
     }
