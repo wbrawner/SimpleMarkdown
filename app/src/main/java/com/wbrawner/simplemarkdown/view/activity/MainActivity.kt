@@ -206,7 +206,6 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
                     viewModel.save(this@MainActivity, data.data)
                 }
             }
-            REQUEST_DARK_MODE -> recreate()
         }
         super.onActivityResult(requestCode, resultCode, data)
     }
