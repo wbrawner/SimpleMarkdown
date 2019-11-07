@@ -18,10 +18,6 @@
         android:theme="@style/AppTheme"
         tools:ignore="AllowBackup"
         tools:targetApi="n">
-        <meta-data
-            android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="@string/admob_app_id" />
-
         <activity
             android:name=".view.activity.SplashActivity"
             android:theme="@style/AppTheme.Splash"
@@ -67,6 +63,8 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".view.activity.MainActivity" />
         </activity>
+
+        <activity android:name=".view.activity.SupportActivity" />
 
         <meta-data
             android:name="firebase_crashlytics_collection_enabled"

@@ -5,4 +5,7 @@
     <color name="colorAccent">#d32f2f</color>
     <color name="colorBackground">#FFFFFF</color>
     <color name="colorOnBackground">#000000</color>
+    <color name="colorBackgroundGitHub">#24292e</color>
+    <color name="colorWhite">#FFFFFFFF</color>
+    <color name="colorBackgroundPlayStore">#689f38</color>
 </resources>

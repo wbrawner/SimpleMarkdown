@@ -2,8 +2,6 @@
     <string name="app_name">Simple Markdown</string>
     <string name="app_name_short">Markdown</string>
 
-    <string name="admob_app_id">ca-app-pub-3319579963502409~4576405307</string>
-
     <string name="action_settings">Settings</string>
     <string name="action_help">Help</string>
     <string name="action_edit">Edit</string>
@@ -65,6 +63,20 @@
     <string name="prompt_save_changes">Would you like to save your changes?</string>
     <string name="action_discard">Discard</string>
     <string name="action_save_as">Save as…</string>
+    <string name="support_info">SimpleMarkdown is a personal project of mine that I develop and
+        maintain in my free time. I very much appreciate any and all forms of support, whether
+        that be assistance with designing the app or icons, adding translations for other
+        languages, contributing to the code, or giving me a tip. If you have any troubles with
+        SimpleMarkdown, please don\'t hesitate to get in touch, and if you haven\'t already,
+        please rate the app on the Play Store.\n\nAlso please keep in mind that the in-app
+        purchases for the tips won\'t unlock any additional functionality in the app.
+        SimpleMarkdown is and always will be completely free and open source!</string>
+    <string name="action_view_github">View SimpleMarkdown on GitHub</string>
+    <string name="support_title">Support SimpleMarkdown</string>
+    <string name="support_button_purchase">%1$s – %2$s</string>
+    <string name="action_rate">Rate SimpleMarkdown</string>
+    <string name="support_thank_you">Thank you so much for your support!</string>
+    <string name="description_heart">Heart</string>
     <string-array name="pref_entries_dark_mode">
         <item>@string/pref_value_light</item>
         <item>@string/pref_value_dark</item>
