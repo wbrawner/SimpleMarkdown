@@ -1,21 +1,61 @@
 package com.wbrawner.simplemarkdown.view.activity
 
+import android.content.ActivityNotFoundException
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
-import android.util.Log
+import android.view.MenuItem
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.browser.customtabs.CustomTabsIntent
 import com.android.billingclient.api.*
-import java.util.*
+import com.google.android.material.button.MaterialButton
+import com.wbrawner.simplemarkdown.R
+import kotlinx.android.synthetic.main.activity_support.*
+
 
 class SupportActivity : AppCompatActivity(), BillingClientStateListener, PurchasesUpdatedListener {
     private lateinit var billingClient: BillingClient
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_support)
+        setSupportActionBar(toolbar)
+        setTitle(R.string.support_title)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
         billingClient = BillingClient.newBuilder(applicationContext)
                 .setListener(this)
                 .build()
         billingClient.startConnection(this)
+        githubButton.setOnClickListener {
+            CustomTabsIntent.Builder()
+                    .addDefaultShareMenuItem()
+                    .build()
+                    .launchUrl(this@SupportActivity, Uri.parse("https://github.com/wbrawner/SimpleMarkdown"))
+        }
+        rateButton.setOnClickListener {
+            val playStoreIntent = Intent(Intent.ACTION_VIEW)
+                    .apply {
+                        data = Uri.parse("market://details?id=${packageName}")
+                        addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY or
+                                Intent.FLAG_ACTIVITY_NEW_DOCUMENT or
+                                Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
+                    }
+            try {
+                startActivity(playStoreIntent)
+            } catch (ignored: ActivityNotFoundException) {
+                playStoreIntent.data = Uri.parse("https://play.google.com/store/apps/details?id=${packageName}")
+                startActivity(playStoreIntent)
+            }
+        }
+    }
 
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == android.R.id.home) {
+            finish()
+            return true
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     override fun onBillingSetupFinished(responseCode: Int) {
@@ -23,36 +63,47 @@ class SupportActivity : AppCompatActivity(), BillingClientStateListener, Purchas
             return
         }
 
-        // The billing client is ready. You can query purchases here.
-        val skuList = ArrayList<String>()
-        skuList.add("support_the_developer")
-        val params = SkuDetailsParams.newBuilder()
-        params.setSkusList(skuList).setType(BillingClient.SkuType.INAPP)
-        billingClient.querySkuDetailsAsync(params.build()) { responseCode1, skuDetailsList ->
+        val skuDetails = SkuDetailsParams.newBuilder()
+                .setSkusList(listOf("support_the_developer", "tip_coffee", "tip_beer"))
+                .setType(BillingClient.SkuType.INAPP)
+                .build()
+        billingClient.querySkuDetailsAsync(skuDetails) { skuDetailsResponseCode, skuDetailsList ->
             // Process the result.
-            if (responseCode1 != BillingClient.BillingResponse.OK || skuDetailsList == null) {
+            if (skuDetailsResponseCode != BillingClient.BillingResponse.OK || skuDetailsList.isNullOrEmpty()) {
                 return@querySkuDetailsAsync
             }
 
-            val skuDetails = skuDetailsList!!.get(0)
-            val sku = skuDetails.getSku()
-            val price = skuDetails.getPrice()
-            Log.d("SimpleMarkdown",
-                    "Got product with sku: " + sku + " and price: " + price + " " + skuDetails.getPriceCurrencyCode())
-            val flowParams = BillingFlowParams.newBuilder()
-                    .setSkuDetails(skuDetails)
-                    .build()
-            val responseCode2 = billingClient.launchBillingFlow(this, flowParams)
+            skuDetailsList.sortedBy { it.priceAmountMicros }.forEach { skuDetails ->
+                val supportButton = MaterialButton(this@SupportActivity)
+                supportButton.text = getString(
+                        R.string.support_button_purchase,
+                        skuDetails.title,
+                        skuDetails.price
+                )
+                supportButton.setOnClickListener {
+                    val flowParams = BillingFlowParams.newBuilder()
+                            .setSkuDetails(skuDetails)
+                            .build()
+                    billingClient.launchBillingFlow(this, flowParams)
+                }
+                supportButtons.addView(supportButton)
+            }
         }
     }
 
     override fun onBillingServiceDisconnected() {
-        // TODO: Set a flag and just try again later
         billingClient.startConnection(this)
     }
 
     override fun onPurchasesUpdated(responseCode: Int, purchases: List<Purchase>?) {
-
+        purchases?.forEach { purchase ->
+            billingClient.consumeAsync(purchase.purchaseToken) { _, _ ->
+                Toast.makeText(
+                        this@SupportActivity,
+                        getString(R.string.support_thank_you),
+                        Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
     }
-
 }
