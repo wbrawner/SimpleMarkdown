@@ -25,20 +25,4 @@
         android:checkable="true"
         android:title="@string/action_lock_swipe"
         app:showAsAction="never" />
-    <item
-        android:id="@+id/action_settings"
-        android:title="@string/action_settings"
-        app:showAsAction="never" />
-    <item
-        android:id="@+id/action_help"
-        android:title="@string/action_help"
-        app:showAsAction="never" />
-    <item
-        android:id="@+id/action_libraries"
-        android:title="@string/action_libraries"
-        app:showAsAction="never" />
-    <item
-        android:id="@+id/action_privacy"
-        android:title="@string/action_privacy"
-        app:showAsAction="never" />
 </menu>

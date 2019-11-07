@@ -1,14 +1,15 @@
 package com.wbrawner.simplemarkdown.utility
 
 import android.content.Context
+import android.util.Log
 import com.crashlytics.android.Crashlytics
-import io.fabric.sdk.android.BuildConfig
+import com.wbrawner.simplemarkdown.BuildConfig
 import io.fabric.sdk.android.Fabric
 import java.util.concurrent.atomic.AtomicBoolean
 
 interface ErrorHandler {
     fun init(context: Context)
-    fun reportException(t: Throwable)
+    fun reportException(t: Throwable, message: String? = null)
 }
 
 class CrashlyticsErrorHandler : ErrorHandler {
@@ -20,8 +21,13 @@ class CrashlyticsErrorHandler : ErrorHandler {
         }
     }
 
-    override fun reportException(t: Throwable) {
-        if (!isInitialized.get() || BuildConfig.DEBUG) return
+    override fun reportException(t: Throwable, message: String?) {
+        @Suppress("ConstantConditionIf")
+        if (BuildConfig.DEBUG) {
+            Log.e("CrashlyticsErrorHandler", "Caught exception: $message", t)
+            return
+        }
+        if (!isInitialized.get()) return
         Crashlytics.logException(t)
     }
 }
