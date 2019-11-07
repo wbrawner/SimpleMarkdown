@@ -39,8 +39,8 @@ android {
         applicationId "com.wbrawner.simplemarkdown"
         minSdkVersion 21
         targetSdkVersion 29
-        versionCode 20
-        versionName "0.7.0"
+        versionCode 22
+        versionName "0.8.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField "boolean", "ENABLE_CUSTOM_CSS", "false"
     }
