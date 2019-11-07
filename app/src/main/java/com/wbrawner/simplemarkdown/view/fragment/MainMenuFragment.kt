@@ -40,7 +40,6 @@ class MainMenuFragment : BottomSheetDialogFragment(), CoroutineScope {
                 R.id.action_settings -> {
                     val settingsIntent = Intent(context, SettingsActivity::class.java)
                     startActivityForResult(settingsIntent, MainActivity.REQUEST_DARK_MODE)
-                    dialog?.dismiss()
                 }
                 R.id.action_libraries -> showInfoActivity(context, R.id.action_libraries)
                 R.id.action_privacy -> showInfoActivity(context, R.id.action_privacy)
@@ -52,6 +51,15 @@ class MainMenuFragment : BottomSheetDialogFragment(), CoroutineScope {
             }
             true
         }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode == MainActivity.REQUEST_DARK_MODE) {
+            activity?.recreate()
+            dialog?.dismiss()
+            return
+        }
+        super.onActivityResult(requestCode, resultCode, data)
     }
 
     private fun showInfoActivity(context: Context?, action: Int) {
