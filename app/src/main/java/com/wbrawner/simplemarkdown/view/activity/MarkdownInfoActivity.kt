@@ -3,24 +3,32 @@ package com.wbrawner.simplemarkdown.view.activity
 import android.content.res.Configuration
 import android.os.Bundle
 import android.view.MenuItem
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import com.wbrawner.simplemarkdown.MarkdownApplication
 import com.wbrawner.simplemarkdown.R
+import com.wbrawner.simplemarkdown.utility.readAssetToString
+import com.wbrawner.simplemarkdown.utility.toHtml
 import kotlinx.android.synthetic.main.activity_markdown_info.*
+import kotlinx.coroutines.*
+import kotlin.coroutines.CoroutineContext
 
-class MarkdownInfoActivity : AppCompatActivity() {
+class MarkdownInfoActivity : AppCompatActivity(), CoroutineScope {
+    override val coroutineContext: CoroutineContext = Dispatchers.Main
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_markdown_info)
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        val intent = intent
-        if (intent == null || !intent.hasExtra("title") || !intent.hasExtra("html")) {
+        val title = intent?.getStringExtra(EXTRA_TITLE)
+        val fileName = intent?.getStringExtra(EXTRA_FILE)
+        if (title.isNullOrBlank() || fileName.isNullOrBlank()) {
             finish()
             return
         }
-        title = intent.getStringExtra("title")
+
         val isNightMode = AppCompatDelegate.getDefaultNightMode() ==
                 AppCompatDelegate.MODE_NIGHT_YES
                 || resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
@@ -30,12 +38,29 @@ class MarkdownInfoActivity : AppCompatActivity() {
             R.string.pref_custom_css_default
         }
         val css: String? = getString(defaultCssId)
+        launch {
+            try {
+                val html = assets?.readAssetToString(fileName)
+                        ?.toHtml()
+                        ?: throw RuntimeException("Unable to open stream to $fileName")
+                infoWebview.loadDataWithBaseURL(null,
+                        String.format(FORMAT_CSS, css) + html,
+                        "text/html",
+                        "UTF-8", null
+                )
+            } catch (e: Exception) {
+                (application as MarkdownApplication).errorHandler.reportException(e)
+                Toast.makeText(this@MarkdownInfoActivity, R.string.file_load_error, Toast.LENGTH_SHORT).show()
+                finish()
+            }
+        }
+    }
 
-        infoWebview.loadDataWithBaseURL(null,
-                String.format(FORMAT_CSS, css) + intent.getStringExtra("html"),
-                "text/html",
-                "UTF-8", null
-        )
+    override fun onDestroy() {
+        coroutineContext[Job]?.let {
+            cancel()
+        }
+        super.onDestroy()
     }
 
 
@@ -48,8 +73,10 @@ class MarkdownInfoActivity : AppCompatActivity() {
     }
 
     companion object {
-        var FORMAT_CSS = "<style>" +
+        const val FORMAT_CSS = "<style>" +
                 "%s" +
                 "</style>"
+        const val EXTRA_TITLE = "title"
+        const val EXTRA_FILE = "file"
     }
 }
