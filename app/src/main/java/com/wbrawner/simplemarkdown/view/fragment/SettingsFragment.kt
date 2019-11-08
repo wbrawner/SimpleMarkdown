@@ -3,59 +3,40 @@ package com.wbrawner.simplemarkdown.view.fragment
 import android.content.SharedPreferences
 import android.os.Build
 import android.os.Bundle
-import android.os.StrictMode
-import android.preference.ListPreference
-import android.preference.Preference
-import android.preference.PreferenceFragment
-import android.preference.PreferenceManager
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.preference.ListPreference
+import androidx.preference.PreferenceFragmentCompat
+import androidx.preference.PreferenceManager
 import com.wbrawner.simplemarkdown.BuildConfig
 import com.wbrawner.simplemarkdown.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.lang.Exception
 import kotlin.coroutines.CoroutineContext
 
 class SettingsFragment
-    : PreferenceFragment(),
+    : PreferenceFragmentCompat(),
         SharedPreferences.OnSharedPreferenceChangeListener,
         CoroutineScope {
+    override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+        addPreferencesFromResource(R.xml.pref_general)
+    }
+
     override val coroutineContext: CoroutineContext = Dispatchers.Main
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        launch {
-            withContext(Dispatchers.IO) {
-                try {
-                    // This can be thrown when recreating the activity for theme changes
-                    addPreferencesFromResource(R.xml.pref_general)
-                } catch (ignored: Exception) {
-                    return@withContext
-                }
-                val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(activity)
-                sharedPreferences.registerOnSharedPreferenceChangeListener(this@SettingsFragment)
-                (findPreference(getString(R.string.pref_key_dark_mode)) as? ListPreference)?.let {
-                    setListPreferenceSummary(sharedPreferences, it)
-                }
-                @Suppress("ConstantConditionIf")
-                if (!BuildConfig.ENABLE_CUSTOM_CSS) {
-                    preferenceScreen.removePreference(findPreference(getString(R.string.pref_custom_css)))
-                }
+        launch(context = Dispatchers.IO) {
+            val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(activity)
+            sharedPreferences.registerOnSharedPreferenceChangeListener(this@SettingsFragment)
+            (findPreference(getString(R.string.pref_key_dark_mode)) as? ListPreference)?.let {
+                setListPreferenceSummary(sharedPreferences, it)
+            }
+            @Suppress("ConstantConditionIf")
+            if (!BuildConfig.ENABLE_CUSTOM_CSS) {
+                preferenceScreen.removePreference(findPreference(getString(R.string.pref_custom_css)))
             }
         }
-    }
-
-    override fun onCreateView(
-            inflater: LayoutInflater,
-            container: ViewGroup?,
-            savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.preference_list_fragment_safe, container, false)
     }
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
@@ -66,7 +47,7 @@ class SettingsFragment
             return
         }
         var darkMode: Int = if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
-            AppCompatDelegate.MODE_NIGHT_AUTO
+            AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY
         } else {
             AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
         }

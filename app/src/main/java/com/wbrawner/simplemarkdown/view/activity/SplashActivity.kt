@@ -4,13 +4,10 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.preference.PreferenceManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.lifecycle.ViewModelProviders
-import com.wbrawner.simplemarkdown.MarkdownApplication
+import androidx.preference.PreferenceManager
 import com.wbrawner.simplemarkdown.R
-import com.wbrawner.simplemarkdown.viewmodel.MarkdownViewModel
 import kotlinx.coroutines.*
 import kotlin.coroutines.CoroutineContext
 
@@ -18,15 +15,8 @@ class SplashActivity : AppCompatActivity(), CoroutineScope {
 
     override val coroutineContext: CoroutineContext = Dispatchers.Main
 
-    lateinit var viewModel: MarkdownViewModel
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel = ViewModelProviders.of(
-                this,
-                (application as MarkdownApplication).viewModelFactory
-        ).get(MarkdownViewModel::class.java)
-
         launch {
             val darkMode = withContext(Dispatchers.IO) {
                 val darkModeValue = PreferenceManager.getDefaultSharedPreferences(this@SplashActivity)
@@ -40,7 +30,7 @@ class SplashActivity : AppCompatActivity(), CoroutineScope {
                     darkModeValue.equals(getString(R.string.pref_value_dark), ignoreCase = true) -> AppCompatDelegate.MODE_NIGHT_YES
                     else -> {
                         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
-                            AppCompatDelegate.MODE_NIGHT_AUTO
+                            AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY
                         } else {
                             AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
                         }
@@ -50,21 +40,21 @@ class SplashActivity : AppCompatActivity(), CoroutineScope {
             }
 
             AppCompatDelegate.setDefaultNightMode(darkMode)
-            withContext(Dispatchers.IO) {
-                var uri = intent?.data
-                if (uri == null) {
-                    uri = PreferenceManager.getDefaultSharedPreferences(this@SplashActivity)
-                            .getString(
-                                    getString(R.string.pref_key_autosave_uri),
-                                    null
-                            )?.let {
-                                Uri.parse(it)
-                            }
-                }
-
-                viewModel.load(this@SplashActivity, uri)
+            val uri = withContext(Dispatchers.IO) {
+                intent?.data
+                        ?: PreferenceManager.getDefaultSharedPreferences(this@SplashActivity)
+                                .getString(
+                                        getString(R.string.pref_key_autosave_uri),
+                                        null
+                                )?.let {
+                                    Uri.parse(it)
+                                }
             }
+
             val startIntent = Intent(this@SplashActivity, MainActivity::class.java)
+                    .apply {
+                        data = uri
+                    }
             startActivity(startIntent)
             finish()
         }

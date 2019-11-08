@@ -3,7 +3,6 @@ package com.wbrawner.simplemarkdown.view.fragment
 import android.annotation.SuppressLint
 import android.graphics.Color
 import android.os.Bundle
-import android.preference.PreferenceManager
 import android.text.Editable
 import android.text.SpannableString
 import android.text.TextWatcher
@@ -19,7 +18,7 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
-import com.wbrawner.simplemarkdown.MarkdownApplication
+import androidx.preference.PreferenceManager
 import com.wbrawner.simplemarkdown.R
 import com.wbrawner.simplemarkdown.model.Readability
 import com.wbrawner.simplemarkdown.utility.hideKeyboard
@@ -33,7 +32,7 @@ import kotlin.math.abs
 class EditFragment : Fragment(), ViewPagerPage, CoroutineScope {
     private var markdownEditor: EditText? = null
     private var markdownEditorScroller: ScrollView? = null
-    private lateinit var viewModel: MarkdownViewModel
+    lateinit var viewModel: MarkdownViewModel
     override val coroutineContext: CoroutineContext = Dispatchers.Main
     private var readabilityWatcher: TextWatcher? = null
 
@@ -45,6 +44,9 @@ class EditFragment : Fragment(), ViewPagerPage, CoroutineScope {
     @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        activity?.let {
+            viewModel = ViewModelProviders.of(it).get(MarkdownViewModel::class.java)
+        } ?: return
         markdownEditor = view.findViewById(R.id.markdown_edit)
         markdownEditorScroller = view.findViewById(R.id.markdown_edit_container)
         markdownEditor?.addTextChangedListener(object : TextWatcher {
@@ -95,21 +97,9 @@ class EditFragment : Fragment(), ViewPagerPage, CoroutineScope {
             }
             false
         }
-    }
-
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProviders.of(
-                this,
-                (requireActivity().application as MarkdownApplication).viewModelFactory
-        ).get(MarkdownViewModel::class.java)
         viewModel.originalMarkdown.observe(this, Observer<String> {
             markdownEditor?.setText(it)
         })
-    }
-
-    override fun onStart() {
-        super.onStart()
         launch {
             val enableReadability = withContext(Dispatchers.IO) {
                 context?.let {
@@ -132,11 +122,11 @@ class EditFragment : Fragment(), ViewPagerPage, CoroutineScope {
         }
     }
 
-    override fun onDestroy() {
+    override fun onDestroyView() {
         coroutineContext[Job]?.let {
             cancel()
         }
-        super.onDestroy()
+        super.onDestroyView()
     }
 
     override fun onSelected() {

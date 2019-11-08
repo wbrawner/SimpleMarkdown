@@ -4,12 +4,8 @@ import android.app.Application
 import android.os.StrictMode
 import com.wbrawner.simplemarkdown.utility.CrashlyticsErrorHandler
 import com.wbrawner.simplemarkdown.utility.ErrorHandler
-import com.wbrawner.simplemarkdown.viewmodel.MarkdownViewModelFactory
 
 class MarkdownApplication : Application() {
-    val viewModelFactory: MarkdownViewModelFactory by lazy {
-        MarkdownViewModelFactory()
-    }
     val errorHandler: ErrorHandler by lazy {
         CrashlyticsErrorHandler()
     }
