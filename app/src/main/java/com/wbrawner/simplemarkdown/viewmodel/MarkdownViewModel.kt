@@ -4,7 +4,6 @@ import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import com.wbrawner.simplemarkdown.utility.getName
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -78,7 +77,7 @@ class MarkdownViewModel : ViewModel() {
         return try {
             withContext(coroutineContext) {
                 outputStream.writer().use {
-                    it.write(markdownUpdates.value)
+                    it.write(markdownUpdates.value ?: "")
                 }
             }
             true
@@ -91,16 +90,5 @@ class MarkdownViewModel : ViewModel() {
         fileName.postValue(untitledFileName)
         originalMarkdown.postValue("")
         markdownUpdates.postValue("")
-    }
-}
-
-class MarkdownViewModelFactory : ViewModelProvider.Factory {
-    private val markdownViewModel: MarkdownViewModel by lazy {
-        MarkdownViewModel()
-    }
-
-    override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-        @Suppress("UNCHECKED_CAST")
-        return markdownViewModel as T
     }
 }

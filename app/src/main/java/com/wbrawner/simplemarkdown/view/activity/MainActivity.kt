@@ -20,8 +20,8 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.preference.PreferenceManager
-import com.wbrawner.simplemarkdown.MarkdownApplication
 import com.wbrawner.simplemarkdown.R
+import com.wbrawner.simplemarkdown.utility.hideKeyboard
 import com.wbrawner.simplemarkdown.view.adapter.EditPagerAdapter
 import com.wbrawner.simplemarkdown.view.fragment.MainMenuFragment
 import com.wbrawner.simplemarkdown.viewmodel.MarkdownViewModel
@@ -49,10 +49,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
                             or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                     )
         }
-        viewModel = ViewModelProviders.of(
-                this,
-                (application as MarkdownApplication).viewModelFactory
-        ).get(MarkdownViewModel::class.java)
+        viewModel = ViewModelProviders.of(this).get(MarkdownViewModel::class.java)
         val adapter = EditPagerAdapter(supportFragmentManager, this@MainActivity)
         pager.adapter = adapter
         pager.addOnPageChangeListener(adapter)
@@ -66,6 +63,11 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         viewModel.fileName.observe(this, Observer<String> {
             title = it
         })
+        intent?.data?.let {
+            launch {
+                viewModel.load(this@MainActivity, it)
+            }
+        }
     }
 
     override fun onUserLeaveHint() {
@@ -114,11 +116,8 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> {
-                MainMenuFragment()
-                        .apply {
-                            errorHandler = (application as MarkdownApplication).errorHandler
-                        }
-                        .show(supportFragmentManager, null)
+                MainMenuFragment().show(supportFragmentManager, null)
+                window.decorView.hideKeyboard()
             }
             R.id.action_save -> {
                 launch {
