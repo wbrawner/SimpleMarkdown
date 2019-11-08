@@ -56,7 +56,4 @@ repository, make your changes, squash your commits, and submit a pull request :)
 ## Libraries
 
 - [AndDown](https://github.com/commonsguy/cwac-anddown)
-- [Dagger 2](https://github.com/google/dagger)
 - [Hoedown](https://github.com/hoedown/hoedown)
-- [RxAndroid](https://github.com/ReactiveX/RxAndroid)
-- [RxJava](https://github.com/ReactiveX/RxJava)
