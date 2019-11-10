@@ -49,7 +49,7 @@ class MarkdownViewModel : ViewModel() {
         return withContext(Dispatchers.IO) {
             try {
                 val fileName = uri.getName(context)
-                val outputStream = context.contentResolver.openOutputStream(uri)
+                val outputStream = context.contentResolver.openOutputStream(uri, "rwt")
                         ?: return@withContext false
                 outputStream.writer().use {
                     it.write(markdownUpdates.value ?: "")
