@@ -66,8 +66,8 @@ class SupportActivity : AppCompatActivity(), BillingClientStateListener, Purchas
         return super.onOptionsItemSelected(item)
     }
 
-    override fun onBillingSetupFinished(responseCode: Int) {
-        if (responseCode != BillingClient.BillingResponse.OK) {
+    override fun onBillingSetupFinished(result: BillingResult?) {
+        if (result?.responseCode != BillingClient.BillingResponseCode.OK) {
             return
         }
 
@@ -75,9 +75,9 @@ class SupportActivity : AppCompatActivity(), BillingClientStateListener, Purchas
                 .setSkusList(listOf("support_the_developer", "tip_coffee", "tip_beer"))
                 .setType(BillingClient.SkuType.INAPP)
                 .build()
-        billingClient.querySkuDetailsAsync(skuDetails) { skuDetailsResponseCode, skuDetailsList ->
+        billingClient.querySkuDetailsAsync(skuDetails) { skuDetailsResponse, skuDetailsList ->
             // Process the result.
-            if (skuDetailsResponseCode != BillingClient.BillingResponse.OK || skuDetailsList.isNullOrEmpty()) {
+            if (skuDetailsResponse?.responseCode != BillingClient.BillingResponseCode.OK || skuDetailsList.isNullOrEmpty()) {
                 return@querySkuDetailsAsync
             }
 
@@ -103,9 +103,12 @@ class SupportActivity : AppCompatActivity(), BillingClientStateListener, Purchas
         billingClient.startConnection(this)
     }
 
-    override fun onPurchasesUpdated(responseCode: Int, purchases: List<Purchase>?) {
+    override fun onPurchasesUpdated(result: BillingResult?, purchases: MutableList<Purchase>?) {
         purchases?.forEach { purchase ->
-            billingClient.consumeAsync(purchase.purchaseToken) { _, _ ->
+            val consumeParams = ConsumeParams.newBuilder()
+                    .setPurchaseToken(purchase.purchaseToken)
+                    .build()
+            billingClient.consumeAsync(consumeParams) { _, _ ->
                 Toast.makeText(
                         this@SupportActivity,
                         getString(R.string.support_thank_you),
