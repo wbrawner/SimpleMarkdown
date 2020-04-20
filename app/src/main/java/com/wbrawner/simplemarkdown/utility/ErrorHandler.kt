@@ -1,24 +1,19 @@
 package com.wbrawner.simplemarkdown.utility
 
-import android.content.Context
 import android.util.Log
-import com.crashlytics.android.Crashlytics
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.wbrawner.simplemarkdown.BuildConfig
-import io.fabric.sdk.android.Fabric
-import java.util.concurrent.atomic.AtomicBoolean
 
 interface ErrorHandler {
-    fun init(context: Context)
+    fun enable(enable: Boolean)
     fun reportException(t: Throwable, message: String? = null)
 }
 
 class CrashlyticsErrorHandler : ErrorHandler {
-    private val isInitialized = AtomicBoolean(false)
+    private val crashlytics = FirebaseCrashlytics.getInstance()
 
-    override fun init(context: Context) {
-        if (!isInitialized.getAndSet(true)) {
-            Fabric.with(context, Crashlytics())
-        }
+    override fun enable(enable: Boolean) {
+        crashlytics.setCrashlyticsCollectionEnabled(enable)
     }
 
     override fun reportException(t: Throwable, message: String?) {
@@ -27,7 +22,6 @@ class CrashlyticsErrorHandler : ErrorHandler {
             Log.e("CrashlyticsErrorHandler", "Caught exception: $message", t)
             return
         }
-        if (!isInitialized.get()) return
-        Crashlytics.logException(t)
+        crashlytics.recordException(t)
     }
 }

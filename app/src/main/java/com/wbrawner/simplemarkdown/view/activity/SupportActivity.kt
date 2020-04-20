@@ -33,6 +33,7 @@ class SupportActivity : AppCompatActivity(), BillingClientStateListener, Purchas
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         billingClient = BillingClient.newBuilder(applicationContext)
                 .setListener(this)
+                .enablePendingPurchases()
                 .build()
         billingClient.startConnection(this)
         githubButton.setOnClickListener {
