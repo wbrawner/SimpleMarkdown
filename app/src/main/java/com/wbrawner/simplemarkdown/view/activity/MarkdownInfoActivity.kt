@@ -11,7 +11,10 @@ import com.wbrawner.simplemarkdown.R
 import com.wbrawner.simplemarkdown.utility.readAssetToString
 import com.wbrawner.simplemarkdown.utility.toHtml
 import kotlinx.android.synthetic.main.activity_markdown_info.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
 class MarkdownInfoActivity : AppCompatActivity(), CoroutineScope {
@@ -57,9 +60,7 @@ class MarkdownInfoActivity : AppCompatActivity(), CoroutineScope {
     }
 
     override fun onDestroy() {
-        coroutineContext[Job]?.let {
-            cancel()
-        }
+        coroutineContext[Job]?.cancel()
         super.onDestroy()
     }
 

@@ -16,8 +16,8 @@ import android.widget.EditText
 import android.widget.ScrollView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import androidx.preference.PreferenceManager
 import com.wbrawner.simplemarkdown.R
 import com.wbrawner.simplemarkdown.model.Readability
@@ -32,7 +32,7 @@ import kotlin.math.abs
 class EditFragment : Fragment(), ViewPagerPage, CoroutineScope {
     private var markdownEditor: EditText? = null
     private var markdownEditorScroller: ScrollView? = null
-    lateinit var viewModel: MarkdownViewModel
+    private val viewModel: MarkdownViewModel by activityViewModels()
     override val coroutineContext: CoroutineContext = Dispatchers.Main
     private var readabilityWatcher: TextWatcher? = null
 
@@ -44,9 +44,6 @@ class EditFragment : Fragment(), ViewPagerPage, CoroutineScope {
     @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        activity?.let {
-            viewModel = ViewModelProviders.of(it).get(MarkdownViewModel::class.java)
-        } ?: return
         markdownEditor = view.findViewById(R.id.markdown_edit)
         markdownEditorScroller = view.findViewById(R.id.markdown_edit_container)
         markdownEditor?.addTextChangedListener(object : TextWatcher {
@@ -97,7 +94,7 @@ class EditFragment : Fragment(), ViewPagerPage, CoroutineScope {
             }
             false
         }
-        viewModel.originalMarkdown.observe(this, Observer<String> {
+        viewModel.originalMarkdown.observe(viewLifecycleOwner, Observer {
             markdownEditor?.setText(it)
         })
         launch {

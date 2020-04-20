@@ -9,8 +9,8 @@ import android.view.ViewGroup
 import android.webkit.WebView
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import androidx.preference.PreferenceManager
 import com.wbrawner.simplemarkdown.BuildConfig
 import com.wbrawner.simplemarkdown.R
@@ -21,7 +21,7 @@ import kotlin.coroutines.CoroutineContext
 
 class PreviewFragment : Fragment(), CoroutineScope {
     override val coroutineContext: CoroutineContext = Dispatchers.Main
-    lateinit var viewModel: MarkdownViewModel
+    private val viewModel: MarkdownViewModel by activityViewModels()
     private var markdownPreview: WebView? = null
     private var style: String = ""
 
@@ -34,13 +34,10 @@ class PreviewFragment : Fragment(), CoroutineScope {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         markdownPreview = view.findViewById(R.id.markdown_view)
         WebView.setWebContentsDebuggingEnabled(BuildConfig.DEBUG)
-        activity?.let {
-            viewModel = ViewModelProviders.of(it).get(MarkdownViewModel::class.java)
-        } ?: return
         launch {
             val isNightMode = AppCompatDelegate.getDefaultNightMode() ==
                     AppCompatDelegate.MODE_NIGHT_YES
-                    || context!!.resources.configuration.uiMode and UI_MODE_NIGHT_MASK == UI_MODE_NIGHT_YES
+                    || requireContext().resources.configuration.uiMode and UI_MODE_NIGHT_MASK == UI_MODE_NIGHT_YES
             val defaultCssId = if (isNightMode) {
                 R.string.pref_custom_css_default_dark
             } else {
@@ -61,7 +58,7 @@ class PreviewFragment : Fragment(), CoroutineScope {
             }
             style = String.format(FORMAT_CSS, css ?: "")
             updateWebContent(viewModel.markdownUpdates.value ?: "")
-            viewModel.markdownUpdates.observe(this@PreviewFragment, Observer<String> {
+            viewModel.markdownUpdates.observe(viewLifecycleOwner, Observer {
                 updateWebContent(it)
             })
         }

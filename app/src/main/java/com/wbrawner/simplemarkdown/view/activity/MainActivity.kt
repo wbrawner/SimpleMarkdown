@@ -13,12 +13,12 @@ import android.view.MenuItem
 import android.view.View
 import android.webkit.MimeTypeMap
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import androidx.preference.PreferenceManager
 import com.wbrawner.simplemarkdown.R
 import com.wbrawner.simplemarkdown.utility.hideKeyboard
@@ -34,7 +34,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
 
     private var shouldAutoSave = true
     override val coroutineContext: CoroutineContext = Dispatchers.Main
-    private lateinit var viewModel: MarkdownViewModel
+    private val viewModel: MarkdownViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,7 +49,6 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
                             or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                     )
         }
-        viewModel = ViewModelProviders.of(this).get(MarkdownViewModel::class.java)
         val adapter = EditPagerAdapter(supportFragmentManager, this@MainActivity)
         pager.adapter = adapter
         pager.addOnPageChangeListener(adapter)
@@ -60,7 +59,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
             tabLayout!!.visibility = View.GONE
         }
         @Suppress("CAST_NEVER_SUCCEEDS")
-        viewModel.fileName.observe(this, Observer<String> {
+        viewModel.fileName.observe(this, Observer {
             title = it
         })
         intent?.data?.let {
