@@ -17,5 +17,6 @@
         android:inputType="textMultiLine|textCapSentences"
         android:paddingLeft="8dp"
         android:paddingRight="8dp"
-        android:scrollHorizontally="false" />
+        android:scrollHorizontally="false"
+        android:importantForAutofill="no" />
 </ScrollView>
