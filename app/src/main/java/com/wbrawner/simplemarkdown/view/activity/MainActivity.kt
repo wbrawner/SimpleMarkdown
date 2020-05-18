@@ -20,7 +20,6 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.preference.PreferenceManager
-import com.wbrawner.simplemarkdown.MarkdownApplication
 import com.wbrawner.simplemarkdown.R
 import com.wbrawner.simplemarkdown.utility.hideKeyboard
 import com.wbrawner.simplemarkdown.view.adapter.EditPagerAdapter
@@ -66,17 +65,6 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         intent?.data?.let {
             launch {
                 viewModel.load(this@MainActivity, it)
-            }
-        }
-    }
-
-    override fun onStart() {
-        super.onStart()
-        launch {
-            withContext(Dispatchers.IO) {
-                val enableErrorReports = PreferenceManager.getDefaultSharedPreferences(this@MainActivity)
-                        .getBoolean(getString(R.string.error_reports_enabled), true)
-                (application as MarkdownApplication).errorHandler.enable(enableErrorReports)
             }
         }
     }

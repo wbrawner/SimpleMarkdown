@@ -1,13 +1,14 @@
 package com.wbrawner.simplemarkdown
 
 import android.app.Application
+import android.content.Context
 import android.os.StrictMode
-import com.wbrawner.simplemarkdown.utility.CrashlyticsErrorHandler
+import com.wbrawner.simplemarkdown.utility.AcraErrorHandler
 import com.wbrawner.simplemarkdown.utility.ErrorHandler
 
 class MarkdownApplication : Application() {
     val errorHandler: ErrorHandler by lazy {
-        CrashlyticsErrorHandler()
+        AcraErrorHandler()
     }
 
     override fun onCreate() {
@@ -22,5 +23,10 @@ class MarkdownApplication : Application() {
                     .build())
         }
         super.onCreate()
+    }
+
+    override fun attachBaseContext(base: Context?) {
+        super.attachBaseContext(base)
+        errorHandler.init(this)
     }
 }
