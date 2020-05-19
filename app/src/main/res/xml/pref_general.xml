@@ -19,7 +19,7 @@
         android:title="@string/title_dark_mode" />
     <SwitchPreference
         android:defaultValue="true"
-        android:key="@string/pref_key_error_reports_enabled"
+        android:key="@string/error_reports_enabled"
         android:summaryOff="@string/pref_error_reports_off"
         android:summaryOn="@string/pref_error_reports_on"
         android:title="@string/pref_title_error_reports" />
