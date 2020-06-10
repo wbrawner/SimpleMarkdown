@@ -67,7 +67,10 @@
         <activity android:name=".view.activity.SupportActivity" />
 
         <meta-data
-            android:name="firebase_crashlytics_collection_enabled"
+            android:name="io.sentry.dsn"
+            android:value="${sentryDsn}" />
+        <meta-data
+            android:name="io.sentry.auto-init"
             android:value="false" />
     </application>
 

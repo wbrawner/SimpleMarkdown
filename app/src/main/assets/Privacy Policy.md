@@ -1,13 +1,12 @@
 ## Privacy Policy
 
 First and foremost, Simple Markdown DOES NOT collect any personally identifiable information. The
- internet access permission is requested primarily for retrieving images from the internet in 
- case you embed them in your markdown, but it also allows me to send automated error and crash 
- reports to myself whenever the app runs into an issue. These error reports are opt-out, and are 
- powered by [Firebase Crashlytics] (https://firebase.google.com/docs/crashlytics/), which is a 
- free error reporting solution provided by Google. These error reports are used exclusively for 
- fixing problems that occur while you're using the app, along with some analytics info like how 
- long you use the app for, how often, and which features of the app you use. This helps me to 
- determine how to spend my very limited time on building out new features. I'll have to defer to
-  [Google's Privacy Policy](https://policies.google.com/privacy) to explain how they handle the 
-  data. As for me, I don't knowingly or willingly sell or trade your data.
+internet access permission is requested primarily for retrieving images from the internet in 
+case you embed them in your markdown, but it also allows me to send automated error and crash 
+reports to myself whenever the app runs into an issue. These automated reports are powered by my own
+self-hosted version of [Sentry] (https://sentry.io/), which is a free and open source error
+reporting solution. These error reports are used exclusively for fixing problems that occur while 
+you're using the app. For more information on the kinds of data that may be sent in these automated 
+error reports, please see the [relevant documentation](https://docs.sentry.io/platforms/android/#context)
+on Sentry's website. If you would like to opt-out of these error reports, please visit the in-app
+settings page to disable the toggle for error reports. 
