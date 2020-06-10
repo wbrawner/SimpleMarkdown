@@ -6,18 +6,15 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.browser.customtabs.CustomTabsIntent
-import com.android.billingclient.api.*
-import com.google.android.material.button.MaterialButton
+import androidx.lifecycle.Observer
 import com.wbrawner.simplemarkdown.R
+import com.wbrawner.simplemarkdown.utility.SupportLinkProvider
 import kotlinx.android.synthetic.main.activity_support.*
 
 
-class SupportActivity : AppCompatActivity(), BillingClientStateListener, PurchasesUpdatedListener {
-    private lateinit var billingClient: BillingClient
-
+class SupportActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_support)
@@ -31,11 +28,6 @@ class SupportActivity : AppCompatActivity(), BillingClientStateListener, Purchas
         }
         setTitle(R.string.support_title)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        billingClient = BillingClient.newBuilder(applicationContext)
-                .setListener(this)
-                .enablePendingPurchases()
-                .build()
-        billingClient.startConnection(this)
         githubButton.setOnClickListener {
             CustomTabsIntent.Builder()
                     .addDefaultShareMenuItem()
@@ -57,6 +49,11 @@ class SupportActivity : AppCompatActivity(), BillingClientStateListener, Purchas
                 startActivity(playStoreIntent)
             }
         }
+        SupportLinkProvider(this).supportLinks.observe(this, Observer { links ->
+            links.forEach {
+                supportButtons.addView(it)
+            }
+        })
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -65,57 +62,5 @@ class SupportActivity : AppCompatActivity(), BillingClientStateListener, Purchas
             return true
         }
         return super.onOptionsItemSelected(item)
-    }
-
-    override fun onBillingSetupFinished(result: BillingResult) {
-        if (result.responseCode != BillingClient.BillingResponseCode.OK) {
-            return
-        }
-
-        val skuDetails = SkuDetailsParams.newBuilder()
-                .setSkusList(listOf("support_the_developer", "tip_coffee", "tip_beer"))
-                .setType(BillingClient.SkuType.INAPP)
-                .build()
-        billingClient.querySkuDetailsAsync(skuDetails) { skuDetailsResponse, skuDetailsList ->
-            // Process the result.
-            if (skuDetailsResponse.responseCode != BillingClient.BillingResponseCode.OK || skuDetailsList.isNullOrEmpty()) {
-                return@querySkuDetailsAsync
-            }
-
-            skuDetailsList.sortedBy { it.priceAmountMicros }.forEach { skuDetails ->
-                val supportButton = MaterialButton(this@SupportActivity)
-                supportButton.text = getString(
-                        R.string.support_button_purchase,
-                        skuDetails.title,
-                        skuDetails.price
-                )
-                supportButton.setOnClickListener {
-                    val flowParams = BillingFlowParams.newBuilder()
-                            .setSkuDetails(skuDetails)
-                            .build()
-                    billingClient.launchBillingFlow(this, flowParams)
-                }
-                supportButtons.addView(supportButton)
-            }
-        }
-    }
-
-    override fun onBillingServiceDisconnected() {
-        billingClient.startConnection(this)
-    }
-
-    override fun onPurchasesUpdated(result: BillingResult, purchases: MutableList<Purchase>?) {
-        purchases?.forEach { purchase ->
-            val consumeParams = ConsumeParams.newBuilder()
-                    .setPurchaseToken(purchase.purchaseToken)
-                    .build()
-            billingClient.consumeAsync(consumeParams) { _, _ ->
-                Toast.makeText(
-                        this@SupportActivity,
-                        getString(R.string.support_thank_you),
-                        Toast.LENGTH_SHORT
-                ).show()
-            }
-        }
     }
 }
