@@ -67,8 +67,8 @@ class SupportActivity : AppCompatActivity(), BillingClientStateListener, Purchas
         return super.onOptionsItemSelected(item)
     }
 
-    override fun onBillingSetupFinished(result: BillingResult?) {
-        if (result?.responseCode != BillingClient.BillingResponseCode.OK) {
+    override fun onBillingSetupFinished(result: BillingResult) {
+        if (result.responseCode != BillingClient.BillingResponseCode.OK) {
             return
         }
 
@@ -78,7 +78,7 @@ class SupportActivity : AppCompatActivity(), BillingClientStateListener, Purchas
                 .build()
         billingClient.querySkuDetailsAsync(skuDetails) { skuDetailsResponse, skuDetailsList ->
             // Process the result.
-            if (skuDetailsResponse?.responseCode != BillingClient.BillingResponseCode.OK || skuDetailsList.isNullOrEmpty()) {
+            if (skuDetailsResponse.responseCode != BillingClient.BillingResponseCode.OK || skuDetailsList.isNullOrEmpty()) {
                 return@querySkuDetailsAsync
             }
 
@@ -104,7 +104,7 @@ class SupportActivity : AppCompatActivity(), BillingClientStateListener, Purchas
         billingClient.startConnection(this)
     }
 
-    override fun onPurchasesUpdated(result: BillingResult?, purchases: MutableList<Purchase>?) {
+    override fun onPurchasesUpdated(result: BillingResult, purchases: MutableList<Purchase>?) {
         purchases?.forEach { purchase ->
             val consumeParams = ConsumeParams.newBuilder()
                     .setPurchaseToken(purchase.purchaseToken)
