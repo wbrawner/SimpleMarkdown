@@ -59,6 +59,7 @@ android {
     }
     buildTypes {
         debug {
+            applicationIdSuffix ".debug"
             testCoverageEnabled true
         }
         release {
