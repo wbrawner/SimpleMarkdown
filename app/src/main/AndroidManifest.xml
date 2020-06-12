@@ -45,12 +45,11 @@
         <activity android:name=".view.activity.MainActivity" />
         <activity
             android:name=".view.activity.SettingsActivity"
-            android:label="@string/title_activity_settings"
-            android:theme="@style/AppTheme" />
+            android:label="@string/title_activity_settings" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="com.wbrawner.simplemarkdown.fileprovider"
+            android:authorities="${applicationId}.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data
