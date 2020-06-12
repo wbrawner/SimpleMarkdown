@@ -1,5 +1,6 @@
 package com.wbrawner.simplemarkdown.view.fragment
 
+import android.content.Context
 import android.content.res.Configuration.UI_MODE_NIGHT_MASK
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.os.Bundle
@@ -57,11 +58,15 @@ class PreviewFragment : Fragment(), CoroutineScope {
                 }
             }
             style = String.format(FORMAT_CSS, css ?: "")
-            updateWebContent(viewModel.markdownUpdates.value ?: "")
-            viewModel.markdownUpdates.observe(viewLifecycleOwner, Observer {
-                updateWebContent(it)
-            })
         }
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        updateWebContent(viewModel.markdownUpdates.value ?: "")
+        viewModel.markdownUpdates.observe(viewLifecycleOwner, Observer {
+            updateWebContent(it)
+        })
     }
 
     private fun updateWebContent(markdown: String) {
