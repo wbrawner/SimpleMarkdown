@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import com.wbrawner.simplemarkdown.R
+import com.wbrawner.simplemarkdown.view.fragment.SettingsFragment
 
 class SettingsActivity : AppCompatActivity() {
 
@@ -12,6 +13,11 @@ class SettingsActivity : AppCompatActivity() {
         setContentView(R.layout.activity_settings)
         setSupportActionBar(findViewById(R.id.toolbar))
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        if (supportFragmentManager.fragments.isEmpty()) {
+            supportFragmentManager.beginTransaction()
+                    .add(R.id.fragment_settings, SettingsFragment())
+                    .commit()
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

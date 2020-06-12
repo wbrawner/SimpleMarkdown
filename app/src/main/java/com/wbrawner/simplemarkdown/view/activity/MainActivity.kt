@@ -43,13 +43,6 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         setSupportActionBar(toolbar)
         supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_menu_black_24dp)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        window.decorView.apply {
-            systemUiVisibility = (
-                    View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                            or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                            or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                    )
-        }
         val adapter = EditPagerAdapter(supportFragmentManager, this@MainActivity)
         pager.adapter = adapter
         pager.addOnPageChangeListener(adapter)
@@ -61,7 +54,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         }
         @Suppress("CAST_NEVER_SUCCEEDS")
         viewModel.fileName.observe(this, Observer {
-            title = it
+            toolbar?.title = it
         })
         intent?.data?.let {
             launch {

@@ -1,5 +1,3 @@
-## Privacy Policy
-
 First and foremost, Simple Markdown DOES NOT collect any personally identifiable information. The
 internet access permission is requested primarily for retrieving images from the internet in 
 case you embed them in your markdown, but it also allows me to send automated error and crash 

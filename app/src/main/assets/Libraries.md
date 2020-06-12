@@ -1,7 +1,3 @@
-# Libraries
-
-***
-
 The following libraries were a huge help in the development of SimpleMarkdown. 
 Big thanks to the developers of them :)
 

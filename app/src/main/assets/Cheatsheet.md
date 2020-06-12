@@ -1,7 +1,3 @@
-# Introduction
-
-***
-
 Markdown is a markup language that allows you to quickly and easily write for the web! Many blogging platforms allow you to use markdown in your posts, WordPress for example. This document has also been written in Markdown :)
 
 Using Markdown is quite simple. There are just a few syntax rules you'll need to remember. Below I have written a few to get you started, followed by their appearance in this app.

@@ -32,6 +32,7 @@ class MarkdownInfoActivity : AppCompatActivity(), CoroutineScope {
             return
         }
 
+        setTitle(title)
         val isNightMode = AppCompatDelegate.getDefaultNightMode() ==
                 AppCompatDelegate.MODE_NIGHT_YES
                 || resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES

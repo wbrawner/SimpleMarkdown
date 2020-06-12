@@ -37,7 +37,6 @@ class SentryErrorHandler : ErrorHandler {
         @Suppress("ConstantConditionIf")
         if (BuildConfig.DEBUG) {
             Log.e("SentryErrorHandler", "Caught exception: $message", t)
-            return
         }
         Sentry.captureException(t)
     }

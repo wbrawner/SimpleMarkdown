@@ -13,8 +13,8 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
-import android.widget.ScrollView
 import android.widget.TextView
+import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
@@ -31,7 +31,7 @@ import kotlin.math.abs
 
 class EditFragment : Fragment(), ViewPagerPage, CoroutineScope {
     private var markdownEditor: EditText? = null
-    private var markdownEditorScroller: ScrollView? = null
+    private var markdownEditorScroller: NestedScrollView? = null
     private val viewModel: MarkdownViewModel by activityViewModels()
     override val coroutineContext: CoroutineContext = Dispatchers.Main
     private var readabilityWatcher: TextWatcher? = null

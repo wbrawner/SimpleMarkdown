@@ -39,12 +39,12 @@ class MainMenuFragment : BottomSheetDialogFragment() {
                 R.id.action_libraries -> Triple(
                         MarkdownInfoActivity::class.java,
                         "Libraries.md",
-                        R.id.action_libraries
+                        R.string.action_libraries
                 )
                 R.id.action_privacy -> Triple(
                         MarkdownInfoActivity::class.java,
                         "Privacy Policy.md",
-                        R.id.action_libraries
+                        R.string.action_privacy
                 )
                 R.id.action_support -> Triple(
                         SupportActivity::class.java,
@@ -73,9 +73,9 @@ class MainMenuFragment : BottomSheetDialogFragment() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == MainActivity.REQUEST_DARK_MODE) {
             activity?.recreate()
-            dialog?.dismiss()
-            return
+        } else {
+            super.onActivityResult(requestCode, resultCode, data)
         }
-        super.onActivityResult(requestCode, resultCode, data)
+        dialog?.dismiss()
     }
 }
