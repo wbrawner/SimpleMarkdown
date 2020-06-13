@@ -43,10 +43,6 @@
             </intent-filter>
         </activity>
         <activity android:name=".view.activity.MainActivity" />
-        <activity
-            android:name=".view.activity.SettingsActivity"
-            android:label="@string/title_activity_settings" />
-
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"
@@ -56,14 +52,6 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
-
-        <activity android:name=".view.activity.MarkdownInfoActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".view.activity.MainActivity" />
-        </activity>
-
-        <activity android:name=".view.activity.SupportActivity" />
 
         <meta-data
             android:name="io.sentry.dsn"

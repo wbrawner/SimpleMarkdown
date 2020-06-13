@@ -64,7 +64,7 @@ class PreviewFragment : Fragment(), CoroutineScope {
     override fun onAttach(context: Context) {
         super.onAttach(context)
         updateWebContent(viewModel.markdownUpdates.value ?: "")
-        viewModel.markdownUpdates.observe(viewLifecycleOwner, Observer {
+        viewModel.markdownUpdates.observe(this, Observer {
             updateWebContent(it)
         })
     }
