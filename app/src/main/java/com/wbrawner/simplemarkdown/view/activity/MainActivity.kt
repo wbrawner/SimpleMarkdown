@@ -21,6 +21,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         intent?.data?.let {
             launch {
                 viewModel.load(this@MainActivity, it)
+                intent?.data = null
             }
         }
     }

@@ -94,6 +94,7 @@ class EditFragment : Fragment(), ViewPagerPage, CoroutineScope {
             }
             false
         }
+        markdownEditor?.setText(viewModel.markdownUpdates.value)
         viewModel.originalMarkdown.observe(viewLifecycleOwner, Observer {
             markdownEditor?.setText(it)
         })
@@ -115,7 +116,6 @@ class EditFragment : Fragment(), ViewPagerPage, CoroutineScope {
                 }
                 readabilityWatcher = null
             }
-
         }
     }
 

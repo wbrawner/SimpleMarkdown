@@ -9,13 +9,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.FileInputStream
 import java.io.Reader
-import kotlin.coroutines.CoroutineContext
 
 class MarkdownViewModel : ViewModel() {
-    private val coroutineContext: CoroutineContext = Dispatchers.IO
-    val fileName = MutableLiveData<String>().apply {
-        postValue("Untitled.md")
-    }
+    val fileName = MutableLiveData<String>("Untitled.md")
     val markdownUpdates = MutableLiveData<String>()
     val originalMarkdown = MutableLiveData<String>()
     val uri = MutableLiveData<Uri>()
@@ -49,11 +45,12 @@ class MarkdownViewModel : ViewModel() {
         return withContext(Dispatchers.IO) {
             try {
                 val fileName = uri.getName(context)
-                val outputStream = context.contentResolver.openOutputStream(uri, "rwt")
+                context.contentResolver.openOutputStream(uri, "rwt")
+                        ?.writer()
+                        ?.use {
+                            it.write(markdownUpdates.value ?: "")
+                        }
                         ?: return@withContext false
-                outputStream.writer().use {
-                    it.write(markdownUpdates.value ?: "")
-                }
                 this@MarkdownViewModel.fileName.postValue(fileName)
                 this@MarkdownViewModel.uri.postValue(uri)
                 true
