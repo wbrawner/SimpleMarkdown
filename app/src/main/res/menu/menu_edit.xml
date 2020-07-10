@@ -7,19 +7,31 @@
         android:title="@string/action_share"
         app:showAsAction="ifRoom" />
     <item
-        android:id="@+id/action_new"
-        android:title="@string/action_new"
-        app:showAsAction="never" />
+        android:id="@+id/action_undo"
+        android:icon="@drawable/ic_undo"
+        android:title="@string/action_undo"
+        app:showAsAction="ifRoom" />
     <item
-        android:id="@+id/action_load"
-        android:title="@string/action_open"
-        app:showAsAction="never" />
-    <item
-        android:id="@+id/action_save"
-        android:title="@string/action_save" />
-    <item
-        android:id="@+id/action_save_as"
-        android:title="@string/action_save_as" />
+        android:id="@+id/action_redo"
+        android:icon="@drawable/ic_redo"
+        android:title="@string/action_redo"
+        app:showAsAction="ifRoom" />
+    <group android:id="@+id/editGroup">
+        <item
+            android:id="@+id/action_new"
+            android:title="@string/action_new"
+            app:showAsAction="never" />
+        <item
+            android:id="@+id/action_load"
+            android:title="@string/action_open"
+            app:showAsAction="never" />
+        <item
+            android:id="@+id/action_save"
+            android:title="@string/action_save" />
+        <item
+            android:id="@+id/action_save_as"
+            android:title="@string/action_save_as" />
+    </group>
     <item
         android:id="@+id/action_lock_swipe"
         android:checkable="true"

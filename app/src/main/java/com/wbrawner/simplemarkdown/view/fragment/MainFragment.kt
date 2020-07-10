@@ -75,7 +75,7 @@ class MainFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallba
                     }
                     R.id.action_share -> {
                         val shareIntent = Intent(Intent.ACTION_SEND)
-                        shareIntent.putExtra(Intent.EXTRA_TEXT, viewModel.markdownUpdates.value)
+                        shareIntent.putExtra(Intent.EXTRA_TEXT, viewModel.markdown.value)
                         shareIntent.type = "text/plain"
                         startActivity(Intent.createChooser(
                                 shareIntent,
@@ -223,7 +223,7 @@ class MainFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallba
     }
 
     private fun promptSaveOrDiscardChanges() {
-        if (viewModel.originalMarkdown.value == viewModel.markdownUpdates.value) {
+        if (viewModel.originalMarkdown.value == viewModel.markdown.value) {
             viewModel.reset("Untitled.md")
             return
         }

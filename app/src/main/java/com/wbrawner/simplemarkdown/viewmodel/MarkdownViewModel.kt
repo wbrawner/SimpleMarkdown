@@ -12,12 +12,12 @@ import java.io.Reader
 
 class MarkdownViewModel : ViewModel() {
     val fileName = MutableLiveData<String>("Untitled.md")
-    val markdownUpdates = MutableLiveData<String>()
-    val originalMarkdown = MutableLiveData<String>()
+    val editorCommands = MutableLiveData<EditorCommand>()
+    val markdown = MutableLiveData<String>()
     val uri = MutableLiveData<Uri>()
 
     fun updateMarkdown(markdown: String?) {
-        this.markdownUpdates.postValue(markdown ?: "")
+        this.markdown.postValue(markdown ?: "")
     }
 
     suspend fun load(context: Context, uri: Uri?): Boolean {
@@ -28,8 +28,8 @@ class MarkdownViewModel : ViewModel() {
                     val fileInput = FileInputStream(it.fileDescriptor)
                     val fileName = uri.getName(context)
                     val content = fileInput.reader().use(Reader::readText)
-                    originalMarkdown.postValue(content)
-                    markdownUpdates.postValue(content)
+                    markdown.postValue(content)
+                    editorCommands.postValue(EditorCommand.Load(content))
                     this@MarkdownViewModel.fileName.postValue(fileName)
                     this@MarkdownViewModel.uri.postValue(uri)
                     true
@@ -48,7 +48,7 @@ class MarkdownViewModel : ViewModel() {
                 context.contentResolver.openOutputStream(uri, "rwt")
                         ?.writer()
                         ?.use {
-                            it.write(markdownUpdates.value ?: "")
+                            it.write(markdown.value ?: "")
                         }
                         ?: return@withContext false
                 this@MarkdownViewModel.fileName.postValue(fileName)
@@ -62,7 +62,23 @@ class MarkdownViewModel : ViewModel() {
 
     fun reset(untitledFileName: String) {
         fileName.postValue(untitledFileName)
-        originalMarkdown.postValue("")
-        markdownUpdates.postValue("")
+        editorCommands.postValue(EditorCommand.Load(""))
+        markdown.postValue("")
     }
+
+    fun undo() {
+        editorCommands.postValue(EditorCommand.Undo())
+    }
+
+    fun redo() {
+        editorCommands.postValue(EditorCommand.Redo())
+    }
+}
+
+sealed class EditorCommand {
+    val consumed = false
+
+    class Undo: EditorCommand()
+    class Redo: EditorCommand()
+    class Load(val text: String): EditorCommand()
 }

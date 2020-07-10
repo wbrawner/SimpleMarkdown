@@ -77,6 +77,8 @@
     <string name="action_rate">Rate SimpleMarkdown</string>
     <string name="support_thank_you">Thank you so much for your support!</string>
     <string name="description_heart">Heart</string>
+    <string name="action_undo">Undo</string>
+    <string name="action_redo">Redo</string>
     <string-array name="pref_entries_dark_mode">
         <item>@string/pref_value_light</item>
         <item>@string/pref_value_dark</item>

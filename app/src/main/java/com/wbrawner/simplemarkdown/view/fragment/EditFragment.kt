@@ -24,6 +24,7 @@ import com.wbrawner.simplemarkdown.model.Readability
 import com.wbrawner.simplemarkdown.utility.hideKeyboard
 import com.wbrawner.simplemarkdown.utility.showKeyboard
 import com.wbrawner.simplemarkdown.view.ViewPagerPage
+import com.wbrawner.simplemarkdown.viewmodel.EditorCommand
 import com.wbrawner.simplemarkdown.viewmodel.MarkdownViewModel
 import kotlinx.coroutines.*
 import kotlin.coroutines.CoroutineContext
@@ -94,8 +95,11 @@ class EditFragment : Fragment(), ViewPagerPage, CoroutineScope {
             }
             false
         }
-        markdownEditor?.setText(viewModel.markdownUpdates.value)
-        viewModel.originalMarkdown.observe(viewLifecycleOwner, Observer {
+        markdownEditor?.setText(viewModel.markdown.value)
+        viewModel.editorCommands.observe(viewLifecycleOwner, Observer {
+            when (it) {
+                is EditorCommand.Undo -> markdownEditor?.text?.
+            }
             markdownEditor?.setText(it)
         })
         launch {
