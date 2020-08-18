@@ -1,20 +1,17 @@
 package com.wbrawner.simplemarkdown
 
 import android.app.Application
+import android.content.Context
 import android.os.StrictMode
-import androidx.preference.PreferenceManager
+import com.wbrawner.simplemarkdown.utility.AcraErrorHandler
 import com.wbrawner.simplemarkdown.utility.ErrorHandler
-import com.wbrawner.simplemarkdown.utility.SentryErrorHandler
 
 class MarkdownApplication : Application() {
     val errorHandler: ErrorHandler by lazy {
-        SentryErrorHandler()
+        AcraErrorHandler()
     }
 
     override fun onCreate() {
-        val enableErrorReports = PreferenceManager.getDefaultSharedPreferences(this)
-                .getBoolean(getString(R.string.error_reports_enabled), true)
-        errorHandler.init(this, enableErrorReports)
         if (BuildConfig.DEBUG) {
             StrictMode.setThreadPolicy(StrictMode.ThreadPolicy.Builder()
                     .detectAll()
@@ -26,5 +23,10 @@ class MarkdownApplication : Application() {
                     .build())
         }
         super.onCreate()
+    }
+
+    override fun attachBaseContext(base: Context?) {
+        super.attachBaseContext(base)
+        errorHandler.init(this)
     }
 }
