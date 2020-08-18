@@ -16,7 +16,7 @@
             android:background="@color/colorBackground" />
     </com.google.android.material.appbar.AppBarLayout>
 
-    <androidx.fragment.app.FragmentContainerView
+    <fragment
         android:id="@+id/fragment_settings"
         android:name="com.wbrawner.simplemarkdown.view.fragment.SettingsFragment"
         android:layout_width="match_parent"

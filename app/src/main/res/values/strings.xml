@@ -34,7 +34,7 @@
     <string name="action_lock_swipe">Lock Swiping</string>
     <string name="action_select">Select</string>
     <string name="action_privacy">Privacy</string>
-    <string name="error_reports_enabled">errors.enable</string>
+    <string name="pref_key_error_reports_enabled">acra.enable</string>
     <string name="pref_title_error_reports">Enable automated error reports</string>
     <string name="pref_error_reports_off">Error reports will not be sent</string>
     <string name="pref_error_reports_on">Error reports will be sent</string>

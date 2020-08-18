@@ -52,13 +52,6 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
-
-        <meta-data
-            android:name="io.sentry.dsn"
-            android:value="${sentryDsn}" />
-        <meta-data
-            android:name="io.sentry.auto-init"
-            android:value="false" />
     </application>
 
 </manifest>

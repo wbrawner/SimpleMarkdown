@@ -5,6 +5,7 @@ import android.os.Build
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.preference.ListPreference
+import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager
 import com.wbrawner.simplemarkdown.BuildConfig
@@ -20,6 +21,14 @@ class SettingsFragment
         CoroutineScope {
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         addPreferencesFromResource(R.xml.pref_general)
+        if (BuildConfig.DEBUG) {
+            preferenceScreen.addPreference(Preference(preferenceScreen.context).apply {
+                title = "Force crash"
+                onPreferenceClickListener = Preference.OnPreferenceClickListener {
+                    throw RuntimeException("Forced crash from settings")
+                }
+            })
+        }
     }
 
     override val coroutineContext: CoroutineContext = Dispatchers.Main

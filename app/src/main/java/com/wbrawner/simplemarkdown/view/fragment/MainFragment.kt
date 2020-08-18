@@ -24,7 +24,6 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.onNavDestinationSelected
 import androidx.navigation.ui.setupWithNavController
 import androidx.preference.PreferenceManager
-import com.wbrawner.simplemarkdown.MarkdownApplication
 import com.wbrawner.simplemarkdown.R
 import com.wbrawner.simplemarkdown.view.adapter.EditPagerAdapter
 import com.wbrawner.simplemarkdown.viewmodel.MarkdownViewModel
@@ -114,17 +113,6 @@ class MainFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallba
         viewModel.fileName.observe(viewLifecycleOwner, Observer {
             toolbar?.title = it
         })
-    }
-
-    override fun onStart() {
-        super.onStart()
-        launch {
-            withContext(Dispatchers.IO) {
-                val enableErrorReports = PreferenceManager.getDefaultSharedPreferences(requireContext())
-                        .getBoolean(getString(R.string.error_reports_enabled), true)
-                (requireActivity().application as MarkdownApplication).errorHandler.enable(enableErrorReports)
-            }
-        }
     }
 
     override fun onPause() {
