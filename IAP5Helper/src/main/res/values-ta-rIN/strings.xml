@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+/*
+** Copyright 2006, The Android Open Source Project
+**
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
+**
+**     http://www.apache.org/licenses/LICENSE-2.0
+**
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
+** limitations under the License.
+**
+** Created with STMS Automation System
+*/ -->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- MIDS_SAPPS_POP_UNKNOWN_ERROR_OCCURRED -->
+    <string name="mids_sapps_pop_unknown_error_occurred">தெரியாத பிழை ஏற்பட்டுள்ளது.</string>
+    <!-- MIDS_SAPPS_HEADER_SAMSUNG_IN_APP_PURCHASE_ABB -->
+    <string name="mids_sapps_header_samsung_in_app_purchase_abb">சாம்சங் இன்-ஆப் வாங்குதல்</string>
+    <!-- MIDS_SAPPS_POP_UNABLE_TO_OPEN_SAMSUNG_IN_APP_PURCHASE_MSG -->
+    <string name="mids_sapps_pop_unable_to_open_samsung_in_app_purchase_msg">சாம்சங் இன்-ஆப் வாங்குதலை திறக்க இயலவில்லை. அனுமதிகள் என்பதற்குச் சென்று, பிறகு தேவையான அனுமதிகளை அனுமதித்து, மீண்டும் முயலவும்.</string>
+    <!-- MIDS_SAPPS_POP_TO_PURCHASE_ITEMS_YOU_NEED_TO_INSTALL_SAMSUNG_IN_APP_PURCHASE_INSTALL_Q -->
+    <string name="mids_sapps_pop_to_purchase_items_you_need_to_install_samsung_in_app_purchase_install_q">உருப்படிகளை வாங்க சாம்சங் உள்-ப.பாட்டு வாங்குதலை நீங்கள் நிறுவ வேண்டும். நிறுவவா?</string>
+    <!-- MIDS_SAPPS_POP_AN_INVALID_VALUE_HAS_BEEN_PROVIDED_FOR_SAMSUNG_IN_APP_PURCHASE -->
+    <string name="mids_sapps_pop_an_invalid_value_has_been_provided_for_samsung_in_app_purchase">சாம்சங் பயன்பாட்டுக்கு உள்ளான வாங்குதலுக்கு ஒரு தவறான மதிப்பு வழங்கப்பட்டது.</string>
+    <!-- MIDS_SAPPS_BODY_WAITING_ING -->
+    <string name="mids_sapps_body_waiting_ing">காத்திருக்கிறது\u2026</string>
+    <!-- MIDS_SAPPS_POP_PAYMENT_CANCELLED -->
+    <string name="mids_sapps_pop_payment_canceled">கட்டணத்தொகை ரத்து செய்யப்பட்டது.</string>
+    <!-- MIDS_SAPPS_HEADER_UPDATE_GALAXY_APPS -->
+    <string name="mids_sapps_header_update_galaxy_apps">Galaxy Apps-ஐ புதுப்பிக்கவும்</string>
+    <!-- MIDS_SAPPS_POP_A_NEW_VERSION_IS_AVAILABLE_GALAXY_APPS_WILL_BE_UPDATED_TO_THE_LATEST_VERSION_TO_COMPLETE_THIS_PURCHASE -->
+    <string name="mids_sapps_pop_a_new_version_is_available_galaxy_apps_will_be_updated_to_the_latest_version_to_complete_this_purchase">புதிய பதிப்பு கிடைக்கிறது. இந்த வாங்குதலை முடிப்பதற்காக Galaxy Apps அதன் சமீபத்திய பதிப்பிற்குப் புதுப்பிக்கப்படும்.</string>
+</resources>

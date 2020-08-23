@@ -77,12 +77,15 @@ android {
             buildConfigField "boolean", "ENABLE_CUSTOM_CSS", "false"
         }
     }
-    flavorDimensions "freedom"
+    flavorDimensions "platform"
     productFlavors {
-        play {}
         free {
             applicationIdSuffix ".free"
             versionNameSuffix "-free"
+        }
+        play {}
+        samsung {
+            applicationId "com.wbrawner.simplemarkdown.samsung"
         }
     }
     dexOptions {
@@ -97,6 +100,7 @@ android {
 }
 
 dependencies {
+    samsungImplementation project(":IAP5Helper")
     implementation 'androidx.navigation:navigation-fragment-ktx:2.2.2'
     implementation 'androidx.navigation:navigation-ui-ktx:2.2.2'
     testImplementation 'junit:junit:4.12'
