@@ -10,7 +10,7 @@ import android.view.ViewGroup
 import android.webkit.WebView
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.preference.PreferenceManager
 import com.wbrawner.simplemarkdown.BuildConfig
@@ -22,7 +22,7 @@ import kotlin.coroutines.CoroutineContext
 
 class PreviewFragment : Fragment(), CoroutineScope {
     override val coroutineContext: CoroutineContext = Dispatchers.Main
-    private val viewModel: MarkdownViewModel by activityViewModels()
+    private val viewModel: MarkdownViewModel by viewModels({ requireParentFragment() })
     private var markdownPreview: WebView? = null
     private var style: String = ""
 

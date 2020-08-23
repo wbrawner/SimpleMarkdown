@@ -16,7 +16,7 @@ import android.widget.EditText
 import android.widget.TextView
 import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.preference.PreferenceManager
 import com.wbrawner.simplemarkdown.R
@@ -32,7 +32,7 @@ import kotlin.math.abs
 class EditFragment : Fragment(), ViewPagerPage, CoroutineScope {
     private var markdownEditor: EditText? = null
     private var markdownEditorScroller: NestedScrollView? = null
-    private val viewModel: MarkdownViewModel by activityViewModels()
+    private val viewModel: MarkdownViewModel by viewModels({ requireParentFragment() })
     override val coroutineContext: CoroutineContext = Dispatchers.Main
     private var readabilityWatcher: TextWatcher? = null
 

@@ -2,6 +2,7 @@ package com.wbrawner.simplemarkdown.view.fragment
 
 import android.Manifest
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Configuration
@@ -17,7 +18,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.AppBarConfiguration
@@ -36,8 +37,19 @@ class MainFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallba
 
     private var shouldAutoSave = true
     override val coroutineContext: CoroutineContext = Dispatchers.Main
-    private val viewModel: MarkdownViewModel by activityViewModels()
+    private val viewModel: MarkdownViewModel by viewModels()
     private var appBarConfiguration: AppBarConfiguration? = null
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        if (context !is Activity) return
+        context.intent?.data?.let {
+            launch {
+                viewModel.load(context, it)
+                context.intent?.data = null
+            }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
