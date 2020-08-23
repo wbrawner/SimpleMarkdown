@@ -9,12 +9,11 @@ import android.content.res.Configuration
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.webkit.MimeTypeMap
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -56,6 +55,13 @@ class MainFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallba
         setHasOptionsMenu(true)
     }
 
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_edit, menu)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            menu.findItem(R.id.action_save_as)?.setAlphabeticShortcut('S', KeyEvent.META_CTRL_ON or KeyEvent.META_SHIFT_ON)
+        }
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
             inflater.inflate(R.layout.fragment_main, container, false)
 
@@ -63,53 +69,7 @@ class MainFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallba
         with(findNavController()) {
             appBarConfiguration = AppBarConfiguration(graph, drawerLayout)
             toolbar.setupWithNavController(this, appBarConfiguration!!)
-            toolbar.inflateMenu(R.menu.menu_edit)
-            toolbar.setOnMenuItemClickListener { item ->
-                return@setOnMenuItemClickListener when (item.itemId) {
-                    R.id.action_save -> {
-                        launch {
-                            if (!viewModel.save(requireContext())) {
-                                requestFileOp(REQUEST_SAVE_FILE)
-                            } else {
-                                Toast.makeText(
-                                        requireContext(),
-                                        getString(R.string.file_saved, viewModel.fileName.value),
-                                        Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                        }
-                        true
-                    }
-                    R.id.action_save_as -> {
-                        requestFileOp(REQUEST_SAVE_FILE)
-                        true
-                    }
-                    R.id.action_share -> {
-                        val shareIntent = Intent(Intent.ACTION_SEND)
-                        shareIntent.putExtra(Intent.EXTRA_TEXT, viewModel.markdownUpdates.value)
-                        shareIntent.type = "text/plain"
-                        startActivity(Intent.createChooser(
-                                shareIntent,
-                                getString(R.string.share_file)
-                        ))
-                        true
-                    }
-                    R.id.action_load -> {
-                        requestFileOp(REQUEST_OPEN_FILE)
-                        true
-                    }
-                    R.id.action_new -> {
-                        promptSaveOrDiscardChanges()
-                        true
-                    }
-                    R.id.action_lock_swipe -> {
-                        item.isChecked = !item.isChecked
-                        pager!!.setSwipeLocked(item.isChecked)
-                        true
-                    }
-                    else -> item.onNavDestinationSelected(findNavController())
-                }
-            }
+            (activity as? AppCompatActivity)?.setSupportActionBar(toolbar)
             navigationView.setupWithNavController(this)
         }
         val adapter = EditPagerAdapter(childFragmentManager, view.context)
@@ -125,6 +85,53 @@ class MainFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallba
         viewModel.fileName.observe(viewLifecycleOwner, Observer {
             toolbar?.title = it
         })
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_save -> {
+                launch {
+                    if (!viewModel.save(requireContext())) {
+                        requestFileOp(REQUEST_SAVE_FILE)
+                    } else {
+                        Toast.makeText(
+                                requireContext(),
+                                getString(R.string.file_saved, viewModel.fileName.value),
+                                Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+                true
+            }
+            R.id.action_save_as -> {
+                requestFileOp(REQUEST_SAVE_FILE)
+                true
+            }
+            R.id.action_share -> {
+                val shareIntent = Intent(Intent.ACTION_SEND)
+                shareIntent.putExtra(Intent.EXTRA_TEXT, viewModel.markdownUpdates.value)
+                shareIntent.type = "text/plain"
+                startActivity(Intent.createChooser(
+                        shareIntent,
+                        getString(R.string.share_file)
+                ))
+                true
+            }
+            R.id.action_load -> {
+                requestFileOp(REQUEST_OPEN_FILE)
+                true
+            }
+            R.id.action_new -> {
+                promptSaveOrDiscardChanges()
+                true
+            }
+            R.id.action_lock_swipe -> {
+                item.isChecked = !item.isChecked
+                pager!!.setSwipeLocked(item.isChecked)
+                true
+            }
+            else -> item.onNavDestinationSelected(findNavController())
+        }
     }
 
     override fun onPause() {

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
+<menu xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/action_share"
@@ -9,17 +10,21 @@
     <item
         android:id="@+id/action_new"
         android:title="@string/action_new"
+        android:alphabeticShortcut="N"
         app:showAsAction="never" />
     <item
         android:id="@+id/action_load"
         android:title="@string/action_open"
+        android:alphabeticShortcut="O"
         app:showAsAction="never" />
     <item
         android:id="@+id/action_save"
+        android:alphabeticShortcut="S"
         android:title="@string/action_save" />
     <item
         android:id="@+id/action_save_as"
-        android:title="@string/action_save_as" />
+        android:title="@string/action_save_as"
+        tools:ignore="UnusedAttribute" />
     <item
         android:id="@+id/action_lock_swipe"
         android:checkable="true"
