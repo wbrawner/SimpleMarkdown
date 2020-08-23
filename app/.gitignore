@@ -1,4 +1,5 @@
 /build
 *.apk
+*.aab
 /release
 acra.properties
