@@ -5,6 +5,7 @@ import android.content.Context
 import android.os.StrictMode
 import com.wbrawner.simplemarkdown.utility.AcraErrorHandler
 import com.wbrawner.simplemarkdown.utility.ErrorHandler
+import com.wbrawner.simplemarkdown.utility.ReviewHelper
 
 class MarkdownApplication : Application() {
     val errorHandler: ErrorHandler by lazy {
@@ -23,6 +24,7 @@ class MarkdownApplication : Application() {
                     .build())
         }
         super.onCreate()
+        ReviewHelper.init(this, errorHandler)
     }
 
     override fun attachBaseContext(base: Context?) {
