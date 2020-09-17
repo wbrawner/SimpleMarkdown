@@ -16,17 +16,6 @@ try {
     keystoreProperties['storePassword'] = ""
 }
 
-def acraProperties = new Properties()
-try {
-    def acraPropertiesFile = project.file("acra.properties")
-    acraProperties.load(new FileInputStream(acraPropertiesFile))
-} catch (FileNotFoundException ignored) {
-    logger.warn("Unable to load ACRA properties. Error reporting won't be available")
-    acraProperties['url'] = ""
-    acraProperties['user'] = ""
-    acraProperties['pass'] = ""
-}
-
 android {
     configurations.all {
         resolutionStrategy.force 'com.google.code.findbugs:jsr305:3.0.1'
@@ -38,7 +27,7 @@ android {
         exclude 'META-INF/LICENSE'
         exclude 'META-INF/DEPENDENCIES'
     }
-    compileSdkVersion 29
+    compileSdkVersion 30
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -54,9 +43,6 @@ android {
         versionName "0.8.6"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField "boolean", "ENABLE_CUSTOM_CSS", "false"
-        buildConfigField "String", "ACRA_URL", "\"${acraProperties['url']}\""
-        buildConfigField "String", "ACRA_USER", "\"${acraProperties['user']}\""
-        buildConfigField "String", "ACRA_PASS", "\"${acraProperties['pass']}\""
     }
     signingConfigs {
         release {
@@ -120,7 +106,7 @@ dependencies {
     implementation 'androidx.preference:preference:1.1.1'
     implementation "androidx.fragment:fragment-ktx:1.2.5"
     implementation 'androidx.constraintlayout:constraintlayout:2.0.1'
-    implementation 'com.google.android.material:material:1.2.0'
+    implementation 'com.google.android.material:material:1.2.1'
     implementation 'androidx.legacy:legacy-support-v13:1.0.0'
     implementation 'com.commonsware.cwac:anddown:0.3.0'
     playImplementation 'com.android.billingclient:billing:3.0.0'
@@ -136,10 +122,6 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-extensions:$lifecycle_version"
     kapt "androidx.lifecycle:lifecycle-common-java8:$lifecycle_version"
     implementation 'eu.crydee:syllable-counter:4.0.2'
-
-    def acraVersion = '5.7.0'
-    implementation "ch.acra:acra-http:$acraVersion"
-    implementation "ch.acra:acra-advanced-scheduler:$acraVersion"
 }
 
 android.productFlavors.each { flavor ->

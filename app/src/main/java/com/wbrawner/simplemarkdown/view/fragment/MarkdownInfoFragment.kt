@@ -11,7 +11,6 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.setupWithNavController
-import com.wbrawner.simplemarkdown.MarkdownApplication
 import com.wbrawner.simplemarkdown.R
 import com.wbrawner.simplemarkdown.utility.readAssetToString
 import com.wbrawner.simplemarkdown.utility.toHtml
@@ -61,7 +60,6 @@ class MarkdownInfoFragment : Fragment(), CoroutineScope {
                         "UTF-8", null
                 )
             } catch (e: Exception) {
-                (requireActivity().application as MarkdownApplication).errorHandler.reportException(e)
                 Toast.makeText(view.context, R.string.file_load_error, Toast.LENGTH_SHORT).show()
                 findNavController().navigateUp()
             }

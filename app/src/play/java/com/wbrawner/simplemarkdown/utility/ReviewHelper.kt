@@ -27,7 +27,6 @@ object ReviewHelper : Application.ActivityLifecycleCallbacks {
     private lateinit var application: Application
     private lateinit var reviewManager: ReviewManager
     private lateinit var sharedPreferences: SharedPreferences
-    private lateinit var errorHandler: ErrorHandler
     private var currentActivity: Activity? = null
     private var activityCount = 0
         set(value) {
@@ -41,12 +40,10 @@ object ReviewHelper : Application.ActivityLifecycleCallbacks {
 
     fun init(
             application: Application,
-            errorHandler: ErrorHandler,
             sharedPreferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(application),
             reviewManager: ReviewManager = ReviewManagerFactory.create(application)
     ) {
         this.application = application
-        this.errorHandler = errorHandler
         this.sharedPreferences = sharedPreferences
         this.reviewManager = reviewManager
         if (sharedPreferences.getLong(KEY_TIME_IN_APP, 0L) == -1L) {
@@ -77,7 +74,6 @@ object ReviewHelper : Application.ActivityLifecycleCallbacks {
                 val exception = request.exception
                         ?: RuntimeException("Failed to request review")
                 Log.e("ReviewHelper", "Failed to prompt user for review", exception)
-                errorHandler.reportException(exception)
                 return@addOnCompleteListener
             }
 

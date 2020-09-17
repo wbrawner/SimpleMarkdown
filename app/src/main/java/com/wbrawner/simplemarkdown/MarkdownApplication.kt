@@ -1,17 +1,10 @@
 package com.wbrawner.simplemarkdown
 
 import android.app.Application
-import android.content.Context
 import android.os.StrictMode
-import com.wbrawner.simplemarkdown.utility.AcraErrorHandler
-import com.wbrawner.simplemarkdown.utility.ErrorHandler
 import com.wbrawner.simplemarkdown.utility.ReviewHelper
 
 class MarkdownApplication : Application() {
-    val errorHandler: ErrorHandler by lazy {
-        AcraErrorHandler()
-    }
-
     override fun onCreate() {
         if (BuildConfig.DEBUG) {
             StrictMode.setThreadPolicy(StrictMode.ThreadPolicy.Builder()
@@ -24,11 +17,6 @@ class MarkdownApplication : Application() {
                     .build())
         }
         super.onCreate()
-        ReviewHelper.init(this, errorHandler)
-    }
-
-    override fun attachBaseContext(base: Context?) {
-        super.attachBaseContext(base)
-        errorHandler.init(this)
+        ReviewHelper.init(this)
     }
 }
