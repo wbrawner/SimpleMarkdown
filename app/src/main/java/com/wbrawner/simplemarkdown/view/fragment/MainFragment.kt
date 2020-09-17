@@ -21,7 +21,6 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.onNavDestinationSelected
 import androidx.navigation.ui.setupWithNavController
 import androidx.preference.PreferenceManager
 import com.wbrawner.simplemarkdown.R
@@ -89,6 +88,10 @@ class MainFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallba
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
+            android.R.id.home -> {
+                drawerLayout.open()
+                true
+            }
             R.id.action_save -> {
                 launch {
                     if (!viewModel.save(requireContext())) {
@@ -130,7 +133,7 @@ class MainFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallba
                 pager!!.setSwipeLocked(item.isChecked)
                 true
             }
-            else -> item.onNavDestinationSelected(findNavController())
+            else -> super.onOptionsItemSelected(item)
         }
     }
 
@@ -251,7 +254,7 @@ class MainFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallba
     private fun requestFileOp(requestType: Int) {
         val context = context ?: return
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED && Build.VERSION.SDK_INT > 22) {
+                != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(
                     arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
                     requestType
