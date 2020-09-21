@@ -12,6 +12,8 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.setupWithNavController
 import com.wbrawner.simplemarkdown.R
+import com.wbrawner.simplemarkdown.utility.ErrorHandler
+import com.wbrawner.simplemarkdown.utility.errorHandlerImpl
 import com.wbrawner.simplemarkdown.utility.readAssetToString
 import com.wbrawner.simplemarkdown.utility.toHtml
 import kotlinx.android.synthetic.main.fragment_markdown_info.*
@@ -23,6 +25,7 @@ import kotlin.coroutines.CoroutineContext
 
 class MarkdownInfoFragment : Fragment(), CoroutineScope {
     override val coroutineContext: CoroutineContext = Dispatchers.Main
+    private val errorHandler: ErrorHandler by errorHandlerImpl()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,6 +63,7 @@ class MarkdownInfoFragment : Fragment(), CoroutineScope {
                         "UTF-8", null
                 )
             } catch (e: Exception) {
+                errorHandler.reportException(e)
                 Toast.makeText(view.context, R.string.file_load_error, Toast.LENGTH_SHORT).show()
                 findNavController().navigateUp()
             }

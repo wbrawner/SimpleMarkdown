@@ -24,6 +24,8 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
 import androidx.preference.PreferenceManager
 import com.wbrawner.simplemarkdown.R
+import com.wbrawner.simplemarkdown.utility.ErrorHandler
+import com.wbrawner.simplemarkdown.utility.errorHandlerImpl
 import com.wbrawner.simplemarkdown.view.adapter.EditPagerAdapter
 import com.wbrawner.simplemarkdown.viewmodel.MarkdownViewModel
 import kotlinx.android.synthetic.main.fragment_main.*
@@ -37,6 +39,7 @@ class MainFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallba
     override val coroutineContext: CoroutineContext = Dispatchers.Main
     private val viewModel: MarkdownViewModel by viewModels()
     private var appBarConfiguration: AppBarConfiguration? = null
+    private val errorHandler: ErrorHandler by errorHandlerImpl()
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -134,6 +137,17 @@ class MainFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallba
                 true
             }
             else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        launch {
+            withContext(Dispatchers.IO) {
+                val enableErrorReports = PreferenceManager.getDefaultSharedPreferences(requireContext())
+                        .getBoolean(getString(R.string.pref_key_error_reports_enabled), true)
+                errorHandler.enable(enableErrorReports)
+            }
         }
     }
 

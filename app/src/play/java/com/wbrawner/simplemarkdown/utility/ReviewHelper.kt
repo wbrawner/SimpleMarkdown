@@ -27,6 +27,7 @@ object ReviewHelper : Application.ActivityLifecycleCallbacks {
     private lateinit var application: Application
     private lateinit var reviewManager: ReviewManager
     private lateinit var sharedPreferences: SharedPreferences
+    private val errorHandler: ErrorHandler by errorHandlerImpl()
     private var currentActivity: Activity? = null
     private var activityCount = 0
         set(value) {

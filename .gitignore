@@ -12,4 +12,3 @@
 *.log
 keystore.properties
 *.jks
-sentry.properties

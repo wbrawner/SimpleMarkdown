@@ -3,6 +3,7 @@ apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'jacoco'
+apply plugin: 'com.google.firebase.crashlytics'
 
 def keystoreProperties = new Properties()
 try {
@@ -110,8 +111,9 @@ dependencies {
     implementation 'androidx.legacy:legacy-support-v13:1.0.0'
     implementation 'com.commonsware.cwac:anddown:0.3.0'
     playImplementation 'com.android.billingclient:billing:3.0.0'
-    playImplementation 'com.google.firebase:firebase-core:17.5.0'
     playImplementation 'com.google.android.play:core-ktx:1.8.1'
+    playImplementation 'com.google.firebase:firebase-crashlytics:17.2.1'
+    playImplementation 'com.google.firebase:firebase-analytics:17.5.0'
     implementation "androidx.core:core-ktx:1.3.1"
     implementation 'androidx.browser:browser:1.2.0'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
@@ -132,7 +134,6 @@ android.productFlavors.each { flavor ->
 }
 repositories {
     mavenCentral()
-    jcenter()
 }
 
 jacoco {
