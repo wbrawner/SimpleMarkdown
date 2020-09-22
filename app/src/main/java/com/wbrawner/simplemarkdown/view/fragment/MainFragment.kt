@@ -16,6 +16,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.edit
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
@@ -228,6 +229,10 @@ class MainFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallba
                             Toast.makeText(it, R.string.file_load_error, Toast.LENGTH_SHORT)
                                     .show()
                         }
+                    } else {
+                        PreferenceManager.getDefaultSharedPreferences(requireContext()).edit {
+                            putString(getString(R.string.pref_key_autosave_uri), data.data.toString())
+                        }
                     }
                 }
             }
@@ -249,6 +254,9 @@ class MainFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallba
     private fun promptSaveOrDiscardChanges() {
         if (viewModel.originalMarkdown.value == viewModel.markdownUpdates.value) {
             viewModel.reset("Untitled.md")
+            PreferenceManager.getDefaultSharedPreferences(requireContext()).edit {
+                remove(getString(R.string.pref_key_autosave_uri))
+            }
             return
         }
         val context = context ?: return
@@ -257,6 +265,9 @@ class MainFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallba
                 .setMessage(R.string.prompt_save_changes)
                 .setNegativeButton(R.string.action_discard) { _, _ ->
                     viewModel.reset("Untitled.md")
+                    PreferenceManager.getDefaultSharedPreferences(requireContext()).edit {
+                        remove(getString(R.string.pref_key_autosave_uri))
+                    }
                 }
                 .setPositiveButton(R.string.action_save) { _, _ ->
                     requestFileOp(REQUEST_SAVE_FILE)
@@ -319,7 +330,6 @@ class MainFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallba
         // Request codes
         const val REQUEST_OPEN_FILE = 1
         const val REQUEST_SAVE_FILE = 2
-        const val REQUEST_DARK_MODE = 4
         const val KEY_AUTOSAVE = "autosave"
     }
 }

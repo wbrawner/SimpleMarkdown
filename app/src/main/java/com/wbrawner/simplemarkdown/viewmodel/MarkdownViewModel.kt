@@ -28,6 +28,10 @@ class MarkdownViewModel : ViewModel() {
                     val fileInput = FileInputStream(it.fileDescriptor)
                     val fileName = uri.getName(context)
                     val content = fileInput.reader().use(Reader::readText)
+                    if (content.isBlank()) {
+                        // If we don't get anything back, then we can assume that reading the file failed
+                        return@withContext false
+                    }
                     originalMarkdown.postValue(content)
                     markdownUpdates.postValue(content)
                     this@MarkdownViewModel.fileName.postValue(fileName)
