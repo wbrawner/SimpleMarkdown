@@ -252,7 +252,7 @@ class MainFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallba
     }
 
     private fun promptSaveOrDiscardChanges() {
-        if (viewModel.originalMarkdown.value == viewModel.markdownUpdates.value) {
+        if (viewModel.shouldPromptSave()) {
             viewModel.reset("Untitled.md")
             PreferenceManager.getDefaultSharedPreferences(requireContext()).edit {
                 remove(getString(R.string.pref_key_autosave_uri))

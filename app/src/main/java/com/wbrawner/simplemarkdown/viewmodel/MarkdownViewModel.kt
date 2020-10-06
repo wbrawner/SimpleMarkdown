@@ -9,15 +9,18 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.FileInputStream
 import java.io.Reader
+import java.util.concurrent.atomic.AtomicBoolean
 
 class MarkdownViewModel : ViewModel() {
     val fileName = MutableLiveData<String>("Untitled.md")
     val markdownUpdates = MutableLiveData<String>()
-    val originalMarkdown = MutableLiveData<String>()
+    val editorActions = MutableLiveData<EditorAction>()
     val uri = MutableLiveData<Uri>()
+    private val isDirty = AtomicBoolean(false)
 
     fun updateMarkdown(markdown: String?) {
         this.markdownUpdates.postValue(markdown ?: "")
+        isDirty.set(true)
     }
 
     suspend fun load(context: Context, uri: Uri?): Boolean {
@@ -32,7 +35,8 @@ class MarkdownViewModel : ViewModel() {
                         // If we don't get anything back, then we can assume that reading the file failed
                         return@withContext false
                     }
-                    originalMarkdown.postValue(content)
+                    isDirty.set(false)
+                    editorActions.postValue(EditorAction.Load(content))
                     markdownUpdates.postValue(content)
                     this@MarkdownViewModel.fileName.postValue(fileName)
                     this@MarkdownViewModel.uri.postValue(uri)
@@ -66,7 +70,15 @@ class MarkdownViewModel : ViewModel() {
 
     fun reset(untitledFileName: String) {
         fileName.postValue(untitledFileName)
-        originalMarkdown.postValue("")
         markdownUpdates.postValue("")
+        isDirty.set(false)
+    }
+
+    fun shouldPromptSave() = isDirty.get()
+
+    sealed class EditorAction {
+        val consumed = AtomicBoolean(false)
+
+        data class Load(val markdown: String) : EditorAction()
     }
 }

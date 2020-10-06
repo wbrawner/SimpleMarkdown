@@ -95,15 +95,18 @@ class EditFragment : Fragment(), ViewPagerPage, CoroutineScope {
             false
         }
         markdownEditor?.setText(viewModel.markdownUpdates.value)
-        viewModel.originalMarkdown.observe(viewLifecycleOwner, Observer {
-            markdownEditor?.setText(it)
+        viewModel.editorActions.observe(viewLifecycleOwner, Observer {
+            if (it.consumed.getAndSet(true)) return@Observer
+            if (it is MarkdownViewModel.EditorAction.Load) {
+                markdownEditor?.setText(it.markdown)
+            }
         })
         launch {
             val enableReadability = withContext(Dispatchers.IO) {
                 context?.let {
                     PreferenceManager.getDefaultSharedPreferences(it)
                             .getBoolean(getString(R.string.readability_enabled), false)
-                }?: false
+                } ?: false
             }
             if (enableReadability) {
                 if (readabilityWatcher == null) {
