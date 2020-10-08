@@ -15,7 +15,7 @@ class MarkdownViewModel : ViewModel() {
     val fileName = MutableLiveData<String>("Untitled.md")
     val markdownUpdates = MutableLiveData<String>()
     val editorActions = MutableLiveData<EditorAction>()
-    val uri = MutableLiveData<Uri>()
+    val uri = MutableLiveData<Uri?>()
     private val isDirty = AtomicBoolean(false)
 
     fun updateMarkdown(markdown: String?) {
@@ -70,7 +70,9 @@ class MarkdownViewModel : ViewModel() {
 
     fun reset(untitledFileName: String) {
         fileName.postValue(untitledFileName)
+        uri.postValue(null)
         markdownUpdates.postValue("")
+        editorActions.postValue(EditorAction.Load(""))
         isDirty.set(false)
     }
 
