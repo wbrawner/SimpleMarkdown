@@ -12,7 +12,6 @@ import android.os.Bundle
 import android.view.*
 import android.webkit.MimeTypeMap
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -27,6 +26,7 @@ import androidx.preference.PreferenceManager
 import com.wbrawner.simplemarkdown.R
 import com.wbrawner.simplemarkdown.utility.ErrorHandler
 import com.wbrawner.simplemarkdown.utility.errorHandlerImpl
+import com.wbrawner.simplemarkdown.view.activity.MainActivity
 import com.wbrawner.simplemarkdown.view.adapter.EditPagerAdapter
 import com.wbrawner.simplemarkdown.viewmodel.MarkdownViewModel
 import kotlinx.android.synthetic.main.fragment_main.*
@@ -129,7 +129,9 @@ class MainFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallba
                 true
             }
             R.id.action_new -> {
-                promptSaveOrDiscardChanges()
+                startActivity(Intent(requireContext(), MainActivity::class.java).apply {
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT or Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
+                })
                 true
             }
             R.id.action_lock_swipe -> {
@@ -249,31 +251,6 @@ class MainFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallba
             }
         }
         super.onActivityResult(requestCode, resultCode, data)
-    }
-
-    private fun promptSaveOrDiscardChanges() {
-        if (viewModel.shouldPromptSave()) {
-            viewModel.reset("Untitled.md")
-            PreferenceManager.getDefaultSharedPreferences(requireContext()).edit {
-                remove(getString(R.string.pref_key_autosave_uri))
-            }
-            return
-        }
-        val context = context ?: return
-        AlertDialog.Builder(context)
-                .setTitle(R.string.save_changes)
-                .setMessage(R.string.prompt_save_changes)
-                .setNegativeButton(R.string.action_discard) { _, _ ->
-                    viewModel.reset("Untitled.md")
-                    PreferenceManager.getDefaultSharedPreferences(requireContext()).edit {
-                        remove(getString(R.string.pref_key_autosave_uri))
-                    }
-                }
-                .setPositiveButton(R.string.action_save) { _, _ ->
-                    requestFileOp(REQUEST_SAVE_FILE)
-                }
-                .create()
-                .show()
     }
 
     private fun requestFileOp(requestType: Int) {

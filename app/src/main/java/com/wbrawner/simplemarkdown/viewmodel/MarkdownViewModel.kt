@@ -16,11 +16,9 @@ class MarkdownViewModel : ViewModel() {
     val markdownUpdates = MutableLiveData<String>()
     val editorActions = MutableLiveData<EditorAction>()
     val uri = MutableLiveData<Uri?>()
-    private val isDirty = AtomicBoolean(false)
 
     fun updateMarkdown(markdown: String?) {
         this.markdownUpdates.postValue(markdown ?: "")
-        isDirty.set(true)
     }
 
     suspend fun load(context: Context, uri: Uri?): Boolean {
@@ -35,7 +33,6 @@ class MarkdownViewModel : ViewModel() {
                         // If we don't get anything back, then we can assume that reading the file failed
                         return@withContext false
                     }
-                    isDirty.set(false)
                     editorActions.postValue(EditorAction.Load(content))
                     markdownUpdates.postValue(content)
                     this@MarkdownViewModel.fileName.postValue(fileName)
@@ -67,16 +64,6 @@ class MarkdownViewModel : ViewModel() {
             }
         }
     }
-
-    fun reset(untitledFileName: String) {
-        fileName.postValue(untitledFileName)
-        uri.postValue(null)
-        markdownUpdates.postValue("")
-        editorActions.postValue(EditorAction.Load(""))
-        isDirty.set(false)
-    }
-
-    fun shouldPromptSave() = isDirty.get()
 
     sealed class EditorAction {
         val consumed = AtomicBoolean(false)
