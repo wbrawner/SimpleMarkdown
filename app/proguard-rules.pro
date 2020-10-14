@@ -24,6 +24,8 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
-### ACRA ###
--keep class com.wbrawner.simplemarkdown.BuildConfig { *; }
-###
+### Crashlytics ###
+-keepattributes *Annotation*
+-keepattributes SourceFile,LineNumberTable
+-keep public class * extends java.lang.Exception
+### Crashlytics ###
