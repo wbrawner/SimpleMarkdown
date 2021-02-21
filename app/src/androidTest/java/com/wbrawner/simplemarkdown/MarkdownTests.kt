@@ -66,7 +66,7 @@ class MarkdownTests {
     }
 
     @Test
-    fun newMarkdownTest() {
+    fun  newMarkdownTest() {
         onView(withId(R.id.markdown_edit))
                 .perform(typeText("# UI Testing\n\nThe quick brown fox jumped over the lazy dog."))
         openActionBarOverflowOrOptionsMenu(getApplicationContext())

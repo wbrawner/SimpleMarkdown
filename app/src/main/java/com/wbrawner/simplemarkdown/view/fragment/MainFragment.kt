@@ -9,6 +9,7 @@ import android.content.res.Configuration
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.webkit.MimeTypeMap
 import android.widget.Toast
@@ -29,6 +30,7 @@ import com.wbrawner.simplemarkdown.utility.ErrorHandler
 import com.wbrawner.simplemarkdown.utility.errorHandlerImpl
 import com.wbrawner.simplemarkdown.view.adapter.EditPagerAdapter
 import com.wbrawner.simplemarkdown.viewmodel.MarkdownViewModel
+import com.wbrawner.simplemarkdown.viewmodel.PREF_KEY_AUTOSAVE_URI
 import kotlinx.android.synthetic.main.fragment_main.*
 import kotlinx.coroutines.*
 import java.io.File
@@ -98,6 +100,7 @@ class MainFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallba
             }
             R.id.action_save -> {
                 launch {
+                    Log.d("SimpleMarkdown", "Saving file from onOptionsItemSelected")
                     if (!viewModel.save(requireContext())) {
                         requestFileOp(REQUEST_SAVE_FILE)
                     } else {
@@ -154,32 +157,9 @@ class MainFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallba
 
     override fun onPause() {
         super.onPause()
+        val context = context?.applicationContext ?: return
         launch {
-            val context = context?.applicationContext ?: return@launch
-            withContext(Dispatchers.IO) {
-                val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context)
-                val isAutoSaveEnabled = sharedPrefs.getBoolean(KEY_AUTOSAVE, true)
-                if (!shouldAutoSave || !isAutoSaveEnabled) {
-                    return@withContext
-                }
-
-                val uri = if (viewModel.save(context)) {
-                    viewModel.uri.value
-                } else {
-                    // The user has left the app, with autosave enabled, and we don't already have a
-                    // Uri for them or for some reason we were unable to save to the original Uri. In
-                    // this case, we need to just save to internal file storage so that we can recover
-                    val fileUri = Uri.fromFile(File(context.filesDir, viewModel.fileName.value!!))
-                    if (viewModel.save(context, fileUri)) {
-                        fileUri
-                    } else {
-                        null
-                    }
-                } ?: return@withContext
-                sharedPrefs.edit()
-                        .putString(getString(R.string.pref_key_autosave_uri), uri.toString())
-                        .apply()
-            }
+            viewModel.autosave(context, PreferenceManager.getDefaultSharedPreferences(context))
         }
     }
 
@@ -231,7 +211,7 @@ class MainFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallba
                         }
                     } else {
                         PreferenceManager.getDefaultSharedPreferences(requireContext()).edit {
-                            putString(getString(R.string.pref_key_autosave_uri), data.data.toString())
+                            putString(PREF_KEY_AUTOSAVE_URI, data.data.toString())
                         }
                     }
                 }
@@ -243,6 +223,7 @@ class MainFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallba
 
                 launch {
                     context?.let {
+                        Log.d("SimpleMarkdown", "Saving file from onActivityResult")
                         viewModel.save(it, data.data)
                     }
                 }
@@ -252,10 +233,10 @@ class MainFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallba
     }
 
     private fun promptSaveOrDiscardChanges() {
-        if (viewModel.shouldPromptSave()) {
+        if (!viewModel.shouldPromptSave()) {
             viewModel.reset("Untitled.md")
             PreferenceManager.getDefaultSharedPreferences(requireContext()).edit {
-                remove(getString(R.string.pref_key_autosave_uri))
+                remove(PREF_KEY_AUTOSAVE_URI)
             }
             return
         }
@@ -266,7 +247,7 @@ class MainFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallba
                 .setNegativeButton(R.string.action_discard) { _, _ ->
                     viewModel.reset("Untitled.md")
                     PreferenceManager.getDefaultSharedPreferences(requireContext()).edit {
-                        remove(getString(R.string.pref_key_autosave_uri))
+                        remove(PREF_KEY_AUTOSAVE_URI)
                     }
                 }
                 .setPositiveButton(R.string.action_save) { _, _ ->

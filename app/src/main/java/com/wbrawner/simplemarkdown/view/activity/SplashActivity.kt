@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.preference.PreferenceManager
 import com.wbrawner.simplemarkdown.R
+import com.wbrawner.simplemarkdown.viewmodel.PREF_KEY_AUTOSAVE_URI
 import kotlinx.coroutines.*
 import kotlin.coroutines.CoroutineContext
 
@@ -43,10 +44,8 @@ class SplashActivity : AppCompatActivity(), CoroutineScope {
             val uri = withContext(Dispatchers.IO) {
                 intent?.data
                         ?: PreferenceManager.getDefaultSharedPreferences(this@SplashActivity)
-                                .getString(
-                                        getString(R.string.pref_key_autosave_uri),
-                                        null
-                                )?.let {
+                                .getString(PREF_KEY_AUTOSAVE_URI, null)
+                                ?.let {
                                     Uri.parse(it)
                                 }
             }

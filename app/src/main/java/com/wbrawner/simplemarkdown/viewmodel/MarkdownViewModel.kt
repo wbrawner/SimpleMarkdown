@@ -1,18 +1,26 @@
 package com.wbrawner.simplemarkdown.viewmodel
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.preference.PreferenceManager
+import com.wbrawner.simplemarkdown.R
 import com.wbrawner.simplemarkdown.utility.getName
+import com.wbrawner.simplemarkdown.view.fragment.MainFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.io.File
 import java.io.FileInputStream
 import java.io.Reader
 import java.util.concurrent.atomic.AtomicBoolean
 
+const val PREF_KEY_AUTOSAVE_URI = "autosave.uri"
+
 class MarkdownViewModel : ViewModel() {
-    val fileName = MutableLiveData<String>("Untitled.md")
+    val fileName = MutableLiveData<String?>("Untitled.md")
     val markdownUpdates = MutableLiveData<String>()
     val editorActions = MutableLiveData<EditorAction>()
     val uri = MutableLiveData<Uri?>()
@@ -66,6 +74,32 @@ class MarkdownViewModel : ViewModel() {
                 false
             }
         }
+    }
+
+    suspend fun autosave(context: Context, sharedPrefs: SharedPreferences) {
+        val isAutoSaveEnabled = sharedPrefs.getBoolean(MainFragment.KEY_AUTOSAVE, true)
+        if (!isDirty.get() || !isAutoSaveEnabled) {
+            return
+        }
+
+        val uri = if (save(context)) {
+            Log.d("SimpleMarkdown", "Saving file from onPause")
+            uri.value
+        } else {
+            // The user has left the app, with autosave enabled, and we don't already have a
+            // Uri for them or for some reason we were unable to save to the original Uri. In
+            // this case, we need to just save to internal file storage so that we can recover
+            val fileUri = Uri.fromFile(File(context.filesDir, fileName.value?: "Untitled.md"))
+            Log.d("SimpleMarkdown", "Saving file from onPause failed, trying again")
+            if (save(context, fileUri)) {
+                fileUri
+            } else {
+                null
+            }
+        } ?: return
+        sharedPrefs.edit()
+                .putString(PREF_KEY_AUTOSAVE_URI, uri.toString())
+                .apply()
     }
 
     fun reset(untitledFileName: String) {
