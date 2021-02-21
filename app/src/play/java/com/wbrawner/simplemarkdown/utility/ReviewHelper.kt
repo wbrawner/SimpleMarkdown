@@ -27,8 +27,6 @@ object ReviewHelper : Application.ActivityLifecycleCallbacks {
     private lateinit var application: Application
     private lateinit var reviewManager: ReviewManager
     private lateinit var sharedPreferences: SharedPreferences
-    private val errorHandler: ErrorHandler by errorHandlerImpl()
-    private var currentActivity: Activity? = null
     private var activityCount = 0
         set(value) {
             field = if (value < 0) {
@@ -60,7 +58,6 @@ object ReviewHelper : Application.ActivityLifecycleCallbacks {
     }
 
     override fun onActivityStarted(activity: Activity) {
-        currentActivity = activity
         if (activityCount++ == 0) {
             activeTime = SystemClock.elapsedRealtime()
         }
@@ -101,7 +98,6 @@ object ReviewHelper : Application.ActivityLifecycleCallbacks {
     }
 
     override fun onActivityStopped(activity: Activity) {
-        currentActivity = null
         if (--activityCount == 0) {
             sharedPreferences.edit {
                 putLong(KEY_TIME_IN_APP, SystemClock.elapsedRealtime() - activeTime)
