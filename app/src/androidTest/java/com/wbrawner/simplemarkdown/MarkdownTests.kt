@@ -1,5 +1,6 @@
 package com.wbrawner.simplemarkdown
 
+import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
 import android.app.Activity.RESULT_OK
 import android.app.Instrumentation
 import android.content.Context
@@ -22,6 +23,7 @@ import androidx.test.espresso.web.webdriver.DriverAtoms.findElement
 import androidx.test.espresso.web.webdriver.DriverAtoms.getText
 import androidx.test.espresso.web.webdriver.Locator
 import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
+import androidx.test.rule.GrantPermissionRule
 import com.wbrawner.simplemarkdown.view.activity.MainActivity
 import org.hamcrest.Matchers.containsString
 import org.junit.Assert.assertEquals
@@ -35,6 +37,9 @@ class MarkdownTests {
 
     @get:Rule
     var activityRule = IntentsTestRule(MainActivity::class.java, false, false)
+
+    @get:Rule
+    val grantPermissionRule: GrantPermissionRule = GrantPermissionRule.grant(WRITE_EXTERNAL_STORAGE)
 
     lateinit var file: File
 
@@ -66,7 +71,7 @@ class MarkdownTests {
     }
 
     @Test
-    fun  newMarkdownTest() {
+    fun newMarkdownTest() {
         onView(withId(R.id.markdown_edit))
                 .perform(typeText("# UI Testing\n\nThe quick brown fox jumped over the lazy dog."))
         openActionBarOverflowOrOptionsMenu(getApplicationContext())
