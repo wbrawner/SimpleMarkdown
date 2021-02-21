@@ -1,6 +1,6 @@
 # [Simple Markdown](https://wbrawner.com/portfolio/simple-markdown/)
 
-![pipeline status](https://github.com/wbrawner/SimpleMarkdown/actions/workflows/android.yml/badge.svg)
+[![pipeline status](https://github.com/wbrawner/SimpleMarkdown/actions/workflows/android.yml/badge.svg)](https://github.com/wbrawner/SimpleMarkdown/actions/workflows/android.yml)
 
 Simple Markdown is simply a Markdown editor :) I wrote it to offer up an open source alternative to
 the other Markdown editors available on the Play Store. I also wanted to get some practice in
