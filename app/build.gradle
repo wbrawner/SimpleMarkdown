@@ -4,6 +4,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'jacoco'
 apply plugin: 'com.google.firebase.crashlytics'
+apply plugin: "com.osacky.fladle"
 
 def keystoreProperties = new Properties()
 try {
@@ -162,4 +163,17 @@ task jacocoTestReport(type: JacocoReport, dependsOn: ['testDebugUnitTest']) {
             'jacoco/testDebugUnitTest.exec',
             'outputs/code-coverage/connected/*coverage.ec'
     ]))
+}
+
+fladle {
+    variant = 'playDebug'
+    useOrchestrator = true
+    environmentVariables = [
+            "clearPackageData": "true"
+    ]
+    testTimeout = "7m"
+    devices = [
+            [ "model": "NexusLowRes", "version": "30" ]
+    ]
+    projectId = 'simplemarkdown'
 }
