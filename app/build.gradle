@@ -88,8 +88,9 @@ android {
 
 dependencies {
     samsungImplementation project(":IAP5Helper")
-    implementation 'androidx.navigation:navigation-fragment-ktx:2.3.0'
-    implementation 'androidx.navigation:navigation-ui-ktx:2.3.0'
+    def navigation_version = '2.3.3'
+    implementation "androidx.navigation:navigation-fragment-ktx:$navigation_version"
+    implementation "androidx.navigation:navigation-ui-ktx:$navigation_version"
     testImplementation 'junit:junit:4.12'
     testImplementation 'org.robolectric:robolectric:4.2.1'
     implementation fileTree(include: ['*.jar'], dir: 'libs')
@@ -97,25 +98,25 @@ dependencies {
     androidTestImplementation "androidx.test.espresso:espresso-core:$espresso_version"
     androidTestImplementation "androidx.test.espresso:espresso-web:$espresso_version"
     androidTestImplementation "androidx.test.espresso:espresso-intents:$espresso_version"
-    def android_test = '1.3.0'
+    def android_test = '1.4.0-alpha04'
     androidTestImplementation "androidx.test:runner:$android_test"
     androidTestImplementation "androidx.test:rules:$android_test"
     androidTestUtil "androidx.test:orchestrator:$android_test"
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.uiautomator:uiautomator:2.2.0'
     implementation 'androidx.appcompat:appcompat:1.2.0'
-    implementation 'androidx.preference:preference:1.1.1'
-    implementation "androidx.fragment:fragment-ktx:1.2.5"
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.1'
-    implementation 'com.google.android.material:material:1.2.1'
+    implementation 'androidx.preference:preference-ktx:1.1.1'
+    implementation "androidx.fragment:fragment-ktx:1.3.0"
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
+    implementation 'com.google.android.material:material:1.3.0'
     implementation 'androidx.legacy:legacy-support-v13:1.0.0'
     implementation 'com.commonsware.cwac:anddown:0.3.0'
-    playImplementation 'com.android.billingclient:billing:3.0.0'
+    playImplementation 'com.android.billingclient:billing:3.0.2'
     playImplementation 'com.google.android.play:core-ktx:1.8.1'
-    playImplementation 'com.google.firebase:firebase-crashlytics:17.2.1'
-    playImplementation 'com.google.firebase:firebase-analytics:17.5.0'
-    implementation "androidx.core:core-ktx:1.3.1"
-    implementation 'androidx.browser:browser:1.2.0'
+    playImplementation 'com.google.firebase:firebase-crashlytics:17.3.1'
+    playImplementation 'com.google.firebase:firebase-analytics:18.0.2'
+    implementation "androidx.core:core-ktx:1.3.2"
+    implementation 'androidx.browser:browser:1.3.0'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     def coroutines_version = "1.3.7"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
