@@ -1,7 +1,6 @@
 # [Simple Markdown](https://wbrawner.com/portfolio/simple-markdown/)
 
-[![pipeline status](https://gitlab.com/billybrawner/SimpleMarkdown/badges/master/pipeline.svg)](https://gitlab.com/billybrawner/SimpleMarkdown/commits/master)
-[![coverage report](https://gitlab.com/billybrawner/SimpleMarkdown/badges/master/coverage.svg)](https://gitlab.com/billybrawner/SimpleMarkdown/commits/master)
+![pipeline status](https://github.com/wbrawner/SimpleMarkdown/actions/workflows/android.yml/badge.svg)
 
 Simple Markdown is simply a Markdown editor :) I wrote it to offer up an open source alternative to
 the other Markdown editors available on the Play Store. I also wanted to get some practice in
