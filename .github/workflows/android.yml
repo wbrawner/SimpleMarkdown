@@ -24,9 +24,7 @@ jobs:
     - name: Add auth for flank
       env:
         GCLOUD_KEY: ${{ secrets.GCLOUD_KEY }}
-        GCLOUD_DIR: "~/.config/gcloud/"
       run: |
-        mkdir -p "$GCLOUD_DIR"
-        echo "$GCLOUD_KEY" | base64 --decode > "$GCLOUD_DIR/application_default_credentials.json"
+        ./flank_auth.sh
     - name: Run UI tests
       run: ./gradlew runFlank
