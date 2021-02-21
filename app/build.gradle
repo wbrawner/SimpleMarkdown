@@ -173,7 +173,7 @@ fladle {
     ]
     testTimeout = "7m"
     devices = [
-            [ "model": "NexusLowRes", "version": "30" ]
+            [ "model": "NexusLowRes", "version": "29" ]
     ]
     projectId = 'simplemarkdown'
 }
