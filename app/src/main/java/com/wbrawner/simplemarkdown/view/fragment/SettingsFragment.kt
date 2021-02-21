@@ -4,21 +4,19 @@ import android.content.SharedPreferences
 import android.os.Build
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.lifecycle.lifecycleScope
 import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager
 import com.wbrawner.simplemarkdown.BuildConfig
 import com.wbrawner.simplemarkdown.R
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlin.coroutines.CoroutineContext
 
 class SettingsFragment
     : PreferenceFragmentCompat(),
-        SharedPreferences.OnSharedPreferenceChangeListener,
-        CoroutineScope {
+        SharedPreferences.OnSharedPreferenceChangeListener {
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         addPreferencesFromResource(R.xml.pref_general)
         if (BuildConfig.DEBUG) {
@@ -31,11 +29,9 @@ class SettingsFragment
         }
     }
 
-    override val coroutineContext: CoroutineContext = Dispatchers.Main
-
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        launch(context = Dispatchers.IO) {
+        lifecycleScope.launch(context = Dispatchers.IO) {
             val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(activity)
             sharedPreferences.registerOnSharedPreferenceChangeListener(this@SettingsFragment)
             (findPreference(getString(R.string.pref_key_dark_mode)) as? ListPreference)?.let {

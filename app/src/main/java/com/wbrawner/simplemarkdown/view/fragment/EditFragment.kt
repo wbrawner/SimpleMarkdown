@@ -18,6 +18,7 @@ import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
 import com.wbrawner.simplemarkdown.R
 import com.wbrawner.simplemarkdown.model.Readability
@@ -26,14 +27,12 @@ import com.wbrawner.simplemarkdown.utility.showKeyboard
 import com.wbrawner.simplemarkdown.view.ViewPagerPage
 import com.wbrawner.simplemarkdown.viewmodel.MarkdownViewModel
 import kotlinx.coroutines.*
-import kotlin.coroutines.CoroutineContext
 import kotlin.math.abs
 
-class EditFragment : Fragment(), ViewPagerPage, CoroutineScope {
+class EditFragment : Fragment(), ViewPagerPage {
     private var markdownEditor: EditText? = null
     private var markdownEditorScroller: NestedScrollView? = null
     private val viewModel: MarkdownViewModel by viewModels({ requireParentFragment() })
-    override val coroutineContext: CoroutineContext = Dispatchers.Main
     private var readabilityWatcher: TextWatcher? = null
 
     @SuppressLint("ClickableViewAccessibility")
@@ -56,7 +55,7 @@ class EditFragment : Fragment(), ViewPagerPage, CoroutineScope {
 
                 searchFor = searchText
 
-                launch {
+                lifecycleScope.launch {
                     delay(50)
                     if (searchText != searchFor)
                         return@launch
@@ -101,7 +100,7 @@ class EditFragment : Fragment(), ViewPagerPage, CoroutineScope {
                 markdownEditor?.setText(it.markdown)
             }
         })
-        launch {
+        lifecycleScope.launch {
             val enableReadability = withContext(Dispatchers.IO) {
                 context?.let {
                     PreferenceManager.getDefaultSharedPreferences(it)
@@ -120,13 +119,6 @@ class EditFragment : Fragment(), ViewPagerPage, CoroutineScope {
                 readabilityWatcher = null
             }
         }
-    }
-
-    override fun onDestroyView() {
-        coroutineContext[Job]?.let {
-            cancel()
-        }
-        super.onDestroyView()
     }
 
     override fun onSelected() {
@@ -148,7 +140,7 @@ class EditFragment : Fragment(), ViewPagerPage, CoroutineScope {
 
             searchFor = searchText
 
-            launch {
+            lifecycleScope.launch {
                 delay(250)
                 if (searchText != searchFor)
                     return@launch

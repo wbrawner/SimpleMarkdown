@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.setupWithNavController
 import com.wbrawner.simplemarkdown.R
@@ -17,14 +18,9 @@ import com.wbrawner.simplemarkdown.utility.errorHandlerImpl
 import com.wbrawner.simplemarkdown.utility.readAssetToString
 import com.wbrawner.simplemarkdown.utility.toHtml
 import kotlinx.android.synthetic.main.fragment_markdown_info.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import kotlin.coroutines.CoroutineContext
 
-class MarkdownInfoFragment : Fragment(), CoroutineScope {
-    override val coroutineContext: CoroutineContext = Dispatchers.Main
+class MarkdownInfoFragment : Fragment() {
     private val errorHandler: ErrorHandler by errorHandlerImpl()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,7 +48,7 @@ class MarkdownInfoFragment : Fragment(), CoroutineScope {
             R.string.pref_custom_css_default
         }
         val css: String? = getString(defaultCssId)
-        launch {
+        lifecycleScope.launch {
             try {
                 val html = view.context.assets?.readAssetToString(fileName)
                         ?.toHtml()
@@ -69,12 +65,6 @@ class MarkdownInfoFragment : Fragment(), CoroutineScope {
             }
         }
     }
-
-    override fun onDestroy() {
-        coroutineContext[Job]?.cancel()
-        super.onDestroy()
-    }
-
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == android.R.id.home) {

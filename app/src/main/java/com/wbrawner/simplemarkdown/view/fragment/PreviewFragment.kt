@@ -11,17 +11,15 @@ import android.webkit.WebView
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
 import com.wbrawner.simplemarkdown.BuildConfig
 import com.wbrawner.simplemarkdown.R
 import com.wbrawner.simplemarkdown.utility.toHtml
 import com.wbrawner.simplemarkdown.viewmodel.MarkdownViewModel
 import kotlinx.coroutines.*
-import kotlin.coroutines.CoroutineContext
 
-class PreviewFragment : Fragment(), CoroutineScope {
-    override val coroutineContext: CoroutineContext = Dispatchers.Main
+class PreviewFragment : Fragment() {
     private val viewModel: MarkdownViewModel by viewModels({ requireParentFragment() })
     private var markdownPreview: WebView? = null
     private var style: String = ""
@@ -35,7 +33,7 @@ class PreviewFragment : Fragment(), CoroutineScope {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         markdownPreview = view.findViewById(R.id.markdown_view)
         WebView.setWebContentsDebuggingEnabled(BuildConfig.DEBUG)
-        launch {
+        lifecycleScope.launch {
             val isNightMode = AppCompatDelegate.getDefaultNightMode() ==
                     AppCompatDelegate.MODE_NIGHT_YES
                     || requireContext().resources.configuration.uiMode and UI_MODE_NIGHT_MASK == UI_MODE_NIGHT_YES
@@ -64,14 +62,14 @@ class PreviewFragment : Fragment(), CoroutineScope {
     override fun onAttach(context: Context) {
         super.onAttach(context)
         updateWebContent(viewModel.markdownUpdates.value ?: "")
-        viewModel.markdownUpdates.observe(this, Observer {
+        viewModel.markdownUpdates.observe(this, {
             updateWebContent(it)
         })
     }
 
     private fun updateWebContent(markdown: String) {
         markdownPreview?.post {
-            launch {
+            lifecycleScope.launch {
                 markdownPreview?.loadDataWithBaseURL(null,
                         style + markdown.toHtml(),
                         "text/html",
@@ -82,9 +80,6 @@ class PreviewFragment : Fragment(), CoroutineScope {
     }
 
     override fun onDestroyView() {
-        coroutineContext[Job]?.let {
-            cancel()
-        }
         markdownPreview?.let {
             (it.parent as ViewGroup).removeView(it)
             it.destroy()

@@ -6,10 +6,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Configuration
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import android.webkit.MimeTypeMap
 import android.widget.Toast
@@ -21,6 +19,7 @@ import androidx.core.content.edit
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
@@ -33,13 +32,10 @@ import com.wbrawner.simplemarkdown.viewmodel.MarkdownViewModel
 import com.wbrawner.simplemarkdown.viewmodel.PREF_KEY_AUTOSAVE_URI
 import kotlinx.android.synthetic.main.fragment_main.*
 import kotlinx.coroutines.*
-import java.io.File
-import kotlin.coroutines.CoroutineContext
+import timber.log.Timber
 
-class MainFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallback, CoroutineScope {
+class MainFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallback {
 
-    private var shouldAutoSave = true
-    override val coroutineContext: CoroutineContext = Dispatchers.Main
     private val viewModel: MarkdownViewModel by viewModels()
     private var appBarConfiguration: AppBarConfiguration? = null
     private val errorHandler: ErrorHandler by errorHandlerImpl()
@@ -47,11 +43,9 @@ class MainFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallba
     override fun onAttach(context: Context) {
         super.onAttach(context)
         if (context !is Activity) return
-        context.intent?.data?.let {
-            launch {
-                viewModel.load(context, it)
-                context.intent?.data = null
-            }
+        lifecycleScope.launch {
+            viewModel.load(context, context.intent?.data)
+            context.intent?.data = null
         }
     }
 
@@ -99,8 +93,8 @@ class MainFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallba
                 true
             }
             R.id.action_save -> {
-                launch {
-                    Log.d("SimpleMarkdown", "Saving file from onOptionsItemSelected")
+                Timber.d("Save clicked")
+                lifecycleScope.launch {
                     if (!viewModel.save(requireContext())) {
                         requestFileOp(REQUEST_SAVE_FILE)
                     } else {
@@ -146,7 +140,7 @@ class MainFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallba
 
     override fun onStart() {
         super.onStart()
-        launch {
+        lifecycleScope.launch {
             withContext(Dispatchers.IO) {
                 val enableErrorReports = PreferenceManager.getDefaultSharedPreferences(requireContext())
                         .getBoolean(getString(R.string.pref_key_error_reports_enabled), true)
@@ -158,7 +152,7 @@ class MainFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallba
     override fun onPause() {
         super.onPause()
         val context = context?.applicationContext ?: return
-        launch {
+        lifecycleScope.launch {
             viewModel.autosave(context, PreferenceManager.getDefaultSharedPreferences(context))
         }
     }
@@ -200,7 +194,7 @@ class MainFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallba
                     return
                 }
 
-                launch {
+                lifecycleScope.launch {
                     val fileLoaded = context?.let {
                         viewModel.load(it, data.data)
                     }
@@ -221,7 +215,7 @@ class MainFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallba
                     return
                 }
 
-                launch {
+                lifecycleScope.launch {
                     context?.let {
                         Log.d("SimpleMarkdown", "Saving file from onActivityResult")
                         viewModel.save(it, data.data)
@@ -298,13 +292,6 @@ class MainFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallba
     override fun onResume() {
         super.onResume()
         shouldAutoSave = true
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        coroutineContext[Job]?.let {
-            cancel()
-        }
     }
 
     companion object {

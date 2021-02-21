@@ -6,19 +6,18 @@ import android.os.Build
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
 import com.wbrawner.simplemarkdown.R
 import com.wbrawner.simplemarkdown.viewmodel.PREF_KEY_AUTOSAVE_URI
 import kotlinx.coroutines.*
-import kotlin.coroutines.CoroutineContext
+import timber.log.Timber
 
-class SplashActivity : AppCompatActivity(), CoroutineScope {
-
-    override val coroutineContext: CoroutineContext = Dispatchers.Main
+class SplashActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        launch {
+        lifecycleScope.launch {
             val darkMode = withContext(Dispatchers.IO) {
                 val darkModeValue = PreferenceManager.getDefaultSharedPreferences(this@SplashActivity)
                         .getString(
@@ -56,13 +55,6 @@ class SplashActivity : AppCompatActivity(), CoroutineScope {
                     }
             startActivity(startIntent)
             finish()
-        }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        coroutineContext[Job]?.let {
-            cancel()
         }
     }
 }
