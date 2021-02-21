@@ -41,12 +41,19 @@ class SplashActivity : AppCompatActivity() {
 
             AppCompatDelegate.setDefaultNightMode(darkMode)
             val uri = withContext(Dispatchers.IO) {
-                intent?.data
-                        ?: PreferenceManager.getDefaultSharedPreferences(this@SplashActivity)
-                                .getString(PREF_KEY_AUTOSAVE_URI, null)
-                                ?.let {
-                                    Uri.parse(it)
-                                }
+                intent?.data?.let {
+                    Timber.d("Using uri from intent: $it")
+                    it
+                } ?: PreferenceManager.getDefaultSharedPreferences(this@SplashActivity)
+                        .getString(PREF_KEY_AUTOSAVE_URI, null)
+                        ?.let {
+                            Timber.d("Using uri from shared preferences: $it")
+                            Uri.parse(it)
+                        }
+            }
+
+            if (uri == null) {
+                Timber.d("No intent provided to load data from")
             }
 
             val startIntent = Intent(this@SplashActivity, MainActivity::class.java)

@@ -7,7 +7,6 @@ import android.text.Editable
 import android.text.SpannableString
 import android.text.TextWatcher
 import android.text.style.BackgroundColorSpan
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
@@ -27,6 +26,7 @@ import com.wbrawner.simplemarkdown.utility.showKeyboard
 import com.wbrawner.simplemarkdown.view.ViewPagerPage
 import com.wbrawner.simplemarkdown.viewmodel.MarkdownViewModel
 import kotlinx.coroutines.*
+import timber.log.Timber
 import kotlin.math.abs
 
 class EditFragment : Fragment(), ViewPagerPage {
@@ -153,13 +153,16 @@ class EditFragment : Fragment(), ViewPagerPage {
                     var color = Color.TRANSPARENT
                     if (sentence.syllableCount() > 25) color = Color.argb(100, 229, 232, 42)
                     if (sentence.syllableCount() > 35) color = Color.argb(100, 193, 66, 66)
-                    Log.d("SimpleMarkdown", "Sentence start: ${sentence.start()} end: ${sentence.end()}")
+                    Timber.d("Sentence start: ${sentence.start()} end: ${
+                        sentence
+                                .end()
+                    }")
                     span.setSpan(BackgroundColorSpan(color), sentence.start(), sentence.end(), 0)
                 }
                 markdownEditor?.setTextKeepState(span, TextView.BufferType.SPANNABLE)
                 previousValue = searchFor
                 val timeTakenMs = System.currentTimeMillis() - start
-                Log.d("SimpleMarkdown", "Handled markdown in $timeTakenMs ms")
+                Timber.d("Handled markdown in $timeTakenMs ms")
             }
         }
 

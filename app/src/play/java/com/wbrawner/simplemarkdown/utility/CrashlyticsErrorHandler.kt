@@ -1,8 +1,8 @@
 package com.wbrawner.simplemarkdown.utility
 
-import android.util.Log
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.wbrawner.simplemarkdown.BuildConfig
+import timber.log.Timber
 import kotlin.reflect.KProperty
 
 class CrashlyticsErrorHandler : ErrorHandler {
@@ -15,7 +15,7 @@ class CrashlyticsErrorHandler : ErrorHandler {
     override fun reportException(t: Throwable, message: String?) {
         @Suppress("ConstantConditionIf")
         if (BuildConfig.DEBUG) {
-            Log.e("CrashlyticsErrorHandler", "Caught exception: $message", t)
+            Timber.e(t, "Caught exception: $message")
         }
         crashlytics.recordException(t)
     }

@@ -5,12 +5,12 @@ import android.app.Application
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.os.SystemClock
-import android.util.Log
 import androidx.core.content.edit
 import androidx.preference.PreferenceManager
 import com.google.android.play.core.review.ReviewManager
 import com.google.android.play.core.review.ReviewManagerFactory
 import com.wbrawner.simplemarkdown.view.activity.MainActivity
+import timber.log.Timber
 
 private const val KEY_TIME_IN_APP = "timeInApp"
 
@@ -27,6 +27,7 @@ object ReviewHelper : Application.ActivityLifecycleCallbacks {
     private lateinit var application: Application
     private lateinit var reviewManager: ReviewManager
     private lateinit var sharedPreferences: SharedPreferences
+    private lateinit var timber: Timber.Tree
     private var activityCount = 0
         set(value) {
             field = if (value < 0) {
@@ -40,14 +41,16 @@ object ReviewHelper : Application.ActivityLifecycleCallbacks {
     fun init(
             application: Application,
             sharedPreferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(application),
-            reviewManager: ReviewManager = ReviewManagerFactory.create(application)
+            reviewManager: ReviewManager = ReviewManagerFactory.create(application),
+            timber: Timber.Tree = Timber.asTree()
     ) {
         this.application = application
         this.sharedPreferences = sharedPreferences
         this.reviewManager = reviewManager
+        this.timber = timber
         if (sharedPreferences.getLong(KEY_TIME_IN_APP, 0L) == -1L) {
             // We've already prompted the user for the review so let's not be annoying about it
-            Log.i("ReviewHelper", "User already prompted for review, not configuring ReviewHelper")
+            timber.i("User already prompted for review, not configuring ReviewHelper")
             return
         }
         application.registerActivityLifecycleCallbacks(this)
@@ -63,24 +66,24 @@ object ReviewHelper : Application.ActivityLifecycleCallbacks {
         }
         if (activity !is MainActivity || sharedPreferences.getLong(KEY_TIME_IN_APP, 0L) < TIME_TO_PROMPT) {
             // Not ready to prompt just yet
-            Log.v("ReviewHelper", "Not ready to prompt user for review yet")
+            timber.v("Not ready to prompt user for review yet")
             return
         }
-        Log.v("ReviewHelper", "Prompting user for review")
+        timber.v("Prompting user for review")
         reviewManager.requestReviewFlow().addOnCompleteListener { request ->
             if (!request.isSuccessful) {
                 val exception = request.exception
                         ?: RuntimeException("Failed to request review")
-                Log.e("ReviewHelper", "Failed to prompt user for review", exception)
+                timber.e(exception, "Failed to prompt user for review")
                 return@addOnCompleteListener
             }
 
-            reviewManager.launchReviewFlow(activity, request.result).addOnCompleteListener { _ ->
+            reviewManager.launchReviewFlow(activity, request.result).addOnCompleteListener {
                 // According to the docs, this may or may not have actually been shown. Either
                 // way, it's not a critical piece of functionality for the app so I'm not
                 // worried about it failing silently. Link for reference:
                 // https://developer.android.com/guide/playcore/in-app-review/kotlin-java#launch-review-flow
-                Log.v("ReviewHelper", "User finished review, ending activity watch")
+                timber.v("User finished review, ending activity watch")
                 application.unregisterActivityLifecycleCallbacks(this)
                 sharedPreferences.edit {
                     putLong(KEY_TIME_IN_APP, -1L)

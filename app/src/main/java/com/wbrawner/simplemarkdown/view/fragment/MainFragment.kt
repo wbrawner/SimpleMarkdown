@@ -18,7 +18,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.edit
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.AppBarConfiguration
@@ -31,7 +30,9 @@ import com.wbrawner.simplemarkdown.view.adapter.EditPagerAdapter
 import com.wbrawner.simplemarkdown.viewmodel.MarkdownViewModel
 import com.wbrawner.simplemarkdown.viewmodel.PREF_KEY_AUTOSAVE_URI
 import kotlinx.android.synthetic.main.fragment_main.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 
 class MainFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallback {
@@ -81,7 +82,7 @@ class MainFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallba
             tabLayout!!.visibility = View.GONE
         }
         @Suppress("CAST_NEVER_SUCCEEDS")
-        viewModel.fileName.observe(viewLifecycleOwner, Observer {
+        viewModel.fileName.observe(viewLifecycleOwner, {
             toolbar?.title = it
         })
     }
@@ -108,10 +109,12 @@ class MainFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallba
                 true
             }
             R.id.action_save_as -> {
+                Timber.d("Save as clicked")
                 requestFileOp(REQUEST_SAVE_FILE)
                 true
             }
             R.id.action_share -> {
+                Timber.d("Share clicked")
                 val shareIntent = Intent(Intent.ACTION_SEND)
                 shareIntent.putExtra(Intent.EXTRA_TEXT, viewModel.markdownUpdates.value)
                 shareIntent.type = "text/plain"
@@ -122,14 +125,17 @@ class MainFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallba
                 true
             }
             R.id.action_load -> {
+                Timber.d("Load clicked")
                 requestFileOp(REQUEST_OPEN_FILE)
                 true
             }
             R.id.action_new -> {
+                Timber.d("New clicked")
                 promptSaveOrDiscardChanges()
                 true
             }
             R.id.action_lock_swipe -> {
+                Timber.d("Lock swiping clicked")
                 item.isChecked = !item.isChecked
                 pager!!.setSwipeLocked(item.isChecked)
                 true
@@ -144,6 +150,7 @@ class MainFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallba
             withContext(Dispatchers.IO) {
                 val enableErrorReports = PreferenceManager.getDefaultSharedPreferences(requireContext())
                         .getBoolean(getString(R.string.pref_key_error_reports_enabled), true)
+                Timber.d("MainFragment started. Error reports enabled? $enableErrorReports")
                 errorHandler.enable(enableErrorReports)
             }
         }
@@ -159,10 +166,13 @@ class MainFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallba
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE)
-            tabLayout!!.visibility = View.GONE
-        else
-            tabLayout!!.visibility = View.VISIBLE
+        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            Timber.d("Orientation changed to landscape, hiding tabs")
+            tabLayout?.visibility = View.GONE
+        } else {
+            Timber.d("Orientation changed to portrait, showing tabs")
+            tabLayout?.visibility = View.VISIBLE
+        }
     }
 
     override fun onRequestPermissionsResult(
@@ -175,9 +185,11 @@ class MainFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallba
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // Permission granted, open file save dialog
+                    Timber.d("Storage permissions granted")
                     requestFileOp(requestCode)
                 } else {
                     // Permission denied, do nothing
+                    Timber.d("Storage permissions denied, unable to save or load files")
                     context?.let {
                         Toast.makeText(it, R.string.no_permissions, Toast.LENGTH_SHORT)
                                 .show()
@@ -191,6 +203,11 @@ class MainFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallba
         when (requestCode) {
             REQUEST_OPEN_FILE -> {
                 if (resultCode != Activity.RESULT_OK || data?.data == null) {
+                    Timber.w(
+                            "Unable to open file. Result ok? %b Intent uri: %s",
+                            resultCode == Activity.RESULT_OK,
+                            data?.data?.toString()
+                    )
                     return
                 }
 
@@ -204,6 +221,10 @@ class MainFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallba
                                     .show()
                         }
                     } else {
+                        Timber.d(
+                                "File load succeeded, updating autosave uri in shared prefs: %s",
+                                data.data.toString()
+                        )
                         PreferenceManager.getDefaultSharedPreferences(requireContext()).edit {
                             putString(PREF_KEY_AUTOSAVE_URI, data.data.toString())
                         }
@@ -212,12 +233,16 @@ class MainFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallba
             }
             REQUEST_SAVE_FILE -> {
                 if (resultCode != Activity.RESULT_OK || data?.data == null) {
+                    Timber.w(
+                            "Unable to save file. Result ok? %b Intent uri: %s",
+                            resultCode == Activity.RESULT_OK,
+                            data?.data?.toString()
+                    )
                     return
                 }
 
                 lifecycleScope.launch {
                     context?.let {
-                        Log.d("SimpleMarkdown", "Saving file from onActivityResult")
                         viewModel.save(it, data.data)
                     }
                 }
@@ -229,22 +254,28 @@ class MainFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallba
     private fun promptSaveOrDiscardChanges() {
         if (!viewModel.shouldPromptSave()) {
             viewModel.reset("Untitled.md")
+            Timber.i("Removing autosave uri from shared prefs")
             PreferenceManager.getDefaultSharedPreferences(requireContext()).edit {
                 remove(PREF_KEY_AUTOSAVE_URI)
             }
             return
         }
-        val context = context ?: return
+        val context = context ?: run {
+            Timber.w("Context is null, unable to show prompt for save or discard")
+            return
+        }
         AlertDialog.Builder(context)
                 .setTitle(R.string.save_changes)
                 .setMessage(R.string.prompt_save_changes)
                 .setNegativeButton(R.string.action_discard) { _, _ ->
+                    Timber.d("Discarding changes and deleting autosave uri from shared preferences")
                     viewModel.reset("Untitled.md")
                     PreferenceManager.getDefaultSharedPreferences(requireContext()).edit {
                         remove(PREF_KEY_AUTOSAVE_URI)
                     }
                 }
                 .setPositiveButton(R.string.action_save) { _, _ ->
+                    Timber.d("Saving changes")
                     requestFileOp(REQUEST_SAVE_FILE)
                 }
                 .create()
@@ -252,25 +283,29 @@ class MainFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallba
     }
 
     private fun requestFileOp(requestType: Int) {
-        val context = context ?: return
+        val context = context ?: run {
+            Timber.w("File op requested but context was null, aborting")
+            return
+        }
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
+            Timber.i("Storage permission not granted, requesting")
             requestPermissions(
                     arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
                     requestType
             )
             return
         }
-        // If the user is going to save the file, we don't want to auto-save it for them
-        shouldAutoSave = false
         val intent = when (requestType) {
             REQUEST_SAVE_FILE -> {
+                Timber.d("Requesting save op")
                 Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
                     type = "text/markdown"
                     putExtra(Intent.EXTRA_TITLE, viewModel.fileName.value)
                 }
             }
             REQUEST_OPEN_FILE -> {
+                Timber.d("Requesting open op")
                 Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
                     type = "*/*"
                     if (MimeTypeMap.getSingleton().hasMimeType("md")) {
@@ -280,18 +315,16 @@ class MainFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallba
                     }
                 }
             }
-            else -> null
+            else -> {
+                Timber.w("Ignoring unknown file op request: $requestType")
+                null
+            }
         } ?: return
         intent.addCategory(Intent.CATEGORY_OPENABLE)
         startActivityForResult(
                 intent,
                 requestType
         )
-    }
-
-    override fun onResume() {
-        super.onResume()
-        shouldAutoSave = true
     }
 
     companion object {

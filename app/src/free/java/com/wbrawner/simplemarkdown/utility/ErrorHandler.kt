@@ -16,7 +16,7 @@ class errorHandlerImpl {
             }
 
             override fun reportException(t: Throwable, message: String?) {
-                Log.e("ErrorHandler", "Caught non-fatal exception. Message: $message", t)
+                Timber.e(t, "Caught non-fatal exception. Message: $message")
             }
         }
     }

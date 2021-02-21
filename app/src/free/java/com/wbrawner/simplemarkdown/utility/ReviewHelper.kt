@@ -6,6 +6,6 @@ import android.util.Log
 object ReviewHelper {
     // No review library for F-droid, so this is a no-op
     fun init(application: Application) {
-        Log.w("ReviewHelper", "ReviewHelper not enabled for free builds")
+        Timber.w("ReviewHelper", "ReviewHelper not enabled for free builds")
     }
 }
