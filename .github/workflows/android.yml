@@ -21,6 +21,8 @@ jobs:
       run: ./gradlew assemblePlayDebug assemblePlayDebugAndroidTest assemblePlayDebugUnitTest
     - name: Run unit tests
       run: ./gradlew testPlayDebugUnitTest
+    - name: Grant execute permission for flank_auth.sh
+      run: chmod +x flank_auth.sh
     - name: Add auth for flank
       env:
         GCLOUD_KEY: ${{ secrets.GCLOUD_KEY }}
