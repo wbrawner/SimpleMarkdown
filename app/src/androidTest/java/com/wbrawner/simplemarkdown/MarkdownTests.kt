@@ -6,10 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.net.Uri
-import android.view.KeyEvent
 import androidx.core.content.FileProvider
-import androidx.test.InstrumentationRegistry
-import androidx.test.InstrumentationRegistry.getInstrumentation
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.Espresso.openActionBarOverflowOrOptionsMenu
@@ -24,9 +21,7 @@ import androidx.test.espresso.web.sugar.Web.onWebView
 import androidx.test.espresso.web.webdriver.DriverAtoms.findElement
 import androidx.test.espresso.web.webdriver.DriverAtoms.getText
 import androidx.test.espresso.web.webdriver.Locator
-import androidx.test.uiautomator.UiDevice
-import androidx.test.uiautomator.UiScrollable
-import androidx.test.uiautomator.UiSelector
+import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import com.wbrawner.simplemarkdown.view.activity.MainActivity
 import org.hamcrest.Matchers.containsString
 import org.junit.Assert.assertEquals
@@ -55,23 +50,10 @@ class MarkdownTests {
     @Test
     @Throws(Exception::class)
     fun openAppTest() {
-        val mDevice = UiDevice.getInstance(getInstrumentation())
-        mDevice.pressHome()
-        // Bring up the default launcher by searching for a UI component
-        // that matches the content description for the launcher button.
-        val allAppsButton = mDevice
-                .findObject(UiSelector().description("Apps"))
-
-        // Perform a click on the button to load the launcher.
-        allAppsButton.clickAndWaitForNewWindow()
-        // Context of the app under test.
-        val appContext = InstrumentationRegistry.getTargetContext()
-        assertEquals("com.wbrawner.simplemarkdown", appContext.packageName)
-        val appView = UiScrollable(UiSelector().scrollable(true))
-        val simpleMarkdownSelector = UiSelector()
-                .text(getApplicationContext<Context>().getString(R.string.app_name_short))
-        appView.scrollIntoView(simpleMarkdownSelector)
-        mDevice.findObject(simpleMarkdownSelector).clickAndWaitForNewWindow()
+        val context = getInstrumentation().targetContext
+        context.packageManager
+                .getLaunchIntentForPackage(context.packageName)
+                .apply { context.startActivity(this) }
     }
 
     @Test
