@@ -15,7 +15,6 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.content.edit
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -28,7 +27,6 @@ import com.wbrawner.simplemarkdown.utility.ErrorHandler
 import com.wbrawner.simplemarkdown.utility.errorHandlerImpl
 import com.wbrawner.simplemarkdown.view.adapter.EditPagerAdapter
 import com.wbrawner.simplemarkdown.viewmodel.MarkdownViewModel
-import com.wbrawner.simplemarkdown.viewmodel.PREF_KEY_AUTOSAVE_URI
 import kotlinx.android.synthetic.main.fragment_main.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -212,21 +210,9 @@ class MainFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallba
                 }
 
                 lifecycleScope.launch {
-                    val fileLoaded = context?.let {
-                        viewModel.load(it, data.data)
-                    }
-                    if (fileLoaded == false) {
-                        context?.let {
-                            Toast.makeText(it, R.string.file_load_error, Toast.LENGTH_SHORT)
-                                    .show()
-                        }
-                    } else {
-                        Timber.d(
-                                "File load succeeded, updating autosave uri in shared prefs: %s",
-                                data.data.toString()
-                        )
-                        PreferenceManager.getDefaultSharedPreferences(requireContext()).edit {
-                            putString(PREF_KEY_AUTOSAVE_URI, data.data.toString())
+                    context?.let {
+                        if (!viewModel.load(it, data.data)) {
+                            Toast.makeText(it, R.string.file_load_error, Toast.LENGTH_SHORT).show()
                         }
                     }
                 }
@@ -253,11 +239,10 @@ class MainFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallba
 
     private fun promptSaveOrDiscardChanges() {
         if (!viewModel.shouldPromptSave()) {
-            viewModel.reset("Untitled.md")
-            Timber.i("Removing autosave uri from shared prefs")
-            PreferenceManager.getDefaultSharedPreferences(requireContext()).edit {
-                remove(PREF_KEY_AUTOSAVE_URI)
-            }
+            viewModel.reset(
+                    "Untitled.md",
+                    PreferenceManager.getDefaultSharedPreferences(requireContext())
+            )
             return
         }
         val context = context ?: run {
@@ -268,11 +253,11 @@ class MainFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallba
                 .setTitle(R.string.save_changes)
                 .setMessage(R.string.prompt_save_changes)
                 .setNegativeButton(R.string.action_discard) { _, _ ->
-                    Timber.d("Discarding changes and deleting autosave uri from shared preferences")
-                    viewModel.reset("Untitled.md")
-                    PreferenceManager.getDefaultSharedPreferences(requireContext()).edit {
-                        remove(PREF_KEY_AUTOSAVE_URI)
-                    }
+                    Timber.d("Discarding changes")
+                    viewModel.reset(
+                            "Untitled.md",
+                            PreferenceManager.getDefaultSharedPreferences(requireContext())
+                    )
                 }
                 .setPositiveButton(R.string.action_save) { _, _ ->
                     Timber.d("Saving changes")

@@ -1,7 +1,6 @@
 package com.wbrawner.simplemarkdown.view.activity
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
@@ -9,7 +8,6 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
 import com.wbrawner.simplemarkdown.R
-import com.wbrawner.simplemarkdown.viewmodel.PREF_KEY_AUTOSAVE_URI
 import kotlinx.coroutines.*
 import timber.log.Timber
 
@@ -40,20 +38,12 @@ class SplashActivity : AppCompatActivity() {
             }
 
             AppCompatDelegate.setDefaultNightMode(darkMode)
-            val uri = withContext(Dispatchers.IO) {
-                intent?.data?.let {
-                    Timber.d("Using uri from intent: $it")
-                    it
-                } ?: PreferenceManager.getDefaultSharedPreferences(this@SplashActivity)
-                        .getString(PREF_KEY_AUTOSAVE_URI, null)
-                        ?.let {
-                            Timber.d("Using uri from shared preferences: $it")
-                            Uri.parse(it)
-                        }
-            }
-
-            if (uri == null) {
+            val uri = intent?.data?.let {
+                Timber.d("Using uri from intent: $it")
+                it
+            } ?: run {
                 Timber.d("No intent provided to load data from")
+                null
             }
 
             val startIntent = Intent(this@SplashActivity, MainActivity::class.java)
