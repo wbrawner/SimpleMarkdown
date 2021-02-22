@@ -156,8 +156,8 @@ class MainFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallba
         }
     }
 
-    override fun onPause() {
-        super.onPause()
+    override fun onStop() {
+        super.onStop()
         val context = context?.applicationContext ?: return
         lifecycleScope.launch {
             viewModel.autosave(context, PreferenceManager.getDefaultSharedPreferences(context))

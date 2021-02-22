@@ -8,6 +8,8 @@ import androidx.lifecycle.ViewModel
 import com.wbrawner.simplemarkdown.utility.getName
 import com.wbrawner.simplemarkdown.view.fragment.MainFragment
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.io.File
@@ -23,6 +25,7 @@ class MarkdownViewModel(val timber: Timber.Tree = Timber.asTree()) : ViewModel()
     val editorActions = MutableLiveData<EditorAction>()
     val uri = MutableLiveData<Uri?>()
     private val isDirty = AtomicBoolean(false)
+    private val saveMutex = Mutex()
 
     fun updateMarkdown(markdown: String?) {
         this.markdownUpdates.postValue(markdown ?: "")
@@ -45,13 +48,13 @@ class MarkdownViewModel(val timber: Timber.Tree = Timber.asTree()) : ViewModel()
                         timber.i("Ignoring load for empty file $fileName from $fileInput")
                         return@withContext false
                     }
-                    isDirty.set(false)
                     editorActions.postValue(EditorAction.Load(content))
                     markdownUpdates.postValue(content)
                     this@MarkdownViewModel.fileName.postValue(fileName)
                     this@MarkdownViewModel.uri.postValue(uri)
                     timber.i("Loaded file $fileName from $fileInput")
                     timber.v("File contents:\n$content")
+                    isDirty.set(false)
                     true
                 } ?: run {
                     timber.w("Open file descriptor returned null for uri: $uri")
@@ -64,7 +67,7 @@ class MarkdownViewModel(val timber: Timber.Tree = Timber.asTree()) : ViewModel()
         }
     }
 
-    suspend fun save(context: Context, givenUri: Uri? = null): Boolean {
+    suspend fun save(context: Context, givenUri: Uri? = null): Boolean = saveMutex.withLock {
         val uri = givenUri?.let {
             timber.i("Saving file with given uri: $it")
             it
@@ -100,6 +103,10 @@ class MarkdownViewModel(val timber: Timber.Tree = Timber.asTree()) : ViewModel()
     }
 
     suspend fun autosave(context: Context, sharedPrefs: SharedPreferences) {
+        if (saveMutex.isLocked) {
+            timber.i("Ignoring autosave since manual save is already in progress")
+            return
+        }
         val isAutoSaveEnabled = sharedPrefs.getBoolean(MainFragment.KEY_AUTOSAVE, true)
         timber.d("Autosave called. isEnabled? $isAutoSaveEnabled")
         if (!isDirty.get() || !isAutoSaveEnabled) {
