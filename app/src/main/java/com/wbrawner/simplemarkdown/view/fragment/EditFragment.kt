@@ -34,6 +34,30 @@ class EditFragment : Fragment(), ViewPagerPage {
     private var markdownEditorScroller: NestedScrollView? = null
     private val viewModel: MarkdownViewModel by viewModels({ requireParentFragment() })
     private var readabilityWatcher: TextWatcher? = null
+    private val markdownWatcher = object : TextWatcher {
+        private var searchFor = ""
+
+        override fun afterTextChanged(s: Editable?) {
+            val searchText = s.toString().trim()
+            if (searchText == searchFor)
+                return
+
+            searchFor = searchText
+
+            lifecycleScope.launch {
+                delay(50)
+                if (searchText != searchFor)
+                    return@launch
+                viewModel.updateMarkdown(searchText)
+            }
+        }
+
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+        }
+
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+        }
+    }
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -45,31 +69,7 @@ class EditFragment : Fragment(), ViewPagerPage {
         super.onViewCreated(view, savedInstanceState)
         markdownEditor = view.findViewById(R.id.markdown_edit)
         markdownEditorScroller = view.findViewById(R.id.markdown_edit_container)
-        markdownEditor?.addTextChangedListener(object : TextWatcher {
-            private var searchFor = ""
-
-            override fun afterTextChanged(s: Editable?) {
-                val searchText = s.toString().trim()
-                if (searchText == searchFor)
-                    return
-
-                searchFor = searchText
-
-                lifecycleScope.launch {
-                    delay(50)
-                    if (searchText != searchFor)
-                        return@launch
-                    viewModel.updateMarkdown(searchText)
-                }
-            }
-
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-            }
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-            }
-
-        })
+        markdownEditor?.addTextChangedListener(markdownWatcher)
 
         var touchDown = 0L
         var oldX = 0f
@@ -97,7 +97,11 @@ class EditFragment : Fragment(), ViewPagerPage {
         viewModel.editorActions.observe(viewLifecycleOwner, Observer {
             if (it.consumed.getAndSet(true)) return@Observer
             if (it is MarkdownViewModel.EditorAction.Load) {
-                markdownEditor?.setText(it.markdown)
+                markdownEditor?.apply {
+                    removeTextChangedListener(markdownWatcher)
+                    setText(it.markdown)
+                    addTextChangedListener(markdownWatcher)
+                }
             }
         })
         lifecycleScope.launch {

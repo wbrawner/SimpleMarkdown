@@ -71,7 +71,23 @@ class MarkdownTests {
     }
 
     @Test
-    fun newMarkdownTest() {
+    fun openThenNewMarkdownTest() {
+        val markdownText = "# UI Testing\n\nThe quick brown fox jumped over the lazy dog."
+        file.outputStream().writer().use { it.write(markdownText) }
+        val activityResult = Instrumentation.ActivityResult(RESULT_OK, Intent().apply {
+            data = Uri.fromFile(file)
+        })
+        intending(hasAction(Intent.ACTION_OPEN_DOCUMENT)).respondWith(activityResult)
+        openActionBarOverflowOrOptionsMenu(getApplicationContext())
+        onView(withText(R.string.action_open)).perform(click())
+        openActionBarOverflowOrOptionsMenu(getApplicationContext())
+        onView(withText(R.string.action_new)).perform(click())
+        // The dialog to save or discard changes shouldn't be shown here since no edits were made
+        onView(withId(R.id.markdown_edit)).check(matches(withText("")))
+    }
+
+    @Test
+    fun editThenNewMarkdownTest() {
         onView(withId(R.id.markdown_edit))
                 .perform(typeText("# UI Testing\n\nThe quick brown fox jumped over the lazy dog."))
         openActionBarOverflowOrOptionsMenu(getApplicationContext())
