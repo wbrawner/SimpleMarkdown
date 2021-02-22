@@ -8,6 +8,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.io.File
+import java.io.FileOutputStream
 import java.io.IOException
 import java.io.PrintStream
 import java.text.SimpleDateFormat
@@ -35,7 +36,7 @@ class PersistentTree private constructor(private val logFile: File) : Timber.Tre
                 Log.WARN -> "W"
                 else -> "U"
             }
-            logFile.outputStream().use { stream ->
+            FileOutputStream(logFile, true).use { stream ->
                 stream.bufferedWriter().use {
                     it.appendLine("$timestamp $priorityLetter/${tag ?: "SimpleMarkdown"}: $message")
                 }
