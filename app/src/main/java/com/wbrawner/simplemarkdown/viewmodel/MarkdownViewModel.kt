@@ -66,10 +66,10 @@ class MarkdownViewModel(val timber: Timber.Tree = Timber.asTree()) : ViewModel()
 
     suspend fun save(context: Context, givenUri: Uri? = null): Boolean {
         val uri = givenUri?.let {
-            timber.i("Saving file with given uri: $uri")
+            timber.i("Saving file with given uri: $it")
             it
         } ?: this.uri.value?.let {
-            timber.i("Saving file with cached uri: $uri")
+            timber.i("Saving file with cached uri: $it")
             it
         } ?: run {
             timber.w("Save called with no uri")
