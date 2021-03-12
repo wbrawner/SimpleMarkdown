@@ -1,6 +1,6 @@
 package com.wbrawner.simplemarkdown.utility
 
-import android.util.Log
+import timber.log.Timber
 import kotlin.reflect.KProperty
 
 class errorHandlerImpl {
