@@ -1,5 +1,7 @@
 Simple Markdown is an open source markdown editor that (surprise) allows you to quickly and easily edit markdown files, and then share them as you please.
 
+The INTERNET permission is used for the preview to work when external images are embedded.
+
 If you find any bugs, you can submit them here:
 https://github.com/wbrawner/SimpleMarkdown/issues
 
