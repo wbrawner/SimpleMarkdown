@@ -6,6 +6,10 @@ Simple Markdown is simply a Markdown editor :) I wrote it to offer up an open so
 the other Markdown editors available on the Play Store. I also wanted to get some practice in
 creating Android apps and have a little something to put into my portfolio.
 
+[<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
+     alt="Get it on F-Droid"
+     height="80">](https://f-droid.org/packages/com.wbrawner.simplemarkdown.free/)
+
 ## Roadmap
 
 * [x] Auto-save
