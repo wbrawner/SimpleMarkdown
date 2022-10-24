@@ -32,14 +32,16 @@ class SettingsFragment
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         lifecycleScope.launch(context = Dispatchers.IO) {
-            val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(activity)
+            val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
             sharedPreferences.registerOnSharedPreferenceChangeListener(this@SettingsFragment)
             (findPreference(getString(R.string.pref_key_dark_mode)) as? ListPreference)?.let {
                 setListPreferenceSummary(sharedPreferences, it)
             }
             @Suppress("ConstantConditionIf")
             if (!BuildConfig.ENABLE_CUSTOM_CSS) {
-                preferenceScreen.removePreference(findPreference(getString(R.string.pref_custom_css)))
+                findPreference<Preference>(getString(R.string.pref_custom_css))?.let {
+                    preferenceScreen.removePreference(it)
+                }
             }
         }
     }
