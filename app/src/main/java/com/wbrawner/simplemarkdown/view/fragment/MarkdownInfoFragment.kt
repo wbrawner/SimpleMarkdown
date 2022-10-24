@@ -13,15 +13,13 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.setupWithNavController
 import com.wbrawner.simplemarkdown.R
-import com.wbrawner.simplemarkdown.utility.ErrorHandler
-import com.wbrawner.simplemarkdown.utility.errorHandlerImpl
-import com.wbrawner.simplemarkdown.utility.readAssetToString
-import com.wbrawner.simplemarkdown.utility.toHtml
+import com.wbrawner.simplemarkdown.utility.*
 import kotlinx.android.synthetic.main.fragment_markdown_info.*
 import kotlinx.coroutines.launch
 
 class MarkdownInfoFragment : Fragment() {
     private val errorHandler: ErrorHandler by errorHandlerImpl()
+    private lateinit var analyticsHelper: AnalyticsHelper
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,6 +70,13 @@ class MarkdownInfoFragment : Fragment() {
             return true
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        arguments?.getString(EXTRA_FILE)?.let {
+            AnalyticsHelper.init(requireContext()).trackPageView(it)
+        }
     }
 
     companion object {

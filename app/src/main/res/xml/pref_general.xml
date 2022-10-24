@@ -18,12 +18,6 @@
         android:key="@string/pref_key_dark_mode"
         android:title="@string/title_dark_mode" />
     <SwitchPreference
-        android:defaultValue="true"
-        android:key="@string/pref_key_error_reports_enabled"
-        android:summaryOff="@string/pref_error_reports_off"
-        android:summaryOn="@string/pref_error_reports_on"
-        android:title="@string/pref_title_error_reports" />
-    <SwitchPreference
         android:defaultValue="false"
         android:key="@string/readability_enabled"
         android:summaryOff="@string/pref_readability_off"

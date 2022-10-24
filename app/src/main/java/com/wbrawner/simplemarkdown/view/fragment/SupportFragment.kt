@@ -13,7 +13,9 @@ import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.setupWithNavController
 import com.wbrawner.simplemarkdown.R
+import com.wbrawner.simplemarkdown.utility.AnalyticsHelper
 import com.wbrawner.simplemarkdown.utility.SupportLinkProvider
+import com.wbrawner.simplemarkdown.utility.init
 import kotlinx.android.synthetic.main.fragment_support.*
 
 class SupportFragment : Fragment() {
@@ -51,7 +53,12 @@ class SupportFragment : Fragment() {
         })
     }
 
-//    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+    override fun onStart() {
+        super.onStart()
+        AnalyticsHelper.init(requireContext()).trackPageView("Support")
+    }
+
+    //    override fun onOptionsItemSelected(item: MenuItem): Boolean {
 //        if (item.itemId == android.R.id.home) {
 //            findNavController().navigateUp()
 //            return true
