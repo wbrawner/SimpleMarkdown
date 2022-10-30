@@ -7,24 +7,24 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.navigation.findNavController
 import androidx.preference.PreferenceManager
+import com.wbrawner.plausible.android.Plausible
 import com.wbrawner.simplemarkdown.R
-import com.wbrawner.simplemarkdown.utility.AnalyticsHelper
-import com.wbrawner.simplemarkdown.utility.init
 
 class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsResultCallback {
-    private val analyticsHelper = AnalyticsHelper.init(this)
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
-        analyticsHelper.setUserProperty("autosave", sharedPreferences.getBoolean("autosave", true).toString())
+        val preferences = mutableMapOf<String, String>()
+        preferences["Autosave"] = sharedPreferences.getBoolean("autosave", true).toString()
         val usingCustomCss = !getStringPref(R.string.pref_custom_css, null).isNullOrBlank()
-        analyticsHelper.setUserProperty("using_custom_css", usingCustomCss.toString())
+        preferences["Custom CSS"] = usingCustomCss.toString()
         val darkModeSetting = getStringPref(R.string.pref_key_dark_mode, "auto").toString()
-        analyticsHelper.setUserProperty("dark_mode", darkModeSetting)
-        analyticsHelper.setUserProperty("error_reports_enabled", getBooleanPref(R.string.pref_key_error_reports_enabled, true).toString())
-        analyticsHelper.setUserProperty("readability_enabled", getBooleanPref(R.string.readability_enabled, false).toString())
+        preferences["Dark Mode"] = darkModeSetting
+        preferences["Error Reports"] =
+            getBooleanPref(R.string.pref_key_error_reports_enabled, true).toString()
+        preferences["Readability"] = getBooleanPref(R.string.readability_enabled, false).toString()
+        Plausible.event("settings", props = preferences, url = "/")
     }
 
     override fun onBackPressed() {

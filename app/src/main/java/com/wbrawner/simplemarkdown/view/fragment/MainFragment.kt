@@ -22,11 +22,10 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
 import androidx.preference.PreferenceManager
+import com.wbrawner.plausible.android.Plausible
 import com.wbrawner.simplemarkdown.R
-import com.wbrawner.simplemarkdown.utility.AnalyticsHelper
 import com.wbrawner.simplemarkdown.utility.ErrorHandler
 import com.wbrawner.simplemarkdown.utility.errorHandlerImpl
-import com.wbrawner.simplemarkdown.utility.init
 import com.wbrawner.simplemarkdown.view.adapter.EditPagerAdapter
 import com.wbrawner.simplemarkdown.viewmodel.MarkdownViewModel
 import kotlinx.android.synthetic.main.fragment_main.*
@@ -82,9 +81,9 @@ class MainFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallba
             tabLayout!!.visibility = View.GONE
         }
         @Suppress("CAST_NEVER_SUCCEEDS")
-        viewModel.fileName.observe(viewLifecycleOwner, {
+        viewModel.fileName.observe(viewLifecycleOwner) {
             toolbar?.title = it
-        })
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -146,7 +145,7 @@ class MainFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallba
 
     override fun onStart() {
         super.onStart()
-        AnalyticsHelper.init(requireContext()).trackPageView("Edit")
+        Plausible.pageView("")
         lifecycleScope.launch {
             withContext(Dispatchers.IO) {
                 val enableErrorReports = PreferenceManager.getDefaultSharedPreferences(requireContext())

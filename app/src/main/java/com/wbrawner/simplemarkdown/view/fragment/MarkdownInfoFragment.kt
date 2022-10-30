@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.setupWithNavController
+import com.wbrawner.plausible.android.Plausible
 import com.wbrawner.simplemarkdown.R
 import com.wbrawner.simplemarkdown.utility.*
 import kotlinx.android.synthetic.main.fragment_markdown_info.*
@@ -19,7 +20,6 @@ import kotlinx.coroutines.launch
 
 class MarkdownInfoFragment : Fragment() {
     private val errorHandler: ErrorHandler by errorHandlerImpl()
-    private lateinit var analyticsHelper: AnalyticsHelper
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -75,7 +75,7 @@ class MarkdownInfoFragment : Fragment() {
     override fun onStart() {
         super.onStart()
         arguments?.getString(EXTRA_FILE)?.let {
-            AnalyticsHelper.init(requireContext()).trackPageView(it)
+            Plausible.pageView(it)
         }
     }
 

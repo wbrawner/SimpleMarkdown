@@ -8,9 +8,8 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.setupWithNavController
+import com.wbrawner.plausible.android.Plausible
 import com.wbrawner.simplemarkdown.R
-import com.wbrawner.simplemarkdown.utility.AnalyticsHelper
-import com.wbrawner.simplemarkdown.utility.init
 import kotlinx.android.synthetic.main.fragment_settings.*
 
 class SettingsContainerFragment : Fragment() {
@@ -30,6 +29,6 @@ class SettingsContainerFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
-        AnalyticsHelper.init(requireContext()).trackPageView("Settings")
+        Plausible.pageView("Settings")
     }
 }
