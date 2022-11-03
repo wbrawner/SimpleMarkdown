@@ -116,7 +116,7 @@ class MarkdownTests {
         val markdownText = "# UI Testing\n\nThe quick brown fox jumped over the lazy dog."
         onView(withId(R.id.markdown_edit)).perform(typeText(markdownText))
         val activityResult = Instrumentation.ActivityResult(RESULT_OK, Intent().apply {
-            data = FileProvider.getUriForFile(getApplicationContext(), "com.wbrawner.simplemarkdown.fileprovider", file)
+            data = FileProvider.getUriForFile(getApplicationContext(), "${BuildConfig.APPLICATION_ID}.fileprovider", file)
         })
         intending(hasAction(Intent.ACTION_CREATE_DOCUMENT)).respondWith(activityResult)
         openActionBarOverflowOrOptionsMenu(getApplicationContext())
@@ -146,7 +146,7 @@ class MarkdownTests {
         val markdownText = "# UI Testing\n\nThe quick brown fox jumped over the lazy dog."
         file.outputStream().writer().use { it.write(markdownText) }
         val activityResult = Instrumentation.ActivityResult(RESULT_OK, Intent().apply {
-            data = FileProvider.getUriForFile(getApplicationContext(), "com.wbrawner.simplemarkdown.fileprovider", file)
+            data = FileProvider.getUriForFile(getApplicationContext(), "${BuildConfig.APPLICATION_ID}.fileprovider", file)
         })
         intending(hasAction(Intent.ACTION_OPEN_DOCUMENT)).respondWith(activityResult)
         openActionBarOverflowOrOptionsMenu(getApplicationContext())

@@ -137,11 +137,12 @@ android.productFlavors.each { flavor ->
 }
 
 jacoco {
-    toolVersion = '0.8.0'
+    toolVersion = '0.8.8'
 }
 
 tasks.withType(Test) {
     jacoco.includeNoLocationClasses = true
+    jacoco.excludes = ['jdk.internal.*']
 }
 
 task jacocoTestReport(type: JacocoReport, dependsOn: ['testDebugUnitTest']) {
