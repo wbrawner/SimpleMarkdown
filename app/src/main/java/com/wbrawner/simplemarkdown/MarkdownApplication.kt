@@ -2,6 +2,7 @@ package com.wbrawner.simplemarkdown
 
 import android.app.Application
 import android.os.StrictMode
+import com.wbrawner.plausible.android.Plausible
 import com.wbrawner.simplemarkdown.utility.PersistentTree
 import com.wbrawner.simplemarkdown.utility.ReviewHelper
 import kotlinx.coroutines.GlobalScope
@@ -31,5 +32,12 @@ class MarkdownApplication : Application() {
         }
         super.onCreate()
         ReviewHelper.init(this)
+        Plausible.event(
+            "build",
+            url = "/",
+            props = mapOf(
+            "Flavor" to BuildConfig.FLAVOR,
+            "App Version" to BuildConfig.VERSION_NAME
+        ))
     }
 }
