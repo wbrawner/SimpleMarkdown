@@ -18,10 +18,10 @@ jobs:
         java-version: '17'
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
+    - name: Build with Gradle
+      run: ./gradlew assemblePlayDebug assemblePlayDebugAndroidTest
     - name: Run unit tests
       run: ./gradlew testPlayDebugUnitTest
-    - name: Build with Gradle
-      run: ./gradlew assemblePlayDebugAndroidTest
     - name: Grant execute permission for flank_auth.sh
       run: chmod +x flank_auth.sh
     - name: Add auth for flank
