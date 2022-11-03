@@ -2,46 +2,33 @@
 
 [![pipeline status](https://github.com/wbrawner/SimpleMarkdown/actions/workflows/android.yml/badge.svg)](https://github.com/wbrawner/SimpleMarkdown/actions/workflows/android.yml)
 
-Simple Markdown is simply a Markdown editor :) I wrote it to offer up an open source alternative to
-the other Markdown editors available on the Play Store. I also wanted to get some practice in
-creating Android apps and have a little something to put into my portfolio.
+<img alt="" src="./fastlane/metadata/android/en-US/images/phoneScreenshots/1.png" style="width: 24%" />
+<img alt="" src="./fastlane/metadata/android/en-US/images/phoneScreenshots/2.png" style="width: 24%" />
+<img alt="" src="./fastlane/metadata/android/en-US/images/phoneScreenshots/3.png" style="width: 24%" />
+<img alt="" src="./fastlane/metadata/android/en-US/images/phoneScreenshots/4.png" style="width: 24%" />
 
+Simple Markdown is an open source Markdown editor.
+
+<a href='https://play.google.com/store/apps/details?id=com.wbrawner.simplemarkdown&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png' height="80"/></a>
 [<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
      alt="Get it on F-Droid"
      height="80">](https://f-droid.org/packages/com.wbrawner.simplemarkdown.free/)
-
-## Roadmap
-
-* [x] Auto-save
-* [x] Night mode
-* [x] Save to cloud (Dropbox, Google Drive, OneDrive)
-* [x] Custom CSS for Markdown preview
-* [ ] Better insert for tables/images/links
-* [ ] Quick-insert toolbar for common Markdown syntax characters
-* [ ] Auto-scroll preview to match edit view in landscape mode
-* [ ] Disable live preview in landscape mode
-* [ ] Disable preview tab for better performance in large files
 
 ## Building
 
 Using Android Studio is the preferred way to build the project. To build from the command line, you can run
 
-    ./gradlew assembleDebug
+    ./gradlew assembleFreeDebug
 
 ### Crashlytics
 
 SimpleMarkdown makes use of Firebase Crashlytics for error reporting. You'll need to follow the 
 [Get started with Firebase Crashlytics](https://firebase.google.com/docs/crashlytics/get-started?platform=android) guide in order to build the project.
 
-## Contributing
-
-I'd love any contributions, particularly in improving the existing code. Please just fork the
-repository, make your changes, squash your commits, and submit a pull request :)
-
 ## License
 
 ```
-   Copyright 2017-2019 William Brawner
+   Copyright 2017-2022 William Brawner
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
