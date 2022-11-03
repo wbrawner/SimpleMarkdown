@@ -2,10 +2,12 @@
 
 [![pipeline status](https://github.com/wbrawner/SimpleMarkdown/actions/workflows/android.yml/badge.svg)](https://github.com/wbrawner/SimpleMarkdown/actions/workflows/android.yml)
 
+<p>
 <img alt="" src="./fastlane/metadata/android/en-US/images/phoneScreenshots/1.png" style="width: 24%" />
 <img alt="" src="./fastlane/metadata/android/en-US/images/phoneScreenshots/2.png" style="width: 24%" />
 <img alt="" src="./fastlane/metadata/android/en-US/images/phoneScreenshots/3.png" style="width: 24%" />
 <img alt="" src="./fastlane/metadata/android/en-US/images/phoneScreenshots/4.png" style="width: 24%" />
+</p>
 
 Simple Markdown is an open source Markdown editor.
 
