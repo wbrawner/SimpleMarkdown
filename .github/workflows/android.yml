@@ -19,7 +19,7 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
     - name: Run unit tests
-      run: ./gradlew testFreeDebugUnitTest testPlayDebugUnitTest
+      run: ./gradlew testPlayDebugUnitTest
     - name: Build with Gradle
       run: ./gradlew assemblePlayDebugAndroidTest
     - name: Grant execute permission for flank_auth.sh
