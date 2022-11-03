@@ -1,4 +1,4 @@
-# [Simple Markdown](https://wbrawner.com/portfolio/simple-markdown/)
+# Simple Markdown
 
 [![pipeline status](https://github.com/wbrawner/SimpleMarkdown/actions/workflows/android.yml/badge.svg)](https://github.com/wbrawner/SimpleMarkdown/actions/workflows/android.yml)
 
