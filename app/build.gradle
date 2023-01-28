@@ -2,7 +2,6 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
-apply plugin: 'jacoco'
 apply plugin: "com.osacky.fladle"
 
 def keystoreProperties = new Properties()
@@ -18,15 +17,13 @@ try {
 }
 
 android {
+    packagingOptions {
+        resources {
+            excludes += ['META-INF/LICENSE-LGPL-2.1.txt', 'META-INF/LICENSE-LGPL-3.txt', 'META-INF/LICENSE-W3C-TEST', 'META-INF/LICENSE', 'META-INF/DEPENDENCIES']
+        }
+    }
     configurations.all {
         resolutionStrategy.force 'com.google.code.findbugs:jsr305:3.0.1'
-    }
-    packagingOptions {
-        exclude 'META-INF/LICENSE-LGPL-2.1.txt'
-        exclude 'META-INF/LICENSE-LGPL-3.txt'
-        exclude 'META-INF/LICENSE-W3C-TEST'
-        exclude 'META-INF/LICENSE'
-        exclude 'META-INF/DEPENDENCIES'
     }
     compileSdkVersion 33
     compileOptions {
@@ -74,15 +71,13 @@ android {
             signingConfig signingConfigs.playRelease
         }
     }
-    dexOptions {
-        jumboMode true
-    }
     testOptions {
         unitTests {
             includeAndroidResources = true
         }
         execution 'ANDROIDX_TEST_ORCHESTRATOR'
     }
+    namespace 'com.wbrawner.simplemarkdown'
 }
 
 dependencies {
@@ -130,34 +125,6 @@ android.productFlavors.each { flavor ->
         apply plugin: 'com.google.gms.google-services'
         apply plugin: 'com.google.firebase.crashlytics'
     }
-}
-
-jacoco {
-    toolVersion = '0.8.8'
-}
-
-tasks.withType(Test) {
-    jacoco.includeNoLocationClasses = true
-    jacoco.excludes = ['jdk.internal.*']
-}
-
-task jacocoTestReport(type: JacocoReport, dependsOn: ['testDebugUnitTest']) {
-    reports {
-        xml.enabled = true
-        html.enabled = true
-    }
-
-    def fileFilter = [ '**/R.class', '**/R$*.class', '**/BuildConfig.*', '**/Manifest*.*', '**/*Test*.*', 'android/**/*.*' ]
-    def javaDebugTree = fileTree(dir: "$project.buildDir/intermediates/javac/debug/compileDebugJavaWithJavac/classes", excludes: fileFilter)
-    def kotlinDebugTree = fileTree(dir: "$project.buildDir/tmp/kotlin-classes/debug", excludes: fileFilter)
-    def mainSrc = "$project.projectDir/src/main/java"
-
-    sourceDirectories.setFrom(files([mainSrc]))
-    classDirectories.setFrom(files([javaDebugTree, kotlinDebugTree]))
-    executionData.setFrom(fileTree(dir: project.buildDir, includes: [
-            'jacoco/testDebugUnitTest.exec',
-            'outputs/code-coverage/connected/*coverage.ec'
-    ]))
 }
 
 fladle {
