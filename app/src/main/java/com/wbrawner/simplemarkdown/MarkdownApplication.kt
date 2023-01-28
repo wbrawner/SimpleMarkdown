@@ -32,6 +32,7 @@ class MarkdownApplication : Application() {
         }
         super.onCreate()
         ReviewHelper.init(this)
+        Plausible.enable(!BuildConfig.DEBUG)
         Plausible.event(
             "build",
             url = "/",
