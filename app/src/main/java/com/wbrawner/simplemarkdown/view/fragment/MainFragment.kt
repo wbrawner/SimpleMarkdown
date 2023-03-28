@@ -57,12 +57,17 @@ class MainFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallba
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.menu_edit, menu)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            menu.findItem(R.id.action_save_as)?.setAlphabeticShortcut('S', KeyEvent.META_CTRL_ON or KeyEvent.META_SHIFT_ON)
+            menu.findItem(R.id.action_save_as)
+                ?.setAlphabeticShortcut('S', KeyEvent.META_CTRL_ON or KeyEvent.META_SHIFT_ON)
         }
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
-            inflater.inflate(R.layout.fragment_main, container, false)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? =
+        inflater.inflate(R.layout.fragment_main, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         with(findNavController()) {
@@ -92,6 +97,7 @@ class MainFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallba
                 drawerLayout.open()
                 true
             }
+
             R.id.action_save -> {
                 Timber.d("Save clicked")
                 lifecycleScope.launch {
@@ -99,46 +105,54 @@ class MainFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallba
                         requestFileOp(REQUEST_SAVE_FILE)
                     } else {
                         Toast.makeText(
-                                requireContext(),
-                                getString(R.string.file_saved, viewModel.fileName.value),
-                                Toast.LENGTH_SHORT
+                            requireContext(),
+                            getString(R.string.file_saved, viewModel.fileName.value),
+                            Toast.LENGTH_SHORT
                         ).show()
                     }
                 }
                 true
             }
+
             R.id.action_save_as -> {
                 Timber.d("Save as clicked")
                 requestFileOp(REQUEST_SAVE_FILE)
                 true
             }
+
             R.id.action_share -> {
                 Timber.d("Share clicked")
                 val shareIntent = Intent(Intent.ACTION_SEND)
                 shareIntent.putExtra(Intent.EXTRA_TEXT, viewModel.markdownUpdates.value)
                 shareIntent.type = "text/plain"
-                startActivity(Intent.createChooser(
+                startActivity(
+                    Intent.createChooser(
                         shareIntent,
                         getString(R.string.share_file)
-                ))
+                    )
+                )
                 true
             }
+
             R.id.action_load -> {
                 Timber.d("Load clicked")
                 requestFileOp(REQUEST_OPEN_FILE)
                 true
             }
+
             R.id.action_new -> {
                 Timber.d("New clicked")
                 promptSaveOrDiscardChanges()
                 true
             }
+
             R.id.action_lock_swipe -> {
                 Timber.d("Lock swiping clicked")
                 item.isChecked = !item.isChecked
                 pager!!.setSwipeLocked(item.isChecked)
                 true
             }
+
             else -> super.onOptionsItemSelected(item)
         }
     }
@@ -148,7 +162,8 @@ class MainFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallba
         Plausible.pageView("")
         lifecycleScope.launch {
             withContext(Dispatchers.IO) {
-                val enableErrorReports = PreferenceManager.getDefaultSharedPreferences(requireContext())
+                val enableErrorReports =
+                    PreferenceManager.getDefaultSharedPreferences(requireContext())
                         .getBoolean(getString(R.string.pref_key_error_reports_enabled), true)
                 Timber.d("MainFragment started. Error reports enabled? $enableErrorReports")
                 errorHandler.enable(enableErrorReports)
@@ -176,9 +191,9 @@ class MainFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallba
     }
 
     override fun onRequestPermissionsResult(
-            requestCode: Int,
-            permissions: Array<String>,
-            grantResults: IntArray
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
     ) {
         when (requestCode) {
             REQUEST_SAVE_FILE, REQUEST_OPEN_FILE -> {
@@ -192,7 +207,7 @@ class MainFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallba
                     Timber.d("Storage permissions denied, unable to save or load files")
                     context?.let {
                         Toast.makeText(it, R.string.no_permissions, Toast.LENGTH_SHORT)
-                                .show()
+                            .show()
                     }
                 }
             }
@@ -204,9 +219,9 @@ class MainFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallba
             REQUEST_OPEN_FILE -> {
                 if (resultCode != Activity.RESULT_OK || data?.data == null) {
                     Timber.w(
-                            "Unable to open file. Result ok? %b Intent uri: %s",
-                            resultCode == Activity.RESULT_OK,
-                            data?.data?.toString()
+                        "Unable to open file. Result ok? %b Intent uri: %s",
+                        resultCode == Activity.RESULT_OK,
+                        data?.data?.toString()
                     )
                     return
                 }
@@ -219,12 +234,13 @@ class MainFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallba
                     }
                 }
             }
+
             REQUEST_SAVE_FILE -> {
                 if (resultCode != Activity.RESULT_OK || data?.data == null) {
                     Timber.w(
-                            "Unable to save file. Result ok? %b Intent uri: %s",
-                            resultCode == Activity.RESULT_OK,
-                            data?.data?.toString()
+                        "Unable to save file. Result ok? %b Intent uri: %s",
+                        resultCode == Activity.RESULT_OK,
+                        data?.data?.toString()
                     )
                     return
                 }
@@ -242,8 +258,8 @@ class MainFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallba
     private fun promptSaveOrDiscardChanges() {
         if (!viewModel.shouldPromptSave()) {
             viewModel.reset(
-                    "Untitled.md",
-                    PreferenceManager.getDefaultSharedPreferences(requireContext())
+                "Untitled.md",
+                PreferenceManager.getDefaultSharedPreferences(requireContext())
             )
             return
         }
@@ -252,37 +268,24 @@ class MainFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallba
             return
         }
         AlertDialog.Builder(context)
-                .setTitle(R.string.save_changes)
-                .setMessage(R.string.prompt_save_changes)
-                .setNegativeButton(R.string.action_discard) { _, _ ->
-                    Timber.d("Discarding changes")
-                    viewModel.reset(
-                            "Untitled.md",
-                            PreferenceManager.getDefaultSharedPreferences(requireContext())
-                    )
-                }
-                .setPositiveButton(R.string.action_save) { _, _ ->
-                    Timber.d("Saving changes")
-                    requestFileOp(REQUEST_SAVE_FILE)
-                }
-                .create()
-                .show()
+            .setTitle(R.string.save_changes)
+            .setMessage(R.string.prompt_save_changes)
+            .setNegativeButton(R.string.action_discard) { _, _ ->
+                Timber.d("Discarding changes")
+                viewModel.reset(
+                    "Untitled.md",
+                    PreferenceManager.getDefaultSharedPreferences(requireContext())
+                )
+            }
+            .setPositiveButton(R.string.action_save) { _, _ ->
+                Timber.d("Saving changes")
+                requestFileOp(REQUEST_SAVE_FILE)
+            }
+            .create()
+            .show()
     }
 
     private fun requestFileOp(requestType: Int) {
-        val context = context ?: run {
-            Timber.w("File op requested but context was null, aborting")
-            return
-        }
-        if (ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
-            Timber.i("Storage permission not granted, requesting")
-            requestPermissions(
-                    arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
-                    requestType
-            )
-            return
-        }
         val intent = when (requestType) {
             REQUEST_SAVE_FILE -> {
                 Timber.d("Requesting save op")
@@ -291,6 +294,7 @@ class MainFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallba
                     putExtra(Intent.EXTRA_TITLE, viewModel.fileName.value)
                 }
             }
+
             REQUEST_OPEN_FILE -> {
                 Timber.d("Requesting open op")
                 Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
@@ -302,6 +306,7 @@ class MainFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallba
                     }
                 }
             }
+
             else -> {
                 Timber.w("Ignoring unknown file op request: $requestType")
                 null
@@ -309,8 +314,8 @@ class MainFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallba
         } ?: return
         intent.addCategory(Intent.CATEGORY_OPENABLE)
         startActivityForResult(
-                intent,
-                requestType
+            intent,
+            requestType
         )
     }
 

@@ -46,8 +46,8 @@ android {
         applicationId = "com.wbrawner.simplemarkdown"
         minSdk = 23
         targetSdk = 33
-        versionCode = 35
-        versionName = "0.8.13"
+        versionCode = 39
+        versionName = "0.8.15"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         testInstrumentationRunnerArguments["clearPackageData"] = "true"
         buildConfigField("boolean", "ENABLE_CUSTOM_CSS", "true")
@@ -134,7 +134,7 @@ android.productFlavors.forEach { flavor ->
         dependencies {
             implementation("com.android.billingclient:billing:5.1.0")
             implementation("com.google.android.play:core-ktx:1.8.1")
-            implementation("com.google.firebase:firebase-crashlytics:18.3.3")
+            implementation("com.google.firebase:firebase-crashlytics:18.3.5")
         }
     }
 }
