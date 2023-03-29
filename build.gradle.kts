@@ -20,10 +20,10 @@ allprojects {
         google()
         mavenCentral()
         maven {
-            url = URI("https://s3.amazonaws.com/repo.commonsware.com/")
+            url = uri("https://s3.amazonaws.com/repo.commonsware.com/")
         }
         maven {
-            url = URI("https://s01.oss.sonatype.org/content/repositories/snapshots/")
+            url = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
         }
     }
 }
