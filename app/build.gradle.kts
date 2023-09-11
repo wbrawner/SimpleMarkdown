@@ -4,7 +4,6 @@ import java.util.*
 
 plugins {
     id("com.android.application")
-    id("kotlin-android-extensions")
     id("kotlin-android")
     id("kotlin-kapt")
     id("com.osacky.fladle")
@@ -36,7 +35,7 @@ android {
             )
         }
     }
-    compileSdk = 33
+    compileSdk = 34
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
@@ -47,7 +46,7 @@ android {
     defaultConfig {
         applicationId = "com.wbrawner.simplemarkdown"
         minSdk = 23
-        targetSdk = 33
+        targetSdk = 34
         versionCode = 41
         versionName = "0.8.16"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -89,6 +88,12 @@ android {
         execution = "ANDROIDX_TEST_ORCHESTRATOR"
     }
     namespace = "com.wbrawner.simplemarkdown"
+    buildFeatures {
+        compose = true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.3"
+    }
     playConfigs {
         register("play") {
             enabled.set(true)
@@ -105,9 +110,10 @@ play {
 }
 
 dependencies {
-    val navigationVersion = "2.5.3"
+    val navigationVersion = "2.7.2"
     implementation("androidx.navigation:navigation-fragment-ktx:$navigationVersion")
     implementation("androidx.navigation:navigation-ui-ktx:$navigationVersion")
+    implementation("androidx.navigation:navigation-compose:$navigationVersion")
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.robolectric:robolectric:4.2.1")
     val espressoVersion = "3.5.1"
@@ -119,18 +125,32 @@ dependencies {
     androidTestUtil("androidx.test:orchestrator:1.4.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.uiautomator:uiautomator:2.2.0")
+    implementation("androidx.core:core-splashscreen:1.0.1")
     implementation("com.wbrawner.plausible:plausible-android:0.1.0-SNAPSHOT")
-    implementation("androidx.appcompat:appcompat:1.6.0")
-    implementation("androidx.preference:preference-ktx:1.2.0")
-    implementation("androidx.fragment:fragment-ktx:1.5.5")
+    implementation("androidx.appcompat:appcompat:1.6.1")
+    implementation("androidx.preference:preference-ktx:1.2.1")
+    implementation("androidx.fragment:fragment-ktx:1.6.1")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
-    implementation("com.google.android.material:material:1.8.0")
+    implementation("com.google.android.material:material:1.9.0")
     implementation("androidx.legacy:legacy-support-v13:1.0.0")
     implementation("com.commonsware.cwac:anddown:0.4.0")
     implementation("com.jakewharton.timber:timber:5.0.1")
-    implementation("androidx.core:core-ktx:1.9.0")
-    implementation("androidx.browser:browser:1.4.0")
-    val coroutinesVersion = "1.6.4"
+    implementation("androidx.core:core-ktx:1.12.0")
+    implementation("androidx.browser:browser:1.6.0")
+    val composeBom = platform("androidx.compose:compose-bom:2023.08.00")
+    implementation(composeBom)
+    androidTestImplementation(composeBom)
+    implementation("androidx.compose.runtime:runtime")
+    implementation("androidx.compose.ui:ui")
+    implementation("androidx.activity:activity-compose")
+    implementation("androidx.compose.foundation:foundation")
+    implementation("androidx.compose.foundation:foundation-layout")
+    implementation("androidx.compose.material:material")
+    implementation("androidx.compose.runtime:runtime-livedata")
+    implementation("androidx.compose.ui:ui-tooling")
+    implementation("androidx.compose.material3:material3")
+    implementation("androidx.compose.material:material-icons-extended")
+    val coroutinesVersion = "1.7.1"
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion")
     val lifecycleVersion = "2.2.0"
     implementation("androidx.lifecycle:lifecycle-extensions:$lifecycleVersion")

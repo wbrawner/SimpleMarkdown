@@ -1,5 +1,3 @@
-## Privacy Policy
-
 The internet access permission is requested primarily for retrieving images from the internet in
  case you embed them in your markdown, but it also allows me to send automated error and crash
  reports to myself whenever the app runs into an issue. These error reports are opt-out, and are
