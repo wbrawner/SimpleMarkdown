@@ -6,10 +6,13 @@ import android.net.Uri
 import androidx.core.content.edit
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import androidx.preference.PreferenceManager
 import com.wbrawner.simplemarkdown.utility.getName
-import com.wbrawner.simplemarkdown.view.fragment.MainFragment
+import com.wbrawner.simplemarkdown.view.activity.KEY_AUTOSAVE
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -22,15 +25,19 @@ import java.util.concurrent.atomic.AtomicBoolean
 const val PREF_KEY_AUTOSAVE_URI = "autosave.uri"
 
 class MarkdownViewModel(val timber: Timber.Tree = Timber.asTree()) : ViewModel() {
-    val fileName = MutableLiveData<String?>("Untitled.md")
-    val markdownUpdates = MutableLiveData<String>()
+    val fileName = MutableStateFlow("Untitled.md")
+    val markdownUpdates = MutableStateFlow("")
     val editorActions = MutableLiveData<EditorAction>()
     val uri = MutableLiveData<Uri?>()
     private val isDirty = AtomicBoolean(false)
     private val saveMutex = Mutex()
 
-    fun updateMarkdown(markdown: String?) {
-        this.markdownUpdates.postValue(markdown ?: "")
+    init {
+        markdownUpdates
+    }
+
+    fun updateMarkdown(markdown: String?) = viewModelScope.launch {
+        markdownUpdates.emit(markdown ?: "")
         isDirty.set(true)
     }
 
@@ -59,8 +66,8 @@ class MarkdownViewModel(val timber: Timber.Tree = Timber.asTree()) : ViewModel()
                         return@withContext false
                     }
                     editorActions.postValue(EditorAction.Load(content))
-                    markdownUpdates.postValue(content)
-                    this@MarkdownViewModel.fileName.postValue(fileName)
+                    markdownUpdates.emit(content)
+                    this@MarkdownViewModel.fileName.emit(fileName)
                     this@MarkdownViewModel.uri.postValue(uri)
                     timber.i("Loaded file $fileName from $fileInput")
                     timber.v("File contents:\n$content")
@@ -108,7 +115,7 @@ class MarkdownViewModel(val timber: Timber.Tree = Timber.asTree()) : ViewModel()
                             timber.w("Open output stream returned null for uri: $uri")
                             return@withContext false
                         }
-                this@MarkdownViewModel.fileName.postValue(fileName)
+                this@MarkdownViewModel.fileName.emit(fileName)
                 this@MarkdownViewModel.uri.postValue(uri)
                 isDirty.set(false)
                 timber.i("Saved file $fileName to uri $uri")
@@ -129,7 +136,7 @@ class MarkdownViewModel(val timber: Timber.Tree = Timber.asTree()) : ViewModel()
             timber.i("Ignoring autosave since manual save is already in progress")
             return
         }
-        val isAutoSaveEnabled = sharedPrefs.getBoolean(MainFragment.KEY_AUTOSAVE, true)
+        val isAutoSaveEnabled = sharedPrefs.getBoolean(KEY_AUTOSAVE, true)
         timber.d("Autosave called. isEnabled? $isAutoSaveEnabled")
         if (!isDirty.get() || !isAutoSaveEnabled) {
             timber.i("Ignoring call to autosave. Contents haven't changed or autosave not enabled")
@@ -148,11 +155,11 @@ class MarkdownViewModel(val timber: Timber.Tree = Timber.asTree()) : ViewModel()
         }
     }
 
-    fun reset(untitledFileName: String, sharedPrefs: SharedPreferences) {
+    fun reset(untitledFileName: String, sharedPrefs: SharedPreferences) = viewModelScope.launch{
         timber.i("Resetting view model to default state")
-        fileName.postValue(untitledFileName)
+        fileName.tryEmit(untitledFileName)
         uri.postValue(null)
-        markdownUpdates.postValue("")
+        markdownUpdates.emit("")
         editorActions.postValue(EditorAction.Load(""))
         isDirty.set(false)
         timber.i("Removing autosave uri from shared prefs")

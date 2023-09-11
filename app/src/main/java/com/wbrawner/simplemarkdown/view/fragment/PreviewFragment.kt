@@ -62,9 +62,9 @@ class PreviewFragment : Fragment() {
     override fun onAttach(context: Context) {
         super.onAttach(context)
         updateWebContent(viewModel.markdownUpdates.value ?: "")
-        viewModel.markdownUpdates.observe(this, {
-            updateWebContent(it)
-        })
+//        viewModel.markdownUpdates.observe(this, {
+//            updateWebContent(it)
+//        })
     }
 
     private fun updateWebContent(markdown: String) {
