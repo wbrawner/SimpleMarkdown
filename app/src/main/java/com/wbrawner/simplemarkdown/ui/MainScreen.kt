@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Menu
@@ -26,6 +27,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
@@ -42,9 +44,13 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat.startActivity
 import androidx.navigation.NavController
@@ -101,7 +107,9 @@ fun MainScreen(navController: NavController, viewModel: MarkdownViewModel) {
                             DropdownMenuItem(text = {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Text("Lock Swiping")
-                                    Checkbox(checked = lockSwiping, onCheckedChange = { lockSwiping = !lockSwiping })
+                                    Checkbox(
+                                        checked = lockSwiping,
+                                        onCheckedChange = { lockSwiping = !lockSwiping })
                                 }
                             }, onClick = {
                                 lockSwiping = !lockSwiping
@@ -138,7 +146,9 @@ fun MainScreen(navController: NavController, viewModel: MarkdownViewModel) {
                                 .padding(8.dp),
                             value = markdown,
                             onValueChange = { viewModel.updateMarkdown(it) },
-                            textStyle = TextStyle.Default.copy(fontFamily = FontFamily.Monospace)
+                            textStyle = TextStyle.Default.copy(fontFamily = FontFamily.Monospace, color = MaterialTheme.colorScheme.onSurface),
+                            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+                            cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface)
                         )
                     } else {
                         MarkdownPreview(modifier = Modifier.fillMaxSize(), markdown)
@@ -154,18 +164,26 @@ fun MarkdownNavigationDrawer(
     navigate: (Route) -> Unit, content: @Composable (drawerState: DrawerState) -> Unit
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val coroutineScope = rememberCoroutineScope()
     DismissibleNavigationDrawer(drawerState = drawerState, drawerContent = {
         DismissibleDrawerSheet {
             Route.entries.forEach { route ->
                 if (route == Route.EDITOR) {
                     return@forEach
                 }
-                NavigationDrawerItem(icon = {
-                    Icon(imageVector = route.icon, contentDescription = null)
-                },
+                NavigationDrawerItem(
+                    icon = {
+                        Icon(imageVector = route.icon, contentDescription = null)
+                    },
                     label = { Text(route.title) },
                     selected = false,
-                    onClick = { navigate(route) })
+                    onClick = {
+                        navigate(route)
+                        coroutineScope.launch {
+                            drawerState.close()
+                        }
+                    }
+                )
             }
         }
     }) {

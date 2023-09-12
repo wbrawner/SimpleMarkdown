@@ -38,6 +38,7 @@ import com.wbrawner.simplemarkdown.R
 import com.wbrawner.simplemarkdown.ui.MainScreen
 import com.wbrawner.simplemarkdown.ui.MarkdownInfoScreen
 import com.wbrawner.simplemarkdown.ui.SettingsScreen
+import com.wbrawner.simplemarkdown.ui.SupportScreen
 import com.wbrawner.simplemarkdown.ui.theme.SimpleMarkdownTheme
 import com.wbrawner.simplemarkdown.viewmodel.MarkdownViewModel
 import kotlinx.coroutines.Dispatchers
@@ -126,7 +127,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
                         SettingsScreen(navController = navController)
                     }
                     composable(Route.SUPPORT.path) {
-                        Text("To do")
+                        SupportScreen(navController = navController)
                     }
                     composable(Route.HELP.path) {
                         MarkdownInfoScreen(title = Route.HELP.title, file = "Cheatsheet.md", navController = navController)
@@ -139,12 +140,6 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
                     }
                 }
             }
-        }
-    }
-
-    override fun onBackPressed() {
-        if (!findNavController(R.id.content).navigateUp()) {
-            super.onBackPressed()
         }
     }
 }

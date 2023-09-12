@@ -1,105 +1,107 @@
 package com.wbrawner.simplemarkdown.utility
 
 import android.app.Activity
-import android.app.Application
-import android.os.Bundle
 import android.widget.Toast
-import androidx.lifecycle.MutableLiveData
-import com.android.billingclient.api.*
-import com.google.android.material.button.MaterialButton
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import com.android.billingclient.api.BillingClient
+import com.android.billingclient.api.BillingClientStateListener
+import com.android.billingclient.api.BillingFlowParams
+import com.android.billingclient.api.BillingFlowParams.ProductDetailsParams
+import com.android.billingclient.api.BillingResult
+import com.android.billingclient.api.ConsumeParams
+import com.android.billingclient.api.ProductDetails
+import com.android.billingclient.api.QueryProductDetailsParams
 import com.wbrawner.simplemarkdown.R
 
-class SupportLinkProvider(private val activity: Activity) : BillingClientStateListener,
-        PurchasesUpdatedListener {
-    val supportLinks = MutableLiveData<List<MaterialButton>>()
-
-    private val billingClient: BillingClient = BillingClient.newBuilder(activity.applicationContext)
-            .setListener(this)
+@Composable
+fun SupportLinks() {
+    val context = LocalContext.current
+    var products by remember { mutableStateOf(emptyList<ProductDetails>()) }
+    var billingClient by remember { mutableStateOf<BillingClient?>(null) }
+    DisposableEffect(context) {
+        billingClient = BillingClient.newBuilder(context.applicationContext)
+            .setListener { _, purchases ->
+                purchases?.forEach { purchase ->
+                    val consumeParams = ConsumeParams.newBuilder()
+                        .setPurchaseToken(purchase.purchaseToken)
+                        .build()
+                    billingClient?.consumeAsync(consumeParams) { _, _ ->
+                        Toast.makeText(
+                            context,
+                            context.getString(R.string.support_thank_you),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+            }
             .enablePendingPurchases()
             .build()
 
-    init {
-        billingClient.startConnection(this)
-        activity.application.registerActivityLifecycleCallbacks(
-                object : Application.ActivityLifecycleCallbacks {
-                    override fun onActivityPaused(activity: Activity) {
-                    }
+        billingClient?.startConnection(object : BillingClientStateListener {
+            override fun onBillingServiceDisconnected() {
+                billingClient?.startConnection(this)
+            }
 
-                    override fun onActivityStarted(activity: Activity) {
-                    }
-
-                    override fun onActivityDestroyed(activity: Activity) {
-                        billingClient.endConnection()
-                    }
-
-                    override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {
-                    }
-
-                    override fun onActivityStopped(activity: Activity) {
-                    }
-
-                    override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
-                    }
-
-                    override fun onActivityResumed(activity: Activity) {
-                    }
+            override fun onBillingSetupFinished(result: BillingResult) {
+                if (result.responseCode != BillingClient.BillingResponseCode.OK) {
+                    return
                 }
-        )
-    }
-
-    override fun onBillingSetupFinished(result: BillingResult) {
-        if (result.responseCode != BillingClient.BillingResponseCode.OK) {
-            return
-        }
-
-        val skuDetails = SkuDetailsParams.newBuilder()
-                .setSkusList(listOf("support_the_developer", "tip_coffee", "tip_beer"))
-                .setType(BillingClient.SkuType.INAPP)
-                .build()
-        billingClient.querySkuDetailsAsync(skuDetails) { skuDetailsResponse, skuDetailsList ->
-            // Process the result.
-            if (skuDetailsResponse.responseCode != BillingClient.BillingResponseCode.OK || skuDetailsList.isNullOrEmpty()) {
-                return@querySkuDetailsAsync
-            }
-
-            skuDetailsList.sortedBy { it.priceAmountMicros }
-                    .map { skuDetails ->
-                        val supportButton = MaterialButton(activity)
-                        supportButton.text = activity.getString(
-                                R.string.support_button_purchase,
-                                skuDetails.title,
-                                skuDetails.price
-                        )
-                        supportButton.setOnClickListener {
-                            val flowParams = BillingFlowParams.newBuilder()
-                                    .setSkuDetails(skuDetails)
-                                    .build()
-                            billingClient.launchBillingFlow(activity, flowParams)
-                        }
-                        supportButton
+                val productsQuery = listOf("support_the_developer", "tip_coffee", "tip_beer")
+                    .map {
+                        QueryProductDetailsParams.Product.newBuilder()
+                            .setProductId(it)
+                            .setProductType(BillingClient.ProductType.INAPP)
+                            .build()
                     }
-                    .let {
-                        supportLinks.postValue(it)
-                    }
-        }
-    }
-
-    override fun onBillingServiceDisconnected() {
-        billingClient.startConnection(this)
-    }
-
-    override fun onPurchasesUpdated(result: BillingResult, purchases: MutableList<Purchase>?) {
-        purchases?.forEach { purchase ->
-            val consumeParams = ConsumeParams.newBuilder()
-                    .setPurchaseToken(purchase.purchaseToken)
+                val productDetailsQuery = QueryProductDetailsParams.newBuilder()
+                    .setProductList(productsQuery)
                     .build()
-            billingClient.consumeAsync(consumeParams) { _, _ ->
-                Toast.makeText(
-                        activity,
-                        activity.getString(R.string.support_thank_you),
-                        Toast.LENGTH_SHORT
-                ).show()
+                billingClient?.queryProductDetailsAsync(productDetailsQuery) { result, productDetails ->
+                    if (result.responseCode != BillingClient.BillingResponseCode.OK || productDetails.isEmpty()) {
+                        return@queryProductDetailsAsync
+                    }
+                    products =
+                        productDetails.sortedBy { it.oneTimePurchaseOfferDetails?.priceAmountMicros }
+                            .toList()
+                }
             }
+        })
+
+        onDispose {
+            billingClient?.endConnection()
+        }
+    }
+
+    products.forEach { product ->
+        Button(
+            modifier = Modifier.fillMaxWidth(),
+            onClick = {
+                val productDetails = ProductDetailsParams.newBuilder()
+                    .setProductDetails(product)
+                    .build()
+                val flowParams = BillingFlowParams.newBuilder()
+                    .setProductDetailsParamsList(listOf(productDetails))
+                    .build()
+                billingClient?.launchBillingFlow(context as Activity, flowParams)
+            }
+        ) {
+            Text(
+                context.getString(
+                    R.string.support_button_purchase,
+                    product.name,
+                    product.oneTimePurchaseOfferDetails?.formattedPrice
+                )
+            )
         }
     }
 }
