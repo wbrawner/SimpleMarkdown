@@ -1,6 +1,8 @@
 package com.wbrawner.simplemarkdown.ui
 
 import android.content.Intent
+import android.text.SpannableString
+import android.text.style.BackgroundColorSpan
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -48,16 +50,22 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat.startActivity
 import androidx.navigation.NavController
+import androidx.preference.PreferenceManager
 import com.wbrawner.simplemarkdown.R
+import com.wbrawner.simplemarkdown.model.Readability
 import com.wbrawner.simplemarkdown.view.activity.Route
 import com.wbrawner.simplemarkdown.viewmodel.MarkdownViewModel
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -121,6 +129,11 @@ fun MainScreen(navController: NavController, viewModel: MarkdownViewModel) {
         }) { paddingValues ->
             val coroutineScope = rememberCoroutineScope()
             val pagerState = rememberPagerState { 2 }
+            val context = LocalContext.current
+            val enableReadability = remember {
+                PreferenceManager.getDefaultSharedPreferences(context)
+                    .getBoolean(PREF_KEY_READABILITY, false)
+            }
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -139,14 +152,32 @@ fun MainScreen(navController: NavController, viewModel: MarkdownViewModel) {
                     userScrollEnabled = !lockSwiping
                 ) { page ->
                     val markdown by viewModel.markdownUpdates.collectAsState()
+                    var textFieldValue by remember {
+                        val annotatedMarkdown = if (enableReadability) {
+                            markdown.annotateReadability()
+                        } else {
+                            AnnotatedString(markdown)
+                        }
+                        mutableStateOf(TextFieldValue(annotatedMarkdown))
+                    }
                     if (page == 0) {
                         BasicTextField(
                             modifier = Modifier
                                 .fillMaxSize()
                                 .padding(8.dp),
-                            value = markdown,
-                            onValueChange = { viewModel.updateMarkdown(it) },
-                            textStyle = TextStyle.Default.copy(fontFamily = FontFamily.Monospace, color = MaterialTheme.colorScheme.onSurface),
+                            value = textFieldValue,
+                            onValueChange = {
+                                textFieldValue = if (enableReadability) {
+                                    it.copy(annotatedString = it.text.annotateReadability())
+                                } else {
+                                    it
+                                }
+                                viewModel.updateMarkdown(it.text)
+                            },
+                            textStyle = TextStyle.Default.copy(
+                                fontFamily = FontFamily.Monospace,
+                                color = MaterialTheme.colorScheme.onSurface
+                            ),
                             keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
                             cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface)
                         )
@@ -157,6 +188,18 @@ fun MainScreen(navController: NavController, viewModel: MarkdownViewModel) {
             }
         }
     }
+}
+
+private fun String.annotateReadability(): AnnotatedString {
+    val readability = Readability(this)
+    val annotated = AnnotatedString.Builder(this)
+    for (sentence in readability.sentences()) {
+        var color = Color.Transparent
+        if (sentence.syllableCount() > 25) color = Color(229, 232, 42, 100)
+        if (sentence.syllableCount() > 35) color = Color(193, 66, 66, 100)
+        annotated.addStyle(SpanStyle(background = color), sentence.start(), sentence.end())
+    }
+    return annotated.toAnnotatedString()
 }
 
 @Composable
