@@ -8,7 +8,7 @@ class Readability(private val content: String) {
         val list = ArrayList<Sentence>()
         var startOfSentance = 0
         var lineBuilder = StringBuilder()
-        for (i in 0 until content.length) {
+        for (i in content.indices) {
             val c = content[i] + ""
             if (DELIMS.contains(c)) {
                 list.add(Sentence(content, startOfSentance, i))
