@@ -14,7 +14,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
 import com.wbrawner.simplemarkdown.utility.readAssetToString
 import com.wbrawner.simplemarkdown.utility.toHtml
-import com.wbrawner.simplemarkdown.viewmodel.MarkdownViewModel
 
 @Composable
 fun MarkdownInfoScreen(

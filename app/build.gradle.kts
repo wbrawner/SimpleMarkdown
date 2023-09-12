@@ -166,9 +166,9 @@ android.productFlavors.forEach { flavor ->
         apply(plugin = "com.google.firebase.crashlytics")
 
         dependencies {
-            implementation("com.android.billingclient:billing:5.1.0")
+            implementation("com.android.billingclient:billing:6.0.1")
             implementation("com.google.android.play:core-ktx:1.8.1")
-            implementation("com.google.firebase:firebase-crashlytics:18.3.5")
+            implementation("com.google.firebase:firebase-crashlytics:18.4.1")
         }
     }
 }
