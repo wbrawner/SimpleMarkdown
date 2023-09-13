@@ -1,10 +1,8 @@
 package com.wbrawner.simplemarkdown.ui
 
-import android.content.SharedPreferences
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,8 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.AlertDialogDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
@@ -29,27 +25,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.content.edit
 import androidx.navigation.NavController
-import androidx.preference.PreferenceManager
 import com.wbrawner.simplemarkdown.ui.theme.SimpleMarkdownTheme
-
-const val PREF_KEY_AUTOSAVE = "autosave"
-const val PREF_KEY_DARK_MODE = "darkMode"
-const val PREF_KEY_ERROR_REPORTS = "crashlytics.enable"
-const val PREF_KEY_ANALYTICS = "analytics.enable"
-const val PREF_KEY_READABILITY = "readability.enable"
+import com.wbrawner.simplemarkdown.utility.Preference
+import com.wbrawner.simplemarkdown.utility.PreferenceHelper
 
 @Composable
-fun SettingsScreen(navController: NavController) {
+fun SettingsScreen(navController: NavController, preferenceHelper: PreferenceHelper) {
     Scaffold(topBar = {
         MarkdownTopAppBar(title = "Settings", navController = navController)
     }) { paddingValues ->
-        val context = LocalContext.current
-        val sharedPreferences = remember { PreferenceManager.getDefaultSharedPreferences(context) }
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -60,37 +47,35 @@ fun SettingsScreen(navController: NavController) {
                 title = "Autosave",
                 enabledDescription = "Files will be saved automatically",
                 disabledDescription = "Files will not be saved automatically",
-                preferenceKey = PREF_KEY_AUTOSAVE,
-                sharedPreferences = sharedPreferences
+                preference = Preference.AUTOSAVE_ENABLED,
+                preferenceHelper = preferenceHelper
             )
             ListPreference(
                 title = "Dark mode",
-                options = listOf("Auto", "Dark", "Light"),
-                defaultValue = "Auto",
-                preferenceKey = PREF_KEY_DARK_MODE,
-                sharedPreferences = sharedPreferences
+                options = listOf("auto", "dark", "light"),
+                preference = Preference.DARK_MODE,
+                preferenceHelper = preferenceHelper
             )
             BooleanPreference(
                 title = "Send crash reports",
                 enabledDescription = "Error reports will be sent",
                 disabledDescription = "Error reports will not be sent",
-                preferenceKey = PREF_KEY_ERROR_REPORTS,
-                sharedPreferences = sharedPreferences
+                preference = Preference.ERROR_REPORTS_ENABLED,
+                preferenceHelper = preferenceHelper
             )
             BooleanPreference(
                 title = "Send analytics",
                 enabledDescription = "Analytics events will be sent",
                 disabledDescription = "Analytics events will not be sent",
-                preferenceKey = PREF_KEY_ANALYTICS,
-                sharedPreferences = sharedPreferences
+                preference = Preference.ANALYTICS_ENABLED,
+                preferenceHelper = preferenceHelper
             )
             BooleanPreference(
                 title = "Readability highlighting",
                 enabledDescription = "Readability highlighting is on",
                 disabledDescription = "Readability highlighting is off",
-                preferenceKey = PREF_KEY_READABILITY,
-                sharedPreferences = sharedPreferences,
-                defaultValue = false
+                preference = Preference.READABILITY_ENABLED,
+                preferenceHelper = preferenceHelper
             )
         }
     }
@@ -101,16 +86,11 @@ fun BooleanPreference(
     title: String,
     enabledDescription: String,
     disabledDescription: String,
-    preferenceKey: String,
-    sharedPreferences: SharedPreferences,
-    defaultValue: Boolean = true
+    preference: Preference,
+    preferenceHelper: PreferenceHelper
 ) {
     var enabled by remember {
-        mutableStateOf(
-            sharedPreferences.getBoolean(
-                preferenceKey, defaultValue
-            )
-        )
+        mutableStateOf(preferenceHelper[preference] as Boolean)
     }
     BooleanPreference(title = title,
         enabledDescription = enabledDescription,
@@ -118,9 +98,7 @@ fun BooleanPreference(
         enabled = enabled,
         setEnabled = {
             enabled = it
-            sharedPreferences.edit {
-                putBoolean(preferenceKey, it)
-            }
+            preferenceHelper[preference] = it
         })
 }
 
@@ -156,27 +134,19 @@ fun BooleanPreference(
 fun ListPreference(
     title: String,
     options: List<String>,
-    defaultValue: String,
-    preferenceKey: String,
-    sharedPreferences: SharedPreferences
+    preference: Preference,
+    preferenceHelper: PreferenceHelper
 ) {
     var selected by remember {
-        mutableStateOf(
-            sharedPreferences.getString(
-                preferenceKey, defaultValue
-            ) ?: defaultValue
-        )
+        mutableStateOf(preferenceHelper[preference] as String)
     }
 
     ListPreference(title = title, options = options, selected = selected, setSelected = {
         selected = it
-        sharedPreferences.edit {
-            putString(preferenceKey, it)
-        }
+        preferenceHelper[preference] = it
     })
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListPreference(
     title: String, options: List<String>, selected: String, setSelected: (String) -> Unit
