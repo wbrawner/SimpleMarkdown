@@ -1,11 +1,9 @@
-package com.wbrawner.simplemarkdown.view.activity
+package com.wbrawner.simplemarkdown
 
-import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.animation.AnimatedContentTransitionScope
@@ -22,7 +20,8 @@ import androidx.compose.material.icons.filled.Help
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.PrivacyTip
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.Text
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.core.app.ActivityCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
@@ -31,34 +30,28 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.findNavController
-import androidx.preference.PreferenceManager
 import com.wbrawner.plausible.android.Plausible
-import com.wbrawner.simplemarkdown.R
+import com.wbrawner.simplemarkdown.MarkdownApplication.Companion.fileHelper
+import com.wbrawner.simplemarkdown.MarkdownApplication.Companion.preferenceHelper
 import com.wbrawner.simplemarkdown.ui.MainScreen
 import com.wbrawner.simplemarkdown.ui.MarkdownInfoScreen
 import com.wbrawner.simplemarkdown.ui.SettingsScreen
 import com.wbrawner.simplemarkdown.ui.SupportScreen
 import com.wbrawner.simplemarkdown.ui.theme.SimpleMarkdownTheme
-import com.wbrawner.simplemarkdown.viewmodel.MarkdownViewModel
+import com.wbrawner.simplemarkdown.utility.Preference
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-const val KEY_AUTOSAVE = "autosave"
-
 class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsResultCallback {
-    private val viewModel: MarkdownViewModel by viewModels()
+    private val viewModel: MarkdownViewModel by viewModels { MarkdownViewModel.factory(fileHelper, preferenceHelper) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
         lifecycleScope.launch {
             val darkMode = withContext(Dispatchers.IO) {
-                val darkModeValue = getStringPref(
-                    R.string.pref_key_dark_mode,
-                    getString(R.string.pref_value_auto)
-                )
+                val darkModeValue = preferenceHelper[Preference.DARK_MODE] as String
 
                 return@withContext when {
                     darkModeValue.equals(
@@ -83,18 +76,20 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
             AppCompatDelegate.setDefaultNightMode(darkMode)
         }
         WindowCompat.setDecorFitsSystemWindows(window, false)
-        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
         val preferences = mutableMapOf<String, String>()
-        preferences["Autosave"] = sharedPreferences.getBoolean("autosave", true).toString()
-        val usingCustomCss = !getStringPref(R.string.pref_custom_css, null).isNullOrBlank()
+        preferences["Autosave"] = preferenceHelper[Preference.AUTOSAVE_ENABLED].toString()
+        val usingCustomCss = !(preferenceHelper[Preference.CUSTOM_CSS] as String?).isNullOrBlank()
         preferences["Custom CSS"] = usingCustomCss.toString()
-        val darkModeSetting = getStringPref(R.string.pref_key_dark_mode, "auto").toString()
+        val darkModeSetting = preferenceHelper[Preference.DARK_MODE].toString()
         preferences["Dark Mode"] = darkModeSetting
-        preferences["Error Reports"] =
-            getBooleanPref(R.string.pref_key_error_reports_enabled, true).toString()
-        preferences["Readability"] = getBooleanPref(R.string.readability_enabled, false).toString()
+        preferences["Error Reports"] = preferenceHelper[Preference.ERROR_REPORTS_ENABLED].toString()
+        preferences["Readability"] = preferenceHelper[Preference.READABILITY_ENABLED].toString()
         Plausible.event("settings", props = preferences, url = "/")
         setContent {
+            val autosaveEnabled by preferenceHelper.observe<Boolean>(Preference.AUTOSAVE_ENABLED)
+                .collectAsState()
+            val readabilityEnabled by preferenceHelper.observe<Boolean>(Preference.READABILITY_ENABLED)
+                .collectAsState()
             SimpleMarkdownTheme {
                 val navController = rememberNavController()
                 NavHost(
@@ -121,10 +116,15 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
                     }
                 ) {
                     composable(Route.EDITOR.path) {
-                        MainScreen(navController = navController, viewModel = viewModel)
+                        MainScreen(
+                            navController = navController,
+                            viewModel = viewModel,
+                            enableAutosave = autosaveEnabled,
+                            enableReadability = readabilityEnabled
+                        )
                     }
                     composable(Route.SETTINGS.path) {
-                        SettingsScreen(navController = navController)
+                        SettingsScreen(navController = navController, preferenceHelper)
                     }
                     composable(Route.SUPPORT.path) {
                         SupportScreen(navController = navController)
@@ -156,15 +156,3 @@ enum class Route(
     ABOUT("/about", "About", Icons.Default.Info),
     PRIVACY("/privacy", "Privacy", Icons.Default.PrivacyTip),
 }
-
-fun Context.getBooleanPref(@StringRes key: Int, defaultValue: Boolean) =
-    PreferenceManager.getDefaultSharedPreferences(this).getBoolean(
-        getString(key),
-        defaultValue
-    )
-
-fun Context.getStringPref(@StringRes key: Int, defaultValue: String?) =
-    PreferenceManager.getDefaultSharedPreferences(this).getString(
-        getString(key),
-        defaultValue
-    )

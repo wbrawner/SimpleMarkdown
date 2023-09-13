@@ -15,7 +15,7 @@
         android:theme="@style/Theme.App.Starting"
         tools:ignore="AllowBackup"
         tools:targetApi="n">
-        <activity android:name=".view.activity.MainActivity"
+        <activity android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name_short">
             <intent-filter>

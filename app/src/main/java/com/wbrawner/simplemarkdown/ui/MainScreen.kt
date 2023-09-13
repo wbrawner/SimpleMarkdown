@@ -1,8 +1,8 @@
 package com.wbrawner.simplemarkdown.ui
 
 import android.content.Intent
-import android.text.SpannableString
-import android.text.style.BackgroundColorSpan
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DismissibleDrawerSheet
 import androidx.compose.material3.DismissibleNavigationDrawer
@@ -35,9 +36,11 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -46,7 +49,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalContext
@@ -59,21 +61,95 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat.startActivity
 import androidx.navigation.NavController
-import androidx.preference.PreferenceManager
+import com.wbrawner.simplemarkdown.MarkdownViewModel
 import com.wbrawner.simplemarkdown.R
+import com.wbrawner.simplemarkdown.Route
 import com.wbrawner.simplemarkdown.model.Readability
-import com.wbrawner.simplemarkdown.view.activity.Route
-import com.wbrawner.simplemarkdown.viewmodel.MarkdownViewModel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import timber.log.Timber
+import java.net.URI
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun MainScreen(navController: NavController, viewModel: MarkdownViewModel) {
+fun MainScreen(
+    navController: NavController,
+    viewModel: MarkdownViewModel,
+    enableAutosave: Boolean,
+    enableReadability: Boolean,
+) {
     var lockSwiping by remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
+    val fileName by viewModel.fileName.collectAsState()
+    val openFileLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) {
+            coroutineScope.launch {
+                viewModel.load(it.toString())
+            }
+        }
+    val saveFileLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("text/*")) {
+            it?.let {
+                coroutineScope.launch {
+                    viewModel.save(URI.create(it.toString()))
+                }
+            }
+        }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+    var promptEffect by remember { mutableStateOf<MarkdownViewModel.Effect.Prompt?>(null) }
+    var clearText by remember { mutableStateOf(0) }
+    LaunchedEffect(viewModel) {
+        viewModel.effects.collect { effect ->
+            when (effect) {
+                is MarkdownViewModel.Effect.OpenSaveDialog -> saveFileLauncher.launch(fileName)
+                is MarkdownViewModel.Effect.Error -> errorMessage = effect.text
+                is MarkdownViewModel.Effect.Prompt -> promptEffect = effect
+                is MarkdownViewModel.Effect.ClearText -> clearText++
+            }
+        }
+    }
+    LaunchedEffect(enableAutosave) {
+        if (!enableAutosave) return@LaunchedEffect
+        while (isActive) {
+            delay(30_000)
+            viewModel.autosave()
+        }
+    }
+    errorMessage?.let { message ->
+        AlertDialog(
+            onDismissRequest = { errorMessage = null },
+            confirmButton = {
+                TextButton(onClick = { errorMessage = null }) {
+                    Text("OK")
+                }
+            },
+            text = { Text(message) }
+        )
+    }
+    promptEffect?.let { prompt ->
+        AlertDialog(
+            onDismissRequest = { errorMessage = null },
+            confirmButton = {
+                TextButton(onClick = {
+                    prompt.confirm()
+                    promptEffect = null
+                }) {
+                    Text("Yes")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    prompt.cancel()
+                    promptEffect = null
+                }) {
+                    Text("No")
+                }
+            },
+            text = { Text(prompt.text) }
+        )
+    }
     MarkdownNavigationDrawer(navigate = { navController.navigate(it.path) }) { drawerState ->
         Scaffold(topBar = {
-            val fileName by viewModel.fileName.collectAsState()
             val context = LocalContext.current
             MarkdownTopAppBar(title = fileName,
                 backAsUp = false,
@@ -82,7 +158,7 @@ fun MainScreen(navController: NavController, viewModel: MarkdownViewModel) {
                 actions = {
                     IconButton(onClick = {
                         val shareIntent = Intent(Intent.ACTION_SEND)
-                        shareIntent.putExtra(Intent.EXTRA_TEXT, viewModel.markdownUpdates.value)
+                        shareIntent.putExtra(Intent.EXTRA_TEXT, viewModel.markdown.value)
                         shareIntent.type = "text/plain"
                         startActivity(
                             context, Intent.createChooser(
@@ -101,16 +177,24 @@ fun MainScreen(navController: NavController, viewModel: MarkdownViewModel) {
                             onDismissRequest = { menuExpanded = false }) {
                             DropdownMenuItem(text = { Text("New") }, onClick = {
                                 menuExpanded = false
+                                coroutineScope.launch {
+                                    viewModel.reset("Untitled.md")
+                                }
                             })
                             DropdownMenuItem(text = { Text("Open") }, onClick = {
                                 menuExpanded = false
+                                openFileLauncher.launch(arrayOf("text/*"))
                             })
                             DropdownMenuItem(text = { Text("Save") }, onClick = {
                                 menuExpanded = false
+                                coroutineScope.launch {
+                                    viewModel.save()
+                                }
                             })
                             DropdownMenuItem(text = { Text("Save as…") },
                                 onClick = {
                                     menuExpanded = false
+                                    saveFileLauncher.launch(fileName)
                                 })
                             DropdownMenuItem(text = {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -127,13 +211,7 @@ fun MainScreen(navController: NavController, viewModel: MarkdownViewModel) {
                     }
                 })
         }) { paddingValues ->
-            val coroutineScope = rememberCoroutineScope()
             val pagerState = rememberPagerState { 2 }
-            val context = LocalContext.current
-            val enableReadability = remember {
-                PreferenceManager.getDefaultSharedPreferences(context)
-                    .getBoolean(PREF_KEY_READABILITY, false)
-            }
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -151,8 +229,8 @@ fun MainScreen(navController: NavController, viewModel: MarkdownViewModel) {
                     modifier = Modifier.weight(1f), state = pagerState,
                     userScrollEnabled = !lockSwiping
                 ) { page ->
-                    val markdown by viewModel.markdownUpdates.collectAsState()
-                    var textFieldValue by remember {
+                    val markdown by viewModel.markdown.collectAsState()
+                    var textFieldValue by remember(clearText) {
                         val annotatedMarkdown = if (enableReadability) {
                             markdown.annotateReadability()
                         } else {

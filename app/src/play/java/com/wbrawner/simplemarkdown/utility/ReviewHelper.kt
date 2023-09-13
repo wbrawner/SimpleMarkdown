@@ -9,7 +9,7 @@ import androidx.core.content.edit
 import androidx.preference.PreferenceManager
 import com.google.android.play.core.review.ReviewManager
 import com.google.android.play.core.review.ReviewManagerFactory
-import com.wbrawner.simplemarkdown.view.activity.MainActivity
+import com.wbrawner.simplemarkdown.MainActivity
 import timber.log.Timber
 
 private const val KEY_TIME_IN_APP = "timeInApp"
