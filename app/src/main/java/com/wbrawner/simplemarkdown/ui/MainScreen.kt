@@ -37,6 +37,7 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
@@ -239,7 +240,7 @@ fun MainScreen(
                         mutableStateOf(TextFieldValue(annotatedMarkdown))
                     }
                     if (page == 0) {
-                        BasicTextField(
+                        TextField(
                             modifier = Modifier
                                 .fillMaxSize()
                                 .padding(8.dp),
@@ -250,14 +251,18 @@ fun MainScreen(
                                 } else {
                                     it
                                 }
-                                viewModel.updateMarkdown(it.text)
+                                coroutineScope.launch {
+                                    viewModel.updateMarkdown(it.text)
+                                }
+                            },
+                            placeholder = {
+                                Text("Markdown here…")
                             },
                             textStyle = TextStyle.Default.copy(
                                 fontFamily = FontFamily.Monospace,
                                 color = MaterialTheme.colorScheme.onSurface
                             ),
-                            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
-                            cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface)
+                            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences)
                         )
                     } else {
                         MarkdownPreview(modifier = Modifier.fillMaxSize(), markdown)

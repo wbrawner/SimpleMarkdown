@@ -33,7 +33,7 @@ class MarkdownViewModel(
     val effects = _effects.asSharedFlow()
     private val saveMutex = Mutex()
 
-    fun updateMarkdown(markdown: String?) = viewModelScope.launch {
+    suspend fun updateMarkdown(markdown: String?) {
         this@MarkdownViewModel._markdown.emit(markdown ?: "")
         isDirty.set(true)
     }
@@ -150,7 +150,6 @@ class MarkdownViewModel(
     }
 
     companion object {
-
         fun factory(fileHelper: FileHelper, preferenceHelper: PreferenceHelper): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(
