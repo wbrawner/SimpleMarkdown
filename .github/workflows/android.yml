@@ -1,14 +1,14 @@
 name: Android CI
 
 on:
+  pull_request:
   push:
     branches: [ main ]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
+    name: Build
     steps:
     - uses: actions/checkout@v2
     - name: set up JDK
@@ -16,12 +16,28 @@ jobs:
       with:
         distribution: 'zulu'
         java-version: '17'
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
+    - name: Validate Gradle Wrapper
+      uses: gradle/wrapper-validation-action@v1
     - name: Build with Gradle
-      run: ./gradlew assemblePlayDebug assemblePlayDebugAndroidTest
+      uses: gradle/gradle-build-action@v2
+      with:
+        arguments: assemblePlayDebug assemblePlayDebugAndroidTest
+  unit_test:
+    name: Run Unit Tests
+    runs-on: ubuntu-latest
+    needs:
+    - build
+    steps:
     - name: Run unit tests
-      run: ./gradlew testPlayDebugUnitTest
+      uses: gradle/gradle-build-action@v2
+      with:
+          arguments: testPlayDebugUnitTest
+  ui_tests:
+    runs-on: ubuntu-latest
+    name: Run UI Tests
+    needs:
+      - build
+    steps:
     - name: Grant execute permission for flank_auth.sh
       run: chmod +x flank_auth.sh
     - name: Add auth for flank
@@ -30,4 +46,6 @@ jobs:
       run: |
         ./flank_auth.sh
     - name: Run UI tests
-      run: ./gradlew runFlank
+      uses: gradle/gradle-build-action@v2
+      with:
+        arguments: runFlank
