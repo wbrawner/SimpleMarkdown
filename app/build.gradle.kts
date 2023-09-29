@@ -8,6 +8,8 @@ plugins {
     id("kotlin-android")
     id("kotlin-kapt")
     id("com.osacky.fladle")
+    id("com.github.triplet.play") version "3.8.4"
+    id("com.wbrawner.releasehelper")
 }
 
 val keystoreProperties = Properties()
@@ -46,8 +48,8 @@ android {
         applicationId = "com.wbrawner.simplemarkdown"
         minSdk = 23
         targetSdk = 33
-        versionCode = 39
-        versionName = "0.8.15"
+        versionCode = 41
+        versionName = "0.8.16"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         testInstrumentationRunnerArguments["clearPackageData"] = "true"
         buildConfigField("boolean", "ENABLE_CUSTOM_CSS", "true")
@@ -87,6 +89,19 @@ android {
         execution = "ANDROIDX_TEST_ORCHESTRATOR"
     }
     namespace = "com.wbrawner.simplemarkdown"
+    playConfigs {
+        register("play") {
+            enabled.set(true)
+            commit.set(true)
+        }
+    }
+}
+
+play {
+    commit.set(false)
+    enabled.set(false)
+    track.set("production")
+    defaultToAppBundles.set(true)
 }
 
 dependencies {
@@ -124,8 +139,7 @@ dependencies {
 }
 
 android.productFlavors.forEach { flavor ->
-    if (getGradle().getStartParameter().getTaskRequests().toString().toLowerCase()
-            .contains(flavor.name)
+    if (gradle.startParameter.taskRequests.toString().lowercase(Locale.getDefault()).contains(flavor.name)
         && flavor.name == "play"
     ) {
         apply(plugin = "com.google.gms.google-services")

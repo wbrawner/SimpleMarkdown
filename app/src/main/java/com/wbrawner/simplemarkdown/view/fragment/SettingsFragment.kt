@@ -46,8 +46,8 @@ class SettingsFragment
         }
     }
 
-    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
-        if (!isAdded) return
+    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
+        if (!isAdded || sharedPreferences == null || key == null) return
         val preference = findPreference(key) as? ListPreference ?: return
         setListPreferenceSummary(sharedPreferences, preference)
         if (preference.key != getString(R.string.pref_key_dark_mode)) {
@@ -59,7 +59,7 @@ class SettingsFragment
             AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
         }
         val darkModeValue = sharedPreferences.getString(preference.key, null)
-        if (darkModeValue != null && darkModeValue.isNotEmpty()) {
+        if (!darkModeValue.isNullOrEmpty()) {
             if (darkModeValue.equals(getString(R.string.pref_value_light), ignoreCase = true)) {
                 darkMode = AppCompatDelegate.MODE_NIGHT_NO
             } else if (darkModeValue.equals(getString(R.string.pref_value_dark), ignoreCase = true)) {
