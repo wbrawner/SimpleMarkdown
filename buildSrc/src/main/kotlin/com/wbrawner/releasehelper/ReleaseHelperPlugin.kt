@@ -102,7 +102,7 @@ private fun String.incrementVersion(part: VersionPart) = split(".")
         .joinToString(".")
 
 private fun Project.updateVersionName(oldVersionName: String, newVersionName: String) {
-    File(projectDir, "app/build.gradle.kts").apply {
+    File(projectDir, "build.gradle.kts").apply {
         writeText(
                 readText().replace("versionName = \"$oldVersionName\"", "versionName = \"$newVersionName\"")
         )
