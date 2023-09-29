@@ -6,9 +6,9 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  validate:
     runs-on: ubuntu-latest
-    name: Build
+    name: Validate
     steps:
     - uses: actions/checkout@v2
     - name: set up JDK
@@ -18,15 +18,11 @@ jobs:
         java-version: '17'
     - name: Validate Gradle Wrapper
       uses: gradle/wrapper-validation-action@v1
-    - name: Build with Gradle
-      uses: gradle/gradle-build-action@v2
-      with:
-        arguments: assemblePlayDebug assemblePlayDebugAndroidTest
   unit_test:
     name: Run Unit Tests
     runs-on: ubuntu-latest
     needs:
-    - build
+    - validate
     steps:
       - uses: actions/checkout@v2
       - name: set up JDK
@@ -42,7 +38,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Run UI Tests
     needs:
-      - build
+      - validate
     steps:
       - uses: actions/checkout@v2
       - name: set up JDK
@@ -50,6 +46,10 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: '17'
+      - name: Build with Gradle
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: assemblePlayDebug assemblePlayDebugAndroidTest
       - name: Grant execute permission for flank_auth.sh
         run: chmod +x flank_auth.sh
       - name: Add auth for flank
