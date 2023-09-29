@@ -28,24 +28,36 @@ jobs:
     needs:
     - build
     steps:
-    - name: Run unit tests
-      uses: gradle/gradle-build-action@v2
-      with:
-          arguments: testPlayDebugUnitTest
+      - uses: actions/checkout@v2
+      - name: set up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+      - name: Run unit tests
+        uses: gradle/gradle-build-action@v2
+        with:
+            arguments: testPlayDebugUnitTest
   ui_tests:
     runs-on: ubuntu-latest
     name: Run UI Tests
     needs:
       - build
     steps:
-    - name: Grant execute permission for flank_auth.sh
-      run: chmod +x flank_auth.sh
-    - name: Add auth for flank
-      env:
-        GCLOUD_KEY: ${{ secrets.GCLOUD_KEY }}
-      run: |
-        ./flank_auth.sh
-    - name: Run UI tests
-      uses: gradle/gradle-build-action@v2
-      with:
-        arguments: runFlank
+      - uses: actions/checkout@v2
+      - name: set up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+      - name: Grant execute permission for flank_auth.sh
+        run: chmod +x flank_auth.sh
+      - name: Add auth for flank
+        env:
+          GCLOUD_KEY: ${{ secrets.GCLOUD_KEY }}
+        run: |
+          ./flank_auth.sh
+      - name: Run UI tests
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: runFlank
