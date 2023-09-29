@@ -2,7 +2,6 @@ package com.wbrawner.releasehelper
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Exec
 import org.gradle.kotlin.dsl.extra
 import org.gradle.kotlin.dsl.provideDelegate
@@ -48,7 +47,7 @@ class ReleaseHelperPlugin : Plugin<Project> {
             dependsOn("changelog", "getLatestTag")
             doLast {
                 val latestTag: String by target.project.extra
-                val newVersion = latestTag.incrementVersion(VersionPart.MAJOR)
+                val newVersion = latestTag.incrementVersion(ReleaseType.MAJOR)
                 target.updateVersionName(latestTag, newVersion)
                 target.exec {
                     commandLine = "git tag $newVersion".split(" ")
@@ -60,7 +59,7 @@ class ReleaseHelperPlugin : Plugin<Project> {
             dependsOn("changelog", "getLatestTag")
             doLast {
                 val latestTag: String by target.project.extra
-                val newVersion = latestTag.incrementVersion(VersionPart.MAJOR)
+                val newVersion = latestTag.incrementVersion(ReleaseType.MAJOR)
                 target.updateVersionName(latestTag, newVersion)
                 target.exec {
                     commandLine = "git tag $newVersion".split(" ")
@@ -72,7 +71,7 @@ class ReleaseHelperPlugin : Plugin<Project> {
             dependsOn("changelog", "getLatestTag")
             doLast {
                 val latestTag: String by target.project.extra
-                val newVersion = latestTag.incrementVersion(VersionPart.MAJOR)
+                val newVersion = latestTag.incrementVersion(ReleaseType.MAJOR)
                 target.updateVersionName(latestTag, newVersion)
                 target.exec {
                     commandLine = "git tag $newVersion".split(" ")
@@ -82,18 +81,18 @@ class ReleaseHelperPlugin : Plugin<Project> {
     }
 }
 
-private enum class VersionPart {
+private enum class ReleaseType {
     MAJOR,
     MINOR,
     PATCH
 }
 
-private fun String.incrementVersion(part: VersionPart) = split(".")
+private fun String.incrementVersion(releaseType: ReleaseType) = split(".")
         .mapIndexed { index, numberString ->
             val number = numberString.toInt()
-            return@mapIndexed if (index == part.ordinal) {
+            return@mapIndexed if (index == releaseType.ordinal) {
                 number + 1
-            } else if (index > part.ordinal) {
+            } else if (index > releaseType.ordinal) {
                 0
             } else {
                 number
