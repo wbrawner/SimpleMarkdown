@@ -22,7 +22,7 @@ class ReleaseHelperPlugin : Plugin<Project> {
         }
 
         target.tasks.register("changelog") {
-            val changelogFile = File(target.projectDir, "src/main/play/release-notes/en-US/default.txt")
+            val changelogFile = File(target.projectDir, "src/play/play/release-notes/en-US/default.txt")
             inputs.property("tag", target.provider {
                 target.project.extra["latestTag"]
             })
