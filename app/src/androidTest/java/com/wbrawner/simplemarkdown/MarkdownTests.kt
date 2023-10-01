@@ -38,9 +38,6 @@ class MarkdownTests {
     @get:Rule
     var activityRule = IntentsTestRule(MainActivity::class.java, false, false)
 
-    @get:Rule
-    val grantPermissionRule: GrantPermissionRule = GrantPermissionRule.grant(WRITE_EXTERNAL_STORAGE)
-
     lateinit var file: File
 
     @Before
