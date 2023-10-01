@@ -34,6 +34,14 @@ jobs:
         uses: gradle/gradle-build-action@v2
         with:
             arguments: testPlayDebugUnitTest
+      - name: Publish JUnit Results
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Unit Test Results
+          path: "*/build/test-results/test/*.xml"
+          reporter: java-junit
+          fail-on-error: true
   ui_tests:
     runs-on: ubuntu-latest
     name: Run UI Tests
