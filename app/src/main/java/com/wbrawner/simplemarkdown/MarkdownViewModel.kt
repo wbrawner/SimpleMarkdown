@@ -33,6 +33,12 @@ class MarkdownViewModel(
     val effects = _effects.asSharedFlow()
     private val saveMutex = Mutex()
 
+    init {
+        viewModelScope.launch {
+            load(null)
+        }
+    }
+
     suspend fun updateMarkdown(markdown: String?) {
         this@MarkdownViewModel._markdown.emit(markdown ?: "")
         isDirty.set(true)

@@ -5,10 +5,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
@@ -30,15 +28,16 @@ fun MarkdownInfoScreen(
         }
     ) { paddingValues ->
         val context = LocalContext.current
-        var markdown by remember { mutableStateOf("") }
+        val (markdown, setMarkdown) = remember { mutableStateOf("") }
         LaunchedEffect(file) {
-            markdown = context.assets.readAssetToString(file)?.toHtml()?: "Failed to load $file"
+            setMarkdown(context.assets.readAssetToString(file)?.toHtml() ?: "Failed to load $file")
         }
         MarkdownPreview(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues),
-            markdown = markdown
+            markdown = markdown,
+            "Auto"
         )
     }
 }

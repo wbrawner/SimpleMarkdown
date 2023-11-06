@@ -1,7 +1,7 @@
 package com.wbrawner.simplemarkdown.utility
 
 import android.content.Context
-import android.net.Uri
+import android.content.Intent
 import androidx.core.net.toUri
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -36,6 +36,10 @@ class AndroidFileHelper(private val context: Context) : FileHelper {
 
     override suspend fun open(source: URI): Pair<String, String>? = withContext(Dispatchers.IO) {
         val uri = source.toString().toUri()
+        context.contentResolver.takePersistableUriPermission(
+            uri,
+            Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+        )
         context.contentResolver.openFileDescriptor(uri, "r")
             ?.use {
                 uri.getName(context) to FileInputStream(it.fileDescriptor).reader()

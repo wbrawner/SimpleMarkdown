@@ -18,9 +18,6 @@ allprojects {
         google()
         mavenCentral()
         maven {
-            url = uri("https://s3.amazonaws.com/repo.commonsware.com/")
-        }
-        maven {
             url = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
         }
     }

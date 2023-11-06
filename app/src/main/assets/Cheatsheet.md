@@ -90,11 +90,11 @@ data 1|data 2|data 3
 data 1|data 2|data 3
 ```
 
-Left Content|Center Content|Right Content
-:--------|:--------:|--------:
-data 1|data 2|data 3
-data 1|data 2|data 3
-data 1|data 2|data 3
+| Left Content | Center Content | Right Content |
+|:-------------|:--------------:|--------------:|
+| data 1       |     data 2     |        data 3 |
+| data 1       |     data 2     |        data 3 |
+| data 1       |     data 2     |        data 3 |
 
 ### Images
 
@@ -116,7 +116,7 @@ In addition to the monospace inline element, code blocks can be created by inden
 
 Or by wrapping the code in three backticks (\`\`\`):
 
-```
+```javascript
 function helloWorld() {
     console.log("Hello, world!")
 }

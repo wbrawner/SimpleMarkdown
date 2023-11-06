@@ -1,6 +1,6 @@
 import java.io.FileInputStream
 import java.io.FileNotFoundException
-import java.util.*
+import java.util.Properties
 
 plugins {
     id("com.android.application")
@@ -133,7 +133,6 @@ dependencies {
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation("com.google.android.material:material:1.9.0")
     implementation("androidx.legacy:legacy-support-v13:1.0.0")
-    implementation("com.commonsware.cwac:anddown:0.4.0")
     implementation("com.jakewharton.timber:timber:5.0.1")
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.browser:browser:1.6.0")
