@@ -20,13 +20,13 @@ import androidx.compose.material.icons.filled.Help
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.PrivacyTip
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.core.app.ActivityCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -39,42 +39,18 @@ import com.wbrawner.simplemarkdown.ui.SettingsScreen
 import com.wbrawner.simplemarkdown.ui.SupportScreen
 import com.wbrawner.simplemarkdown.ui.theme.SimpleMarkdownTheme
 import com.wbrawner.simplemarkdown.utility.Preference
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsResultCallback {
-    private val viewModel: MarkdownViewModel by viewModels { MarkdownViewModel.factory(fileHelper, preferenceHelper) }
+    private val viewModel: MarkdownViewModel by viewModels {
+        MarkdownViewModel.factory(
+            fileHelper,
+            preferenceHelper
+        )
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
-        lifecycleScope.launch {
-            val darkMode = withContext(Dispatchers.IO) {
-                val darkModeValue = preferenceHelper[Preference.DARK_MODE] as String
-
-                return@withContext when {
-                    darkModeValue.equals(
-                        getString(R.string.pref_value_light),
-                        ignoreCase = true
-                    ) -> AppCompatDelegate.MODE_NIGHT_NO
-
-                    darkModeValue.equals(
-                        getString(R.string.pref_value_dark),
-                        ignoreCase = true
-                    ) -> AppCompatDelegate.MODE_NIGHT_YES
-
-                    else -> {
-                        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
-                            AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY
-                        } else {
-                            AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
-                        }
-                    }
-                }
-            }
-            AppCompatDelegate.setDefaultNightMode(darkMode)
-        }
         WindowCompat.setDecorFitsSystemWindows(window, false)
         val preferences = mutableMapOf<String, String>()
         preferences["Autosave"] = preferenceHelper[Preference.AUTOSAVE_ENABLED].toString()
@@ -90,19 +66,45 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
                 .collectAsState()
             val readabilityEnabled by preferenceHelper.observe<Boolean>(Preference.READABILITY_ENABLED)
                 .collectAsState()
+            val darkModePreference by preferenceHelper.observe<String>(Preference.DARK_MODE)
+                .collectAsState()
+            LaunchedEffect(darkModePreference) {
+                val darkMode = when {
+                    darkModePreference.equals(
+                        getString(R.string.pref_value_light),
+                        ignoreCase = true
+                    ) -> AppCompatDelegate.MODE_NIGHT_NO
+
+                    darkModePreference.equals(
+                        getString(R.string.pref_value_dark),
+                        ignoreCase = true
+                    ) -> AppCompatDelegate.MODE_NIGHT_YES
+
+                    else -> {
+                        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
+                            AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY
+                        } else {
+                            AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+                        }
+                    }
+                }
+                AppCompatDelegate.setDefaultNightMode(darkMode)
+            }
             SimpleMarkdownTheme {
                 val navController = rememberNavController()
                 NavHost(
                     navController = navController,
                     startDestination = Route.EDITOR.path,
-                    enterTransition = { fadeIn(
-                        animationSpec = tween(
-                            300, easing = LinearEasing
+                    enterTransition = {
+                        fadeIn(
+                            animationSpec = tween(
+                                300, easing = LinearEasing
+                            )
+                        ) + slideIntoContainer(
+                            animationSpec = tween(300, easing = EaseIn),
+                            towards = AnimatedContentTransitionScope.SlideDirection.Start
                         )
-                    ) + slideIntoContainer(
-                        animationSpec = tween(300, easing = EaseIn),
-                        towards = AnimatedContentTransitionScope.SlideDirection.Start
-                    ) },
+                    },
                     popEnterTransition = { EnterTransition.None },
                     popExitTransition = {
                         fadeOut(
@@ -120,7 +122,8 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
                             navController = navController,
                             viewModel = viewModel,
                             enableAutosave = autosaveEnabled,
-                            enableReadability = readabilityEnabled
+                            enableReadability = readabilityEnabled,
+                            darkMode = darkModePreference
                         )
                     }
                     composable(Route.SETTINGS.path) {
@@ -130,13 +133,25 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
                         SupportScreen(navController = navController)
                     }
                     composable(Route.HELP.path) {
-                        MarkdownInfoScreen(title = Route.HELP.title, file = "Cheatsheet.md", navController = navController)
+                        MarkdownInfoScreen(
+                            title = Route.HELP.title,
+                            file = "Cheatsheet.md",
+                            navController = navController
+                        )
                     }
                     composable(Route.ABOUT.path) {
-                        MarkdownInfoScreen(title = Route.ABOUT.title, file = "Libraries.md", navController = navController)
+                        MarkdownInfoScreen(
+                            title = Route.ABOUT.title,
+                            file = "Libraries.md",
+                            navController = navController
+                        )
                     }
                     composable(Route.PRIVACY.path) {
-                        MarkdownInfoScreen(title = Route.PRIVACY.title, file = "Privacy Policy.md", navController = navController)
+                        MarkdownInfoScreen(
+                            title = Route.PRIVACY.title,
+                            file = "Privacy Policy.md",
+                            navController = navController
+                        )
                     }
                 }
             }

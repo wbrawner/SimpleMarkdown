@@ -9,10 +9,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -38,6 +39,7 @@ import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
@@ -51,8 +53,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
@@ -78,6 +80,7 @@ fun MainScreen(
     viewModel: MarkdownViewModel,
     enableAutosave: Boolean,
     enableReadability: Boolean,
+    darkMode: String,
 ) {
     var lockSwiping by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
@@ -242,8 +245,15 @@ fun MainScreen(
                     if (page == 0) {
                         TextField(
                             modifier = Modifier
-                                .fillMaxSize()
-                                .padding(8.dp),
+                                .fillMaxSize(),
+                            colors = TextFieldDefaults.colors(
+                                focusedContainerColor = MaterialTheme.colorScheme.surface,
+                                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                                disabledIndicatorColor = Color.Transparent,
+                                errorIndicatorColor = Color.Transparent,
+                                focusedIndicatorColor = Color.Transparent,
+                                unfocusedIndicatorColor = Color.Transparent
+                            ),
                             value = textFieldValue,
                             onValueChange = {
                                 textFieldValue = if (enableReadability) {
@@ -265,7 +275,7 @@ fun MainScreen(
                             keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences)
                         )
                     } else {
-                        MarkdownPreview(modifier = Modifier.fillMaxSize(), markdown)
+                        MarkdownPreview(modifier = Modifier.fillMaxSize(), markdown, darkMode)
                     }
                 }
             }
@@ -293,6 +303,21 @@ fun MarkdownNavigationDrawer(
     val coroutineScope = rememberCoroutineScope()
     DismissibleNavigationDrawer(drawerState = drawerState, drawerContent = {
         DismissibleDrawerSheet {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    modifier = Modifier.size(96.dp),
+                    painter = painterResource(R.drawable.ic_launcher_foreground),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = "Simple Markdown",
+                    style = MaterialTheme.typography.titleLarge
+                )
+            }
             Route.entries.forEach { route ->
                 if (route == Route.EDITOR) {
                     return@forEach
