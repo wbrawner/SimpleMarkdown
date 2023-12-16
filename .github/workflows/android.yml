@@ -45,7 +45,7 @@ jobs:
         if: always()
         with:
           name: Unit Test Results
-          path: "*/build/test-results/test/*.xml"
+          path: "*/build/test-results/*/*.xml"
           reporter: java-junit
           fail-on-error: true
   ui_tests:
