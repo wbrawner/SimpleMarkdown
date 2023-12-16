@@ -19,8 +19,8 @@ jobs:
     - name: Validate Gradle Wrapper
       uses: gradle/wrapper-validation-action@v1
     - name: Enable auto-merge
-      if: ${{ github.event_name == 'pull_request' && github.actor == 'wbrawner' }}
-      run: gh pr merge --auto --merge "$PR_URL"
+      if: ${{ github.event_name == 'pull_request' && github.actor == 'dependabot' }}
+      run: gh pr merge --auto --rebase "$PR_URL"
       env:
         PR_URL: ${{github.event.pull_request.html_url}}
         GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
