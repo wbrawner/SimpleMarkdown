@@ -6,7 +6,6 @@ import android.net.Uri
 import android.provider.OpenableColumns
 import android.view.View
 import android.view.inputmethod.InputMethodManager
-import com.commonsware.cwac.anddown.AndDown
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.Reader
@@ -24,16 +23,6 @@ fun View.hideKeyboard() =
 suspend fun AssetManager.readAssetToString(asset: String): String? {
     return withContext(Dispatchers.IO) {
         open(asset).reader().use(Reader::readText)
-    }
-}
-
-const val HOEDOWN_FLAGS = AndDown.HOEDOWN_EXT_STRIKETHROUGH or AndDown.HOEDOWN_EXT_TABLES or
-        AndDown.HOEDOWN_EXT_UNDERLINE or AndDown.HOEDOWN_EXT_SUPERSCRIPT or
-        AndDown.HOEDOWN_EXT_FENCED_CODE
-
-suspend fun String.toHtml(): String {
-    return withContext(Dispatchers.IO) {
-        AndDown().markdownToHtml(this@toHtml, HOEDOWN_FLAGS, 0)
     }
 }
 

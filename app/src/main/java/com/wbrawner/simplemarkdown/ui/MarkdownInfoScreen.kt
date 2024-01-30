@@ -11,7 +11,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
 import com.wbrawner.simplemarkdown.utility.readAssetToString
-import com.wbrawner.simplemarkdown.utility.toHtml
 
 @Composable
 fun MarkdownInfoScreen(
@@ -30,7 +29,7 @@ fun MarkdownInfoScreen(
         val context = LocalContext.current
         val (markdown, setMarkdown) = remember { mutableStateOf("") }
         LaunchedEffect(file) {
-            setMarkdown(context.assets.readAssetToString(file)?.toHtml() ?: "Failed to load $file")
+            setMarkdown(context.assets.readAssetToString(file) ?: "Failed to load $file")
         }
         MarkdownPreview(
             modifier = Modifier
