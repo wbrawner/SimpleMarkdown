@@ -51,9 +51,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
@@ -73,7 +75,7 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.net.URI
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalComposeUiApi::class)
 @Composable
 fun MainScreen(
     navController: NavController,
@@ -234,6 +236,13 @@ fun MainScreen(
                     userScrollEnabled = !lockSwiping
                 ) { page ->
                     val markdown by viewModel.markdown.collectAsState()
+                    val keyboardController = LocalSoftwareKeyboardController.current
+                    LaunchedEffect(page) {
+                        when (page) {
+                            0 -> keyboardController?.show()
+                            else -> keyboardController?.hide()
+                        }
+                    }
                     var textFieldValue by remember(clearText) {
                         val annotatedMarkdown = if (enableReadability) {
                             markdown.annotateReadability()
