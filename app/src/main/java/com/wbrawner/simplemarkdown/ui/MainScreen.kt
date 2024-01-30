@@ -64,6 +64,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat.startActivity
 import androidx.navigation.NavController
@@ -364,7 +365,7 @@ fun MarkdownTopAppBar(
 ) {
     val coroutineScope = rememberCoroutineScope()
     TopAppBar(title = {
-        Text(title)
+        Text(text = title, maxLines = 1, overflow = TextOverflow.Ellipsis)
     }, navigationIcon = {
         val (icon, contentDescription, onClick) = remember {
             if (backAsUp) {
