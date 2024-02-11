@@ -20,6 +20,9 @@ import androidx.compose.material.icons.filled.Help
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.PrivacyTip
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
+import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -48,6 +51,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         )
     }
 
+    @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
@@ -90,6 +94,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
                 }
                 AppCompatDelegate.setDefaultNightMode(darkMode)
             }
+            val windowSizeClass = calculateWindowSizeClass(this)
             SimpleMarkdownTheme {
                 val navController = rememberNavController()
                 NavHost(
@@ -121,6 +126,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
                         MainScreen(
                             navController = navController,
                             viewModel = viewModel,
+                            enableWideLayout = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Expanded,
                             enableAutosave = autosaveEnabled,
                             enableReadability = readabilityEnabled,
                             darkMode = darkModePreference

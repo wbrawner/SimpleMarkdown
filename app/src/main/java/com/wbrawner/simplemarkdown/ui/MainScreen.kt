@@ -4,15 +4,19 @@ import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.text.KeyboardOptions
@@ -43,6 +47,9 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
+import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -72,16 +79,17 @@ import com.wbrawner.simplemarkdown.MarkdownViewModel
 import com.wbrawner.simplemarkdown.R
 import com.wbrawner.simplemarkdown.Route
 import com.wbrawner.simplemarkdown.model.Readability
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.net.URI
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalComposeUiApi::class)
 @Composable
 fun MainScreen(
     navController: NavController,
     viewModel: MarkdownViewModel,
+    enableWideLayout: Boolean,
     enableAutosave: Boolean,
     enableReadability: Boolean,
     darkMode: String,
@@ -204,93 +212,98 @@ fun MainScreen(
                                     menuExpanded = false
                                     saveFileLauncher.launch(fileName)
                                 })
-                            DropdownMenuItem(text = {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Text("Lock Swiping")
-                                    Checkbox(
-                                        checked = lockSwiping,
-                                        onCheckedChange = { lockSwiping = !lockSwiping })
-                                }
-                            }, onClick = {
-                                lockSwiping = !lockSwiping
-                                menuExpanded = false
-                            })
+                            if (!enableWideLayout) {
+                                DropdownMenuItem(text = {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Text("Lock Swiping")
+                                        Checkbox(
+                                            checked = lockSwiping,
+                                            onCheckedChange = { lockSwiping = !lockSwiping })
+                                    }
+                                }, onClick = {
+                                    lockSwiping = !lockSwiping
+                                    menuExpanded = false
+                                })
+                            }
                         }
                     }
                 })
         }) { paddingValues ->
-            val pagerState = rememberPagerState { 2 }
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-            ) {
-                TabRow(selectedTabIndex = pagerState.currentPage) {
-                    Tab(text = { Text("Edit") },
-                        selected = pagerState.currentPage == 0,
-                        onClick = { coroutineScope.launch { pagerState.animateScrollToPage(0) } })
-                    Tab(text = { Text("Preview") },
-                        selected = pagerState.currentPage == 1,
-                        onClick = { coroutineScope.launch { pagerState.animateScrollToPage(1) } })
+            val markdown by viewModel.markdown.collectAsState()
+            val (textFieldValue, setTextFieldValue) = remember(clearText) {
+                val annotatedMarkdown = if (enableReadability) {
+                    markdown.annotateReadability()
+                } else {
+                    AnnotatedString(markdown)
                 }
-                HorizontalPager(
-                    modifier = Modifier.weight(1f), state = pagerState,
-                    userScrollEnabled = !lockSwiping
-                ) { page ->
-                    val markdown by viewModel.markdown.collectAsState()
-                    val keyboardController = LocalSoftwareKeyboardController.current
-                    LaunchedEffect(page) {
-                        when (page) {
-                            0 -> keyboardController?.show()
-                            else -> keyboardController?.hide()
-                        }
-                    }
-                    var textFieldValue by remember(clearText) {
-                        val annotatedMarkdown = if (enableReadability) {
-                            markdown.annotateReadability()
-                        } else {
-                            AnnotatedString(markdown)
-                        }
-                        mutableStateOf(TextFieldValue(annotatedMarkdown))
-                    }
-                    if (page == 0) {
-                        TextField(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .imePadding(),
-                            colors = TextFieldDefaults.colors(
-                                focusedContainerColor = MaterialTheme.colorScheme.surface,
-                                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                                disabledIndicatorColor = Color.Transparent,
-                                errorIndicatorColor = Color.Transparent,
-                                focusedIndicatorColor = Color.Transparent,
-                                unfocusedIndicatorColor = Color.Transparent
-                            ),
-                            value = textFieldValue,
-                            onValueChange = {
-                                textFieldValue = if (enableReadability) {
-                                    it.copy(annotatedString = it.text.annotateReadability())
-                                } else {
-                                    it
-                                }
-                                coroutineScope.launch {
-                                    viewModel.updateMarkdown(it.text)
-                                }
-                            },
-                            placeholder = {
-                                Text("Markdown here…")
-                            },
-                            textStyle = TextStyle.Default.copy(
-                                fontFamily = FontFamily.Monospace,
-                                color = MaterialTheme.colorScheme.onSurface
-                            ),
-                            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences)
-                        )
-                    } else {
-                        MarkdownPreview(modifier = Modifier.fillMaxSize(), markdown, darkMode)
-                    }
+                mutableStateOf(TextFieldValue(annotatedMarkdown))
+            }
+            val setTextFieldAndViewModelValues: (TextFieldValue) -> Unit = {
+                setTextFieldValue(it)
+                coroutineScope.launch {
+                    viewModel.updateMarkdown(it.text)
                 }
             }
+            if (enableWideLayout) {
+                Row(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
+                    MarkdownTextField(modifier = Modifier.fillMaxHeight().weight(1f), textFieldValue, setTextFieldAndViewModelValues)
+                    Spacer(modifier = Modifier.fillMaxHeight().width(1.dp).background(color = MaterialTheme.colorScheme.primary))
+                    MarkdownPreview(modifier = Modifier.fillMaxHeight().weight(1f), markdown, darkMode)
+                }
+            } else {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues)
+                ) {
+                    TabbedMarkdownEditor(
+                        coroutineScope,
+                        lockSwiping,
+                        textFieldValue,
+                        setTextFieldAndViewModelValues,
+                        markdown,
+                        darkMode
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+@OptIn(ExperimentalFoundationApi::class)
+private fun TabbedMarkdownEditor(
+    coroutineScope: CoroutineScope,
+    lockSwiping: Boolean,
+    textFieldValue: TextFieldValue,
+    setTextFieldAndViewModelValues: (TextFieldValue) -> Unit,
+    markdown: String,
+    darkMode: String
+) {
+    val pagerState = rememberPagerState { 2 }
+    TabRow(selectedTabIndex = pagerState.currentPage) {
+        Tab(text = { Text("Edit") },
+            selected = pagerState.currentPage == 0,
+            onClick = { coroutineScope.launch { pagerState.animateScrollToPage(0) } })
+        Tab(text = { Text("Preview") },
+            selected = pagerState.currentPage == 1,
+            onClick = { coroutineScope.launch { pagerState.animateScrollToPage(1) } })
+    }
+    HorizontalPager(
+        modifier = Modifier.fillMaxSize(1f), state = pagerState,
+        userScrollEnabled = !lockSwiping
+    ) { page ->
+        val keyboardController = LocalSoftwareKeyboardController.current
+        LaunchedEffect(page) {
+            when (page) {
+                0 -> keyboardController?.show()
+                else -> keyboardController?.hide()
+            }
+        }
+        if (page == 0) {
+            MarkdownTextField(modifier = Modifier.fillMaxSize(), textFieldValue, setTextFieldAndViewModelValues)
+        } else {
+            MarkdownPreview(modifier = Modifier.fillMaxSize(), markdown, darkMode)
         }
     }
 }
@@ -388,4 +401,42 @@ fun MarkdownTopAppBar(
             Icon(imageVector = icon, contentDescription = contentDescription)
         }
     }, actions = actions ?: {})
+}
+
+@Composable
+fun MarkdownTextField(
+    modifier: Modifier,
+    textFieldValue: TextFieldValue,
+    setTextFieldValue: (TextFieldValue) -> Unit,
+    enableReadability: Boolean = false
+) {
+    TextField(
+        modifier = modifier.imePadding(),
+        colors = TextFieldDefaults.colors(
+            focusedContainerColor = MaterialTheme.colorScheme.surface,
+            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+            disabledIndicatorColor = Color.Transparent,
+            errorIndicatorColor = Color.Transparent,
+            focusedIndicatorColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent
+        ),
+        value = textFieldValue,
+        onValueChange = {
+            setTextFieldValue(
+                if (enableReadability) {
+                    it.copy(annotatedString = it.text.annotateReadability())
+                } else {
+                    it
+                }
+            )
+        },
+        placeholder = {
+            Text("Markdown here…")
+        },
+        textStyle = TextStyle.Default.copy(
+            fontFamily = FontFamily.Monospace,
+            color = MaterialTheme.colorScheme.onSurface
+        ),
+        keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences)
+    )
 }
