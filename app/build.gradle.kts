@@ -1,5 +1,6 @@
 import java.io.FileInputStream
 import java.io.FileNotFoundException
+import java.util.Locale
 import java.util.Properties
 
 plugins {
