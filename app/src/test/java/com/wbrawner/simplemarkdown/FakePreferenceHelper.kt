@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.StateFlow
 
 class FakePreferenceHelper: PreferenceHelper {
     val preferences = mutableMapOf<Preference, Any?>()
-    override fun get(preference: Preference): Any? = preferences[preference]
+    override fun get(preference: Preference): Any? = preferences[preference]?: preference.default
 
     override fun set(preference: Preference, value: Any?) {
         preferences[preference] = value

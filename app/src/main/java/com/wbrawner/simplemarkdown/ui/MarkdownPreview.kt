@@ -3,6 +3,7 @@ package com.wbrawner.simplemarkdown.ui
 import android.content.Context
 import android.view.ViewGroup
 import android.webkit.WebView
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -24,9 +25,9 @@ private const val container = "<main id=\"content\"></main>"
 
 @OptIn(ExperimentalStdlibApi::class)
 @Composable
-fun MarkdownPreview(modifier: Modifier = Modifier, markdown: String, darkMode: String) {
+fun MarkdownPreview(modifier: Modifier = Modifier, markdown: String) {
     val materialColors = MaterialTheme.colorScheme
-    val style = remember(darkMode) {
+    val style = remember(isSystemInDarkTheme()) {
         """body {
             |   background: #${materialColors.surface.toArgb().toHexString().substring(2)};
             |   color: #${materialColors.onSurface.toArgb().toHexString().substring(2)};

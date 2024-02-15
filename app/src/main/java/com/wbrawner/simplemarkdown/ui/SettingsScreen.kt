@@ -35,7 +35,7 @@ import com.wbrawner.simplemarkdown.utility.PreferenceHelper
 @Composable
 fun SettingsScreen(navController: NavController, preferenceHelper: PreferenceHelper) {
     Scaffold(topBar = {
-        MarkdownTopAppBar(title = "Settings", navController = navController)
+        MarkdownTopAppBar(title = "Settings", goBack = { navController.popBackStack() })
     }) { paddingValues ->
         Column(
             modifier = Modifier
