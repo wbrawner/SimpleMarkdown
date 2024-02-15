@@ -14,9 +14,9 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Help
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Help
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.PrivacyTip
 import androidx.compose.material.icons.filled.Settings
@@ -128,8 +128,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
                             viewModel = viewModel,
                             enableWideLayout = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Expanded,
                             enableAutosave = autosaveEnabled,
-                            enableReadability = readabilityEnabled,
-                            darkMode = darkModePreference
+                            enableReadability = readabilityEnabled
                         )
                     }
                     composable(Route.SETTINGS.path) {
@@ -173,7 +172,7 @@ enum class Route(
     EDITOR("/", "Editor", Icons.Default.Edit),
     SETTINGS("/settings", "Settings", Icons.Default.Settings),
     SUPPORT("/support", "Support SimpleMarkdown", Icons.Default.Favorite),
-    HELP("/help", "Help", Icons.Default.Help),
+    HELP("/help", "Help", Icons.AutoMirrored.Filled.Help),
     ABOUT("/about", "About", Icons.Default.Info),
     PRIVACY("/privacy", "Privacy", Icons.Default.PrivacyTip),
 }

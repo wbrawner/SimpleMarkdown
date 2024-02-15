@@ -22,7 +22,7 @@ fun MarkdownInfoScreen(
         topBar = {
             MarkdownTopAppBar(
                 title = title,
-                navController = navController,
+                goBack = { navController.popBackStack() },
             )
         }
     ) { paddingValues ->
@@ -35,8 +35,7 @@ fun MarkdownInfoScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues),
-            markdown = markdown,
-            "Auto"
+            markdown = markdown
         )
     }
 }

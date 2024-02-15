@@ -37,7 +37,7 @@ import com.wbrawner.simplemarkdown.utility.SupportLinks
 @Composable
 fun SupportScreen(navController: NavController) {
     Scaffold(topBar = {
-        MarkdownTopAppBar(title = "Support SimpleMarkdown", navController = navController)
+        MarkdownTopAppBar(title = "Support SimpleMarkdown", goBack = { navController.popBackStack() })
     }) { paddingValues ->
         val context = LocalContext.current
         Column(

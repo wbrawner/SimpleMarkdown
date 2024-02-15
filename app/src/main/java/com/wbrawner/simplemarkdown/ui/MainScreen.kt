@@ -1,6 +1,7 @@
 package com.wbrawner.simplemarkdown.ui
 
 import android.content.Intent
+import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -21,7 +22,7 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Share
@@ -39,6 +40,9 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
@@ -47,11 +51,9 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
-import androidx.compose.material3.windowsizeclass.WindowSizeClass
-import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
-import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -59,7 +61,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -67,6 +68,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -75,15 +77,18 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat.startActivity
 import androidx.navigation.NavController
+import com.wbrawner.simplemarkdown.AlertDialogModel
+import com.wbrawner.simplemarkdown.EditorState
 import com.wbrawner.simplemarkdown.MarkdownViewModel
 import com.wbrawner.simplemarkdown.R
 import com.wbrawner.simplemarkdown.Route
 import com.wbrawner.simplemarkdown.model.Readability
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.net.URI
+import kotlin.reflect.KProperty1
 
 @Composable
 fun MainScreen(
@@ -91,164 +96,216 @@ fun MainScreen(
     viewModel: MarkdownViewModel,
     enableWideLayout: Boolean,
     enableAutosave: Boolean,
-    enableReadability: Boolean,
-    darkMode: String,
+    enableReadability: Boolean
 ) {
-    var lockSwiping by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
-    val fileName by viewModel.fileName.collectAsState()
-    val openFileLauncher =
-        rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) {
-            coroutineScope.launch {
-                viewModel.load(it.toString())
-            }
-        }
-    val saveFileLauncher =
-        rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("text/*")) {
-            it?.let {
-                coroutineScope.launch {
-                    viewModel.save(URI.create(it.toString()))
-                }
-            }
-        }
-    var errorMessage by remember { mutableStateOf<String?>(null) }
-    var promptEffect by remember { mutableStateOf<MarkdownViewModel.Effect.Prompt?>(null) }
-    var clearText by remember { mutableStateOf(0) }
-    LaunchedEffect(viewModel) {
-        viewModel.effects.collect { effect ->
-            when (effect) {
-                is MarkdownViewModel.Effect.OpenSaveDialog -> saveFileLauncher.launch(fileName)
-                is MarkdownViewModel.Effect.Error -> errorMessage = effect.text
-                is MarkdownViewModel.Effect.Prompt -> promptEffect = effect
-                is MarkdownViewModel.Effect.ClearText -> clearText++
-            }
-        }
-    }
+    val fileName by viewModel.collectAsState(EditorState::fileName, "")
+    val markdown by viewModel.collectAsState(EditorState::markdown, "")
+    val alert by viewModel.collectAsState(EditorState::alert, null)
+    val saveCallback by viewModel.collectAsState(EditorState::saveCallback, null)
     LaunchedEffect(enableAutosave) {
         if (!enableAutosave) return@LaunchedEffect
         while (isActive) {
-            delay(30_000)
+            delay(500)
             viewModel.autosave()
         }
     }
-    errorMessage?.let { message ->
-        AlertDialog(
-            onDismissRequest = { errorMessage = null },
-            confirmButton = {
-                TextButton(onClick = { errorMessage = null }) {
-                    Text("OK")
-                }
-            },
-            text = { Text(message) }
-        )
+    val toast by viewModel.collectAsState(EditorState::toast, null)
+    MainScreen(
+        fileName = fileName,
+        markdown = markdown,
+        setMarkdown = viewModel::updateMarkdown,
+        message = toast,
+        dismissMessage = viewModel::dismissToast,
+        alert = alert,
+        dismissAlert = viewModel::dismissAlert,
+        navigate = {
+            navController.navigate(it.path)
+        },
+        navigateBack = { navController.popBackStack() },
+        loadFile = {
+            coroutineScope.launch {
+                viewModel.load(it.toString())
+            }
+        },
+        saveFile = {
+            coroutineScope.launch {
+                viewModel.save(it)
+            }
+        },
+        saveCallback = saveCallback,
+        reset = {
+            viewModel.reset("Untitled.md")
+        },
+        enableWideLayout = enableWideLayout,
+        enableReadability = enableReadability,
+    )
+}
+
+@Composable
+private fun MainScreen(
+    fileName: String = "Untitled.md",
+    markdown: String = "",
+    setMarkdown: (String) -> Unit = {},
+    message: String? = null,
+    dismissMessage: () -> Unit = {},
+    alert: AlertDialogModel? = null,
+    dismissAlert: () -> Unit = {},
+    navigate: (Route) -> Unit = {},
+    navigateBack: () -> Unit = {},
+    loadFile: (Uri?) -> Unit = {},
+    saveFile: (URI?) -> Unit = {},
+    saveCallback: (() -> Unit)? = null,
+    reset: () -> Unit = {},
+    enableWideLayout: Boolean = false,
+    enableReadability: Boolean = false
+) {
+    var lockSwiping by remember { mutableStateOf(false) }
+    val openFileLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) {
+            loadFile(it)
+        }
+    val saveFileLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("text/*")) {
+            it?.let { uri -> saveFile(URI.create(uri.toString())) }
+        }
+    saveCallback?.let { callback ->
+        val launcher =
+            rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("text/*")) {
+                it?.let { uri -> saveFile(URI.create(uri.toString())) }
+                callback()
+            }
+        LaunchedEffect(callback) {
+            launcher.launch(fileName)
+        }
     }
-    promptEffect?.let { prompt ->
+
+    val snackBarState = remember { SnackbarHostState() }
+
+    LaunchedEffect(message) {
+        message?.let {
+            snackBarState.showSnackbar(it)
+            dismissMessage()
+        }
+    }
+
+    alert?.let {
         AlertDialog(
-            onDismissRequest = { errorMessage = null },
+            onDismissRequest = dismissAlert,
             confirmButton = {
-                TextButton(onClick = {
-                    prompt.confirm()
-                    promptEffect = null
-                }) {
-                    Text("Yes")
+                TextButton(onClick = it.confirmButton.onClick) {
+                    Text(it.confirmButton.text)
                 }
             },
             dismissButton = {
-                TextButton(onClick = {
-                    prompt.cancel()
-                    promptEffect = null
-                }) {
-                    Text("No")
+                it.dismissButton?.let { dismissButton ->
+                    TextButton(onClick = dismissButton.onClick) {
+                        Text(dismissButton.text)
+                    }
                 }
             },
-            text = { Text(prompt.text) }
+            text = { Text(it.text) }
         )
     }
-    MarkdownNavigationDrawer(navigate = { navController.navigate(it.path) }) { drawerState ->
-        Scaffold(topBar = {
-            val context = LocalContext.current
-            MarkdownTopAppBar(title = fileName,
-                backAsUp = false,
-                navController = navController,
-                drawerState = drawerState,
-                actions = {
-                    IconButton(onClick = {
-                        val shareIntent = Intent(Intent.ACTION_SEND)
-                        shareIntent.putExtra(Intent.EXTRA_TEXT, viewModel.markdown.value)
-                        shareIntent.type = "text/plain"
-                        startActivity(
-                            context, Intent.createChooser(
-                                shareIntent, context.getString(R.string.share_file)
-                            ), null
-                        )
-                    }) {
-                        Icon(imageVector = Icons.Default.Share, contentDescription = "Share")
-                    }
-                    Box {
-                        var menuExpanded by remember { mutableStateOf(false) }
-                        IconButton(onClick = { menuExpanded = true }) {
-                            Icon(imageVector = Icons.Default.MoreVert, "Editor Actions")
+
+    MarkdownNavigationDrawer(navigate) { drawerState ->
+        Scaffold(
+            topBar = {
+                val context = LocalContext.current
+                MarkdownTopAppBar(title = fileName,
+                    backAsUp = false,
+                    goBack = navigateBack,
+                    drawerState = drawerState,
+                    actions = {
+                        IconButton(onClick = {
+                            val shareIntent = Intent(Intent.ACTION_SEND)
+                            shareIntent.putExtra(Intent.EXTRA_TEXT, markdown)
+                            shareIntent.type = "text/plain"
+                            startActivity(
+                                context, Intent.createChooser(
+                                    shareIntent, context.getString(R.string.share_file)
+                                ), null
+                            )
+                        }) {
+                            Icon(imageVector = Icons.Default.Share, contentDescription = "Share")
                         }
-                        DropdownMenu(expanded = menuExpanded,
-                            onDismissRequest = { menuExpanded = false }) {
-                            DropdownMenuItem(text = { Text("New") }, onClick = {
-                                menuExpanded = false
-                                coroutineScope.launch {
-                                    viewModel.reset("Untitled.md")
-                                }
-                            })
-                            DropdownMenuItem(text = { Text("Open") }, onClick = {
-                                menuExpanded = false
-                                openFileLauncher.launch(arrayOf("text/*"))
-                            })
-                            DropdownMenuItem(text = { Text("Save") }, onClick = {
-                                menuExpanded = false
-                                coroutineScope.launch {
-                                    viewModel.save()
-                                }
-                            })
-                            DropdownMenuItem(text = { Text("Save as…") },
-                                onClick = {
+                        Box {
+                            var menuExpanded by remember { mutableStateOf(false) }
+                            IconButton(onClick = { menuExpanded = true }) {
+                                Icon(imageVector = Icons.Default.MoreVert, "Editor Actions")
+                            }
+                            DropdownMenu(expanded = menuExpanded,
+                                onDismissRequest = { menuExpanded = false }) {
+                                DropdownMenuItem(text = { Text("New") }, onClick = {
                                     menuExpanded = false
-                                    saveFileLauncher.launch(fileName)
+                                    reset()
                                 })
-                            if (!enableWideLayout) {
-                                DropdownMenuItem(text = {
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Text("Lock Swiping")
-                                        Checkbox(
-                                            checked = lockSwiping,
-                                            onCheckedChange = { lockSwiping = !lockSwiping })
-                                    }
-                                }, onClick = {
-                                    lockSwiping = !lockSwiping
+                                DropdownMenuItem(text = { Text("Open") }, onClick = {
                                     menuExpanded = false
+                                    openFileLauncher.launch(arrayOf("text/*"))
                                 })
+                                DropdownMenuItem(text = { Text("Save") }, onClick = {
+                                    menuExpanded = false
+                                    saveFile(null)
+                                })
+                                DropdownMenuItem(text = { Text("Save as…") },
+                                    onClick = {
+                                        menuExpanded = false
+                                        saveFileLauncher.launch(fileName)
+                                    })
+                                if (!enableWideLayout) {
+                                    DropdownMenuItem(text = {
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Text("Lock Swiping")
+                                            Checkbox(
+                                                checked = lockSwiping,
+                                                onCheckedChange = { lockSwiping = !lockSwiping })
+                                        }
+                                    }, onClick = {
+                                        lockSwiping = !lockSwiping
+                                        menuExpanded = false
+                                    })
+                                }
                             }
                         }
                     }
-                })
-        }) { paddingValues ->
-            val markdown by viewModel.markdown.collectAsState()
-            val (textFieldValue, setTextFieldValue) = remember(clearText) {
-                val annotatedMarkdown = if (enableReadability) {
-                    markdown.annotateReadability()
-                } else {
-                    AnnotatedString(markdown)
-                }
-                mutableStateOf(TextFieldValue(annotatedMarkdown))
-            }
-            val setTextFieldAndViewModelValues: (TextFieldValue) -> Unit = {
-                setTextFieldValue(it)
-                coroutineScope.launch {
-                    viewModel.updateMarkdown(it.text)
+                )
+            },
+            snackbarHost = {
+                SnackbarHost(
+                    modifier = Modifier.imePadding(),
+                    hostState = snackBarState
+                ) {
+                    Snackbar(it)
                 }
             }
+        ) { paddingValues ->
             if (enableWideLayout) {
-                Row(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
-                    MarkdownTextField(modifier = Modifier.fillMaxHeight().weight(1f), textFieldValue, setTextFieldAndViewModelValues)
-                    Spacer(modifier = Modifier.fillMaxHeight().width(1.dp).background(color = MaterialTheme.colorScheme.primary))
-                    MarkdownPreview(modifier = Modifier.fillMaxHeight().weight(1f), markdown, darkMode)
+                Row(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues)
+                ) {
+                    MarkdownTextField(
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .weight(1f),
+                        markdown = markdown,
+                        setMarkdown = setMarkdown,
+                        enableReadability = enableReadability
+                    )
+                    Spacer(
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .width(1.dp)
+                            .background(color = MaterialTheme.colorScheme.primary)
+                    )
+                    MarkdownPreview(
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .weight(1f),
+                        markdown = markdown
+                    )
                 }
             } else {
                 Column(
@@ -257,12 +314,10 @@ fun MainScreen(
                         .padding(paddingValues)
                 ) {
                     TabbedMarkdownEditor(
-                        coroutineScope,
-                        lockSwiping,
-                        textFieldValue,
-                        setTextFieldAndViewModelValues,
-                        markdown,
-                        darkMode
+                        markdown = markdown,
+                        setMarkdown = setMarkdown,
+                        lockSwiping = lockSwiping,
+                        enableReadability = enableReadability
                     )
                 }
             }
@@ -273,13 +328,12 @@ fun MainScreen(
 @Composable
 @OptIn(ExperimentalFoundationApi::class)
 private fun TabbedMarkdownEditor(
-    coroutineScope: CoroutineScope,
-    lockSwiping: Boolean,
-    textFieldValue: TextFieldValue,
-    setTextFieldAndViewModelValues: (TextFieldValue) -> Unit,
     markdown: String,
-    darkMode: String
+    setMarkdown: (String) -> Unit,
+    lockSwiping: Boolean,
+    enableReadability: Boolean
 ) {
+    val coroutineScope = rememberCoroutineScope()
     val pagerState = rememberPagerState { 2 }
     TabRow(selectedTabIndex = pagerState.currentPage) {
         Tab(text = { Text("Edit") },
@@ -301,9 +355,14 @@ private fun TabbedMarkdownEditor(
             }
         }
         if (page == 0) {
-            MarkdownTextField(modifier = Modifier.fillMaxSize(), textFieldValue, setTextFieldAndViewModelValues)
+            MarkdownTextField(
+                modifier = Modifier.fillMaxSize(),
+                markdown = markdown,
+                setMarkdown = setMarkdown,
+                enableReadability = enableReadability
+            )
         } else {
-            MarkdownPreview(modifier = Modifier.fillMaxSize(), markdown, darkMode)
+            MarkdownPreview(modifier = Modifier.fillMaxSize(), markdown)
         }
     }
 }
@@ -371,7 +430,7 @@ fun MarkdownNavigationDrawer(
 @Composable
 fun MarkdownTopAppBar(
     title: String,
-    navController: NavController,
+    goBack: () -> Unit,
     backAsUp: Boolean = true,
     drawerState: DrawerState? = null,
     actions: (@Composable RowScope.() -> Unit)? = null
@@ -382,7 +441,7 @@ fun MarkdownTopAppBar(
     }, navigationIcon = {
         val (icon, contentDescription, onClick) = remember {
             if (backAsUp) {
-                Triple(Icons.Default.ArrowBack, "Go Back") { navController.popBackStack() }
+                Triple(Icons.AutoMirrored.Filled.ArrowBack, "Go Back", goBack)
             } else {
                 Triple(
                     Icons.Default.Menu, "Main Menu"
@@ -406,10 +465,26 @@ fun MarkdownTopAppBar(
 @Composable
 fun MarkdownTextField(
     modifier: Modifier,
-    textFieldValue: TextFieldValue,
-    setTextFieldValue: (TextFieldValue) -> Unit,
+    markdown: String,
+    setMarkdown: (String) -> Unit,
     enableReadability: Boolean = false
 ) {
+    val (selection, setSelection) = remember { mutableStateOf(TextRange.Zero) }
+    val (composition, setComposition) = remember { mutableStateOf<TextRange?>(null) }
+    val textFieldValue = remember(markdown) {
+        val annotatedMarkdown = if (enableReadability) {
+            markdown.annotateReadability()
+        } else {
+            AnnotatedString(markdown)
+        }
+        TextFieldValue(annotatedMarkdown, selection, composition)
+    }
+    val setTextFieldAndViewModelValues: (TextFieldValue) -> Unit = {
+        setSelection(it.selection)
+        setComposition(it.composition)
+        setMarkdown(it.text)
+    }
+
     TextField(
         modifier = modifier.imePadding(),
         colors = TextFieldDefaults.colors(
@@ -421,15 +496,7 @@ fun MarkdownTextField(
             unfocusedIndicatorColor = Color.Transparent
         ),
         value = textFieldValue,
-        onValueChange = {
-            setTextFieldValue(
-                if (enableReadability) {
-                    it.copy(annotatedString = it.text.annotateReadability())
-                } else {
-                    it
-                }
-            )
-        },
+        onValueChange = setTextFieldAndViewModelValues,
         placeholder = {
             Text("Markdown here…")
         },
@@ -440,3 +507,8 @@ fun MarkdownTextField(
         keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences)
     )
 }
+
+@Composable
+fun <P> MarkdownViewModel.collectAsState(prop: KProperty1<EditorState, P>, initial: P): State<P> =
+    state.map { prop.get(it) }
+        .collectAsState(initial)
