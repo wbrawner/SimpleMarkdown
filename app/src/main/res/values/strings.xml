@@ -86,7 +86,4 @@
         <item>@string/pref_key_dark_mode_dark</item>
         <item>@string/pref_key_dark_mode_auto</item>
     </string-array>
-    <string name="plausible_enable_startup">false</string>
-    <string name="plausible_host">https://plausible.wbrawner.com</string>
-    <string name="plausible_domain">simplemarkdown.android.wbrawner.com</string>
 </resources>
