@@ -33,7 +33,6 @@ import androidx.core.view.WindowCompat
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.wbrawner.plausible.android.Plausible
 import com.wbrawner.simplemarkdown.MarkdownApplication.Companion.fileHelper
 import com.wbrawner.simplemarkdown.MarkdownApplication.Companion.preferenceHelper
 import com.wbrawner.simplemarkdown.ui.MainScreen
@@ -56,15 +55,6 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         installSplashScreen()
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
-        val preferences = mutableMapOf<String, String>()
-        preferences["Autosave"] = preferenceHelper[Preference.AUTOSAVE_ENABLED].toString()
-        val usingCustomCss = !(preferenceHelper[Preference.CUSTOM_CSS] as String?).isNullOrBlank()
-        preferences["Custom CSS"] = usingCustomCss.toString()
-        val darkModeSetting = preferenceHelper[Preference.DARK_MODE].toString()
-        preferences["Dark Mode"] = darkModeSetting
-        preferences["Error Reports"] = preferenceHelper[Preference.ERROR_REPORTS_ENABLED].toString()
-        preferences["Readability"] = preferenceHelper[Preference.READABILITY_ENABLED].toString()
-        Plausible.event("settings", props = preferences, url = "/")
         setContent {
             val autosaveEnabled by preferenceHelper.observe<Boolean>(Preference.AUTOSAVE_ENABLED)
                 .collectAsState()

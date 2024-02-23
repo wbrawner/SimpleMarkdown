@@ -2,7 +2,6 @@ package com.wbrawner.simplemarkdown
 
 import android.app.Application
 import android.os.StrictMode
-import com.wbrawner.plausible.android.Plausible
 import com.wbrawner.simplemarkdown.utility.AndroidFileHelper
 import com.wbrawner.simplemarkdown.utility.AndroidPreferenceHelper
 import com.wbrawner.simplemarkdown.utility.FileHelper
@@ -37,14 +36,6 @@ class MarkdownApplication : Application() {
         }
         super.onCreate()
         ReviewHelper.init(this)
-        Plausible.enable(!BuildConfig.DEBUG)
-        Plausible.event(
-            "build",
-            url = "/",
-            props = mapOf(
-            "Flavor" to BuildConfig.FLAVOR,
-            "App Version" to BuildConfig.VERSION_NAME
-        ))
         fileHelper = AndroidFileHelper(this)
         preferenceHelper = AndroidPreferenceHelper(this)
     }
