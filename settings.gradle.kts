@@ -1,1 +1,1 @@
-include(":app")
+include(":app", ":md4k")

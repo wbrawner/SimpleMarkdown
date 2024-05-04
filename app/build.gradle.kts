@@ -111,6 +111,7 @@ play {
 }
 
 dependencies {
+    implementation(project(":md4k"))
     implementation("androidx.compose.material3:material3-window-size-class-android:1.2.0")
     val navigationVersion = "2.7.2"
     implementation("androidx.navigation:navigation-fragment-ktx:$navigationVersion")

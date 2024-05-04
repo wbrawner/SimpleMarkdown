@@ -31,7 +31,7 @@ fun MarkdownInfoScreen(
         LaunchedEffect(file) {
             setMarkdown(context.assets.readAssetToString(file) ?: "Failed to load $file")
         }
-        MarkdownPreview(
+        MarkdownText(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues),

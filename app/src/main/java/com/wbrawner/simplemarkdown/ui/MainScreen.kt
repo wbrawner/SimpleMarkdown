@@ -300,7 +300,7 @@ private fun MainScreen(
                             .width(1.dp)
                             .background(color = MaterialTheme.colorScheme.primary)
                     )
-                    MarkdownPreview(
+                    MarkdownText(
                         modifier = Modifier
                             .fillMaxHeight()
                             .weight(1f),
@@ -362,7 +362,7 @@ private fun TabbedMarkdownEditor(
                 enableReadability = enableReadability
             )
         } else {
-            MarkdownPreview(modifier = Modifier.fillMaxSize(), markdown)
+            MarkdownText(modifier = Modifier.fillMaxSize(), markdown)
         }
     }
 }
@@ -436,30 +436,34 @@ fun MarkdownTopAppBar(
     actions: (@Composable RowScope.() -> Unit)? = null
 ) {
     val coroutineScope = rememberCoroutineScope()
-    TopAppBar(title = {
-        Text(text = title, maxLines = 1, overflow = TextOverflow.Ellipsis)
-    }, navigationIcon = {
-        val (icon, contentDescription, onClick) = remember {
-            if (backAsUp) {
-                Triple(Icons.AutoMirrored.Filled.ArrowBack, "Go Back", goBack)
-            } else {
-                Triple(
-                    Icons.Default.Menu, "Main Menu"
-                ) {
-                    coroutineScope.launch {
-                        if (drawerState?.isOpen == true) {
-                            drawerState.close()
-                        } else {
-                            drawerState?.open()
+    TopAppBar(
+        title = {
+            Text(text = title, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        },
+        navigationIcon = {
+            val (icon, contentDescription, onClick) = remember {
+                if (backAsUp) {
+                    Triple(Icons.AutoMirrored.Filled.ArrowBack, "Go Back", goBack)
+                } else {
+                    Triple(
+                        Icons.Default.Menu, "Main Menu"
+                    ) {
+                        coroutineScope.launch {
+                            if (drawerState?.isOpen == true) {
+                                drawerState.close()
+                            } else {
+                                drawerState?.open()
+                            }
                         }
                     }
                 }
             }
-        }
-        IconButton(onClick = { onClick() }) {
-            Icon(imageVector = icon, contentDescription = contentDescription)
-        }
-    }, actions = actions ?: {})
+            IconButton(onClick = { onClick() }) {
+                Icon(imageVector = icon, contentDescription = contentDescription)
+            }
+        }, actions = actions ?: {},
+        scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+    )
 }
 
 @Composable

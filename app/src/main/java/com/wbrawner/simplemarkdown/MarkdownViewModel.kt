@@ -8,7 +8,6 @@ import com.wbrawner.simplemarkdown.utility.FileHelper
 import com.wbrawner.simplemarkdown.utility.Preference
 import com.wbrawner.simplemarkdown.utility.PreferenceHelper
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
