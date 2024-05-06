@@ -9,35 +9,24 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.DismissibleDrawerSheet
-import androidx.compose.material3.DismissibleNavigationDrawer
-import androidx.compose.material3.DrawerState
-import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
@@ -46,8 +35,6 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
@@ -61,8 +48,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat.startActivity
 import androidx.navigation.NavController
@@ -370,96 +355,6 @@ private fun TabbedMarkdownEditor(
             MarkdownText(modifier = Modifier.fillMaxSize(), markdown)
         }
     }
-}
-
-@Composable
-fun MarkdownNavigationDrawer(
-    navigate: (Route) -> Unit, content: @Composable (drawerState: DrawerState) -> Unit
-) {
-    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-    val coroutineScope = rememberCoroutineScope()
-    DismissibleNavigationDrawer(
-        gesturesEnabled = false,
-        drawerState = drawerState,
-        drawerContent = {
-            DismissibleDrawerSheet {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        modifier = Modifier.size(96.dp),
-                        painter = painterResource(R.drawable.ic_launcher_foreground),
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurface
-                    )
-                    Text(
-                        text = "Simple Markdown",
-                        style = MaterialTheme.typography.titleLarge
-                    )
-                }
-                Route.entries.forEach { route ->
-                    if (route == Route.EDITOR) {
-                        return@forEach
-                    }
-                    NavigationDrawerItem(
-                        icon = {
-                            Icon(imageVector = route.icon, contentDescription = null)
-                        },
-                        label = { Text(route.title) },
-                        selected = false,
-                        onClick = {
-                            navigate(route)
-                            coroutineScope.launch {
-                                drawerState.close()
-                            }
-                        }
-                    )
-                }
-            }
-        }) {
-        content(drawerState)
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun MarkdownTopAppBar(
-    title: String,
-    goBack: () -> Unit,
-    backAsUp: Boolean = true,
-    drawerState: DrawerState? = null,
-    actions: (@Composable RowScope.() -> Unit)? = null
-) {
-    val coroutineScope = rememberCoroutineScope()
-    TopAppBar(
-        title = {
-            Text(text = title, maxLines = 1, overflow = TextOverflow.Ellipsis)
-        },
-        navigationIcon = {
-            val (icon, contentDescription, onClick) = remember {
-                if (backAsUp) {
-                    Triple(Icons.AutoMirrored.Filled.ArrowBack, "Go Back", goBack)
-                } else {
-                    Triple(
-                        Icons.Default.Menu, "Main Menu"
-                    ) {
-                        coroutineScope.launch {
-                            if (drawerState?.isOpen == true) {
-                                drawerState.close()
-                            } else {
-                                drawerState?.open()
-                            }
-                        }
-                    }
-                }
-            }
-            IconButton(onClick = { onClick() }) {
-                Icon(imageVector = icon, contentDescription = contentDescription)
-            }
-        },
-        actions = actions ?: {},
-    )
 }
 
 @Composable
