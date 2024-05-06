@@ -12,17 +12,46 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.viewinterop.AndroidView
-import com.wbrawner.md4k.MD4K
 import com.wbrawner.simplemarkdown.BuildConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.commonmark.ext.autolink.AutolinkExtension
+import org.commonmark.ext.front.matter.YamlFrontMatterExtension
+import org.commonmark.ext.gfm.strikethrough.StrikethroughExtension
+import org.commonmark.ext.gfm.tables.TablesExtension
+import org.commonmark.ext.heading.anchor.HeadingAnchorExtension
+import org.commonmark.ext.image.attributes.ImageAttributesExtension
+import org.commonmark.ext.task.list.items.TaskListItemsExtension
+import org.commonmark.parser.Parser
+import org.commonmark.renderer.html.HtmlRenderer
+
+private val markdownExtensions = listOf(
+    AutolinkExtension.create(),
+    StrikethroughExtension.create(),
+    TablesExtension.create(),
+    HeadingAnchorExtension.create(),
+    YamlFrontMatterExtension.create(),
+    ImageAttributesExtension.create(),
+    TaskListItemsExtension.create(),
+)
+
+private val markdownParser = Parser.builder()
+    .extensions(markdownExtensions)
+    .build()
+
+private val renderer = HtmlRenderer.builder()
+    .extensions(markdownExtensions)
+    .build()
 
 @Composable
 fun MarkdownText(modifier: Modifier = Modifier, markdown: String) {
     val (html, setHtml) = remember { mutableStateOf("") }
     LaunchedEffect(markdown) {
         withContext(Dispatchers.IO) {
-            setHtml(MD4K.toHtml(markdown))
+            val parsedHtml = renderer.render(
+                markdownParser.parse(markdown)
+            )
+            setHtml(parsedHtml)
         }
     }
     HtmlText(modifier = modifier, html = html)
@@ -42,7 +71,6 @@ fun HtmlText(html: String, modifier: Modifier = Modifier) {
             |   color: #${materialColors.onSurfaceVariant.toArgb().toHexString().substring(2)};
             |}""".trimMargin().wrapTag("style")
     }
-
     AndroidView(
         modifier = modifier,
         factory = { context ->

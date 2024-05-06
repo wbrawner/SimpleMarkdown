@@ -111,7 +111,6 @@ play {
 }
 
 dependencies {
-    implementation(project(":md4k"))
     implementation("androidx.compose.material3:material3-window-size-class-android:1.2.0")
     val navigationVersion = "2.7.2"
     implementation("androidx.navigation:navigation-fragment-ktx:$navigationVersion")
@@ -138,6 +137,15 @@ dependencies {
     implementation("com.jakewharton.timber:timber:5.0.1")
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.browser:browser:1.6.0")
+    val commonMarkVersion = "0.22.0"
+    implementation("org.commonmark:commonmark:$commonMarkVersion")
+    implementation("org.commonmark:commonmark-ext-gfm-tables:$commonMarkVersion")
+    implementation("org.commonmark:commonmark-ext-gfm-strikethrough:$commonMarkVersion")
+    implementation("org.commonmark:commonmark-ext-autolink:$commonMarkVersion")
+    implementation("org.commonmark:commonmark-ext-task-list-items:$commonMarkVersion")
+    implementation("org.commonmark:commonmark-ext-yaml-front-matter:$commonMarkVersion")
+    implementation("org.commonmark:commonmark-ext-image-attributes:$commonMarkVersion")
+    implementation("org.commonmark:commonmark-ext-heading-anchor:$commonMarkVersion")
     val composeBom = platform("androidx.compose:compose-bom:2023.08.00")
     implementation(composeBom)
     androidTestImplementation(composeBom)
