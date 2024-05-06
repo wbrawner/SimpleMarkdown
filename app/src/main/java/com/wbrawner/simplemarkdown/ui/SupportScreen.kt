@@ -18,6 +18,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -34,6 +35,7 @@ import androidx.navigation.NavController
 import com.wbrawner.simplemarkdown.R
 import com.wbrawner.simplemarkdown.utility.SupportLinks
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SupportScreen(navController: NavController) {
     Scaffold(topBar = {

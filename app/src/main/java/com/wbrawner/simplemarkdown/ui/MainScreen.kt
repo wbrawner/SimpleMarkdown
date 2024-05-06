@@ -24,6 +24,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -35,6 +36,8 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
@@ -46,6 +49,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
@@ -121,6 +125,7 @@ fun MainScreen(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MainScreen(
     fileName: String = "Untitled.md",
@@ -189,7 +194,7 @@ private fun MainScreen(
             text = { Text(it.text) }
         )
     }
-
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     MarkdownNavigationDrawer(navigate) { drawerState ->
         Scaffold(
             topBar = {
@@ -251,7 +256,8 @@ private fun MainScreen(
                                 }
                             }
                         }
-                    }
+                    },
+                    scrollBehavior = scrollBehavior
                 )
             },
             snackbarHost = {
@@ -276,7 +282,7 @@ private fun MainScreen(
                         reload = reloadToggle,
                         markdown = markdown,
                         setMarkdown = setMarkdown,
-                        enableReadability = enableReadability
+                        enableReadability = enableReadability,
                     )
                     Spacer(
                         modifier = Modifier
@@ -303,7 +309,8 @@ private fun MainScreen(
                         setMarkdown = setMarkdown,
                         lockSwiping = lockSwiping,
                         enableReadability = enableReadability,
-                        reloadToggle = reloadToggle
+                        reloadToggle = reloadToggle,
+                        scrollBehavior = scrollBehavior
                     )
                 }
             }
@@ -312,14 +319,15 @@ private fun MainScreen(
 }
 
 @Composable
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 private fun TabbedMarkdownEditor(
     initialMarkdown: String,
     markdown: String,
     setMarkdown: (String) -> Unit,
     lockSwiping: Boolean,
     enableReadability: Boolean,
-    reloadToggle: Int
+    reloadToggle: Int,
+    scrollBehavior: TopAppBarScrollBehavior
 ) {
     val coroutineScope = rememberCoroutineScope()
     val pagerState = rememberPagerState { 2 }
@@ -345,14 +353,21 @@ private fun TabbedMarkdownEditor(
         }
         if (page == 0) {
             MarkdownTextField(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .nestedScroll(scrollBehavior.nestedScrollConnection),
                 markdown = initialMarkdown,
                 setMarkdown = setMarkdown,
                 enableReadability = enableReadability,
-                reload = reloadToggle
+                reload = reloadToggle,
             )
         } else {
-            MarkdownText(modifier = Modifier.fillMaxSize(), markdown)
+            MarkdownText(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .nestedScroll(scrollBehavior.nestedScrollConnection),
+                markdown
+            )
         }
     }
 }

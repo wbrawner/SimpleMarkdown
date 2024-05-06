@@ -15,6 +15,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
@@ -22,6 +23,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextRange
@@ -61,14 +63,6 @@ fun MarkdownTextField(
         focusedIndicatorColor = Color.Transparent,
         unfocusedIndicatorColor = Color.Transparent
     )
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .imePadding()
-            .verticalScroll(
-                rememberScrollState()
-            )
-    ) {
         val interactionSource = remember { MutableInteractionSource() }
         val textStyle = TextStyle.Default.copy(
             fontFamily = FontFamily.Monospace,
@@ -77,7 +71,8 @@ fun MarkdownTextField(
         CompositionLocalProvider(LocalTextSelectionColors provides colors.textSelectionColors) {
             BasicTextField(
                 value = textFieldValue,
-                modifier = Modifier.fillMaxSize(),
+                modifier = modifier.fillMaxSize()
+                    .imePadding(),
                 onValueChange = setTextFieldAndViewModelValues,
                 enabled = true,
                 readOnly = false,
@@ -107,7 +102,6 @@ fun MarkdownTextField(
                 }
             )
         }
-    }
 }
 
 private fun String.annotate(enableReadability: Boolean): AnnotatedString {

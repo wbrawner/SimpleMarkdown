@@ -3,6 +3,10 @@ package com.wbrawner.simplemarkdown.ui
 import android.view.ViewGroup
 import android.webkit.WebView
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -54,7 +58,13 @@ fun MarkdownText(modifier: Modifier = Modifier, markdown: String) {
             setHtml(parsedHtml)
         }
     }
-    HtmlText(modifier = modifier, html = html)
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState()),
+    ) {
+        HtmlText(modifier = modifier, html = html)
+    }
 }
 
 @OptIn(ExperimentalStdlibApi::class)

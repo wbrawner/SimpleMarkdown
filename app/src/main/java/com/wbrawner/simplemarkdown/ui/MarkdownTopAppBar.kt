@@ -8,8 +8,13 @@ import androidx.compose.material3.DrawerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarColors
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -23,13 +28,15 @@ fun MarkdownTopAppBar(
     goBack: () -> Unit,
     backAsUp: Boolean = true,
     drawerState: DrawerState? = null,
-    actions: (@Composable RowScope.() -> Unit)? = null
+    actions: (@Composable RowScope.() -> Unit)? = null,
+    scrollBehavior: TopAppBarScrollBehavior? = null,
 ) {
     val coroutineScope = rememberCoroutineScope()
     TopAppBar(
         title = {
             Text(text = title, maxLines = 1, overflow = TextOverflow.Ellipsis)
         },
+        colors = topAppBarColors(scrolledContainerColor = MaterialTheme.colorScheme.surface),
         navigationIcon = {
             val (icon, contentDescription, onClick) = remember {
                 if (backAsUp) {
@@ -53,5 +60,6 @@ fun MarkdownTopAppBar(
             }
         },
         actions = actions ?: {},
+        scrollBehavior = scrollBehavior
     )
 }
