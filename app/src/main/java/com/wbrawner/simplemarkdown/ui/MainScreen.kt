@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Menu
@@ -47,10 +46,7 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -63,17 +59,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.input.KeyboardCapitalization
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat.startActivity
@@ -83,7 +71,6 @@ import com.wbrawner.simplemarkdown.EditorState
 import com.wbrawner.simplemarkdown.MarkdownViewModel
 import com.wbrawner.simplemarkdown.R
 import com.wbrawner.simplemarkdown.Route
-import com.wbrawner.simplemarkdown.model.Readability
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.isActive
@@ -361,6 +348,7 @@ private fun TabbedMarkdownEditor(
     }
     HorizontalPager(
         modifier = Modifier.fillMaxSize(1f), state = pagerState,
+        beyondBoundsPageCount = 1,
         userScrollEnabled = !lockSwiping
     ) { page ->
         val keyboardController = LocalSoftwareKeyboardController.current
@@ -382,19 +370,6 @@ private fun TabbedMarkdownEditor(
             MarkdownText(modifier = Modifier.fillMaxSize(), markdown)
         }
     }
-}
-
-private fun String.annotate(enableReadability: Boolean): AnnotatedString {
-    if (!enableReadability) return AnnotatedString(this)
-    val readability = Readability(this)
-    val annotated = AnnotatedString.Builder(this)
-    for (sentence in readability.sentences()) {
-        var color = Color.Transparent
-        if (sentence.syllableCount() > 25) color = Color(229, 232, 42, 100)
-        if (sentence.syllableCount() > 35) color = Color(193, 66, 66, 100)
-        annotated.addStyle(SpanStyle(background = color), sentence.start(), sentence.end())
-    }
-    return annotated.toAnnotatedString()
 }
 
 @Composable
@@ -482,51 +457,8 @@ fun MarkdownTopAppBar(
             IconButton(onClick = { onClick() }) {
                 Icon(imageVector = icon, contentDescription = contentDescription)
             }
-        }, actions = actions ?: {},
-        scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
-    )
-}
-
-@Composable
-fun MarkdownTextField(
-    modifier: Modifier,
-    reload: Int,
-    markdown: String,
-    setMarkdown: (String) -> Unit,
-    enableReadability: Boolean = false
-) {
-    val (selection, setSelection) = remember { mutableStateOf(TextRange.Zero) }
-    val (composition, setComposition) = remember { mutableStateOf<TextRange?>(null) }
-    val (textFieldValue, setTextFieldValue) = remember(reload) {
-        mutableStateOf(TextFieldValue(markdown.annotate(enableReadability), selection, composition))
-    }
-    val setTextFieldAndViewModelValues: (TextFieldValue) -> Unit = {
-        setSelection(it.selection)
-        setComposition(it.composition)
-        setTextFieldValue(it.copy(annotatedString = it.text.annotate(enableReadability)))
-        setMarkdown(it.text)
-    }
-
-    TextField(
-        modifier = modifier.imePadding(),
-        colors = TextFieldDefaults.colors(
-            focusedContainerColor = MaterialTheme.colorScheme.surface,
-            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-            disabledIndicatorColor = Color.Transparent,
-            errorIndicatorColor = Color.Transparent,
-            focusedIndicatorColor = Color.Transparent,
-            unfocusedIndicatorColor = Color.Transparent
-        ),
-        value = textFieldValue,
-        onValueChange = setTextFieldAndViewModelValues,
-        placeholder = {
-            Text("Markdown here…")
         },
-        textStyle = TextStyle.Default.copy(
-            fontFamily = FontFamily.Monospace,
-            color = MaterialTheme.colorScheme.onSurface
-        ),
-        keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences)
+        actions = actions ?: {},
     )
 }
 
