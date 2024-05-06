@@ -50,6 +50,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -100,7 +101,10 @@ fun MainScreen(
 ) {
     val coroutineScope = rememberCoroutineScope()
     val fileName by viewModel.collectAsState(EditorState::fileName, "")
+    val initialMarkdown by viewModel.collectAsState(EditorState::markdown, "")
+    val reloadToggle by viewModel.collectAsState(EditorState::reloadToggle, 0)
     val markdown by viewModel.collectAsState(EditorState::markdown, "")
+    val dirty by viewModel.collectAsState(EditorState::dirty, false)
     val alert by viewModel.collectAsState(EditorState::alert, null)
     val saveCallback by viewModel.collectAsState(EditorState::saveCallback, null)
     LaunchedEffect(enableAutosave) {
@@ -112,7 +116,10 @@ fun MainScreen(
     }
     val toast by viewModel.collectAsState(EditorState::toast, null)
     MainScreen(
+        dirty = dirty,
         fileName = fileName,
+        reloadToggle = reloadToggle,
+        initialMarkdown = initialMarkdown,
         markdown = markdown,
         setMarkdown = viewModel::updateMarkdown,
         message = toast,
@@ -145,6 +152,9 @@ fun MainScreen(
 @Composable
 private fun MainScreen(
     fileName: String = "Untitled.md",
+    dirty: Boolean = false,
+    reloadToggle: Int = 0,
+    initialMarkdown: String = "",
     markdown: String = "",
     setMarkdown: (String) -> Unit = {},
     message: String? = null,
@@ -160,7 +170,7 @@ private fun MainScreen(
     enableWideLayout: Boolean = false,
     enableReadability: Boolean = false
 ) {
-    var lockSwiping by remember { mutableStateOf(false) }
+    var lockSwiping by remember { mutableStateOf(true) }
     val openFileLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) {
             loadFile(it)
@@ -212,7 +222,8 @@ private fun MainScreen(
         Scaffold(
             topBar = {
                 val context = LocalContext.current
-                MarkdownTopAppBar(title = fileName,
+                MarkdownTopAppBar(
+                    title = if (dirty) "$fileName*" else fileName,
                     backAsUp = false,
                     goBack = navigateBack,
                     drawerState = drawerState,
@@ -290,6 +301,7 @@ private fun MainScreen(
                         modifier = Modifier
                             .fillMaxHeight()
                             .weight(1f),
+                        reload = reloadToggle,
                         markdown = markdown,
                         setMarkdown = setMarkdown,
                         enableReadability = enableReadability
@@ -314,10 +326,12 @@ private fun MainScreen(
                         .padding(paddingValues)
                 ) {
                     TabbedMarkdownEditor(
+                        initialMarkdown = initialMarkdown,
                         markdown = markdown,
                         setMarkdown = setMarkdown,
                         lockSwiping = lockSwiping,
-                        enableReadability = enableReadability
+                        enableReadability = enableReadability,
+                        reloadToggle = reloadToggle
                     )
                 }
             }
@@ -328,10 +342,12 @@ private fun MainScreen(
 @Composable
 @OptIn(ExperimentalFoundationApi::class)
 private fun TabbedMarkdownEditor(
+    initialMarkdown: String,
     markdown: String,
     setMarkdown: (String) -> Unit,
     lockSwiping: Boolean,
-    enableReadability: Boolean
+    enableReadability: Boolean,
+    reloadToggle: Int
 ) {
     val coroutineScope = rememberCoroutineScope()
     val pagerState = rememberPagerState { 2 }
@@ -357,9 +373,10 @@ private fun TabbedMarkdownEditor(
         if (page == 0) {
             MarkdownTextField(
                 modifier = Modifier.fillMaxSize(),
-                markdown = markdown,
+                markdown = initialMarkdown,
                 setMarkdown = setMarkdown,
-                enableReadability = enableReadability
+                enableReadability = enableReadability,
+                reload = reloadToggle
             )
         } else {
             MarkdownText(modifier = Modifier.fillMaxSize(), markdown)
@@ -367,7 +384,8 @@ private fun TabbedMarkdownEditor(
     }
 }
 
-private fun String.annotateReadability(): AnnotatedString {
+private fun String.annotate(enableReadability: Boolean): AnnotatedString {
+    if (!enableReadability) return AnnotatedString(this)
     val readability = Readability(this)
     val annotated = AnnotatedString.Builder(this)
     for (sentence in readability.sentences()) {
@@ -385,43 +403,46 @@ fun MarkdownNavigationDrawer(
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val coroutineScope = rememberCoroutineScope()
-    DismissibleNavigationDrawer(drawerState = drawerState, drawerContent = {
-        DismissibleDrawerSheet {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    modifier = Modifier.size(96.dp),
-                    painter = painterResource(R.drawable.ic_launcher_foreground),
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurface
-                )
-                Text(
-                    text = "Simple Markdown",
-                    style = MaterialTheme.typography.titleLarge
-                )
-            }
-            Route.entries.forEach { route ->
-                if (route == Route.EDITOR) {
-                    return@forEach
+    DismissibleNavigationDrawer(
+        gesturesEnabled = false,
+        drawerState = drawerState,
+        drawerContent = {
+            DismissibleDrawerSheet {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        modifier = Modifier.size(96.dp),
+                        painter = painterResource(R.drawable.ic_launcher_foreground),
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurface
+                    )
+                    Text(
+                        text = "Simple Markdown",
+                        style = MaterialTheme.typography.titleLarge
+                    )
                 }
-                NavigationDrawerItem(
-                    icon = {
-                        Icon(imageVector = route.icon, contentDescription = null)
-                    },
-                    label = { Text(route.title) },
-                    selected = false,
-                    onClick = {
-                        navigate(route)
-                        coroutineScope.launch {
-                            drawerState.close()
-                        }
+                Route.entries.forEach { route ->
+                    if (route == Route.EDITOR) {
+                        return@forEach
                     }
-                )
+                    NavigationDrawerItem(
+                        icon = {
+                            Icon(imageVector = route.icon, contentDescription = null)
+                        },
+                        label = { Text(route.title) },
+                        selected = false,
+                        onClick = {
+                            navigate(route)
+                            coroutineScope.launch {
+                                drawerState.close()
+                            }
+                        }
+                    )
+                }
             }
-        }
-    }) {
+        }) {
         content(drawerState)
     }
 }
@@ -469,23 +490,20 @@ fun MarkdownTopAppBar(
 @Composable
 fun MarkdownTextField(
     modifier: Modifier,
+    reload: Int,
     markdown: String,
     setMarkdown: (String) -> Unit,
     enableReadability: Boolean = false
 ) {
     val (selection, setSelection) = remember { mutableStateOf(TextRange.Zero) }
     val (composition, setComposition) = remember { mutableStateOf<TextRange?>(null) }
-    val textFieldValue = remember(markdown) {
-        val annotatedMarkdown = if (enableReadability) {
-            markdown.annotateReadability()
-        } else {
-            AnnotatedString(markdown)
-        }
-        TextFieldValue(annotatedMarkdown, selection, composition)
+    val (textFieldValue, setTextFieldValue) = remember(reload) {
+        mutableStateOf(TextFieldValue(markdown.annotate(enableReadability), selection, composition))
     }
     val setTextFieldAndViewModelValues: (TextFieldValue) -> Unit = {
         setSelection(it.selection)
         setComposition(it.composition)
+        setTextFieldValue(it.copy(annotatedString = it.text.annotate(enableReadability)))
         setMarkdown(it.text)
     }
 

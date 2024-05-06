@@ -22,11 +22,19 @@ data class EditorState(
     val fileName: String = "Untitled.md",
     val markdown: String = "",
     val path: URI? = null,
-    val dirty: Boolean = false,
     val toast: String? = null,
     val alert: AlertDialogModel? = null,
-    val saveCallback: (() -> Unit)? = null
-)
+    val saveCallback: (() -> Unit)? = null,
+    /**
+     * Used to signal to the view that it should reload due to an external change, like loading
+     * a new file
+     */
+    val reloadToggle: Int = 0,
+    private val initialMarkdown: String = "",
+) {
+    val dirty: Boolean
+        get() = markdown != initialMarkdown
+}
 
 class MarkdownViewModel(
     private val fileHelper: FileHelper,
@@ -45,7 +53,6 @@ class MarkdownViewModel(
     fun updateMarkdown(markdown: String?) {
         _state.value = _state.value.copy(
             markdown = markdown ?: "",
-            dirty = true
         )
     }
 
@@ -81,11 +88,13 @@ class MarkdownViewModel(
                 val uri = URI.create(actualLoadPath)
                 fileHelper.open(uri)
                     ?.let { (name, content) ->
-                        _state.value = _state.value.copy(
+                        val currentState = _state.value
+                        _state.value = currentState.copy(
                             path = uri,
                             fileName = name,
                             markdown = content,
-                            dirty = false,
+                            initialMarkdown = content,
+                            reloadToggle = currentState.reloadToggle.inv(),
                             toast = "Successfully loaded $name"
                         )
                         preferenceHelper[Preference.AUTOSAVE_URI] = actualLoadPath
@@ -120,7 +129,7 @@ class MarkdownViewModel(
                 _state.value = currentState.copy(
                     fileName = name,
                     path = actualSavePath,
-                    dirty = false,
+                    initialMarkdown = currentState.markdown,
                     toast = if (interactive) "Successfully saved $name" else null
                 )
                 Timber.i("Saved file $name to uri $actualSavePath")
