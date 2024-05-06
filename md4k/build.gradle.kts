@@ -39,3 +39,8 @@ android {
         jvmTarget = "1.8"
     }
 }
+
+dependencies {
+    androidTestImplementation("androidx.test.ext:junit:1.1.5")
+    androidTestImplementation("androidx.test:runner:1.5.2")
+}
