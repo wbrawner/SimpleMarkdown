@@ -63,16 +63,21 @@ fun MarkdownTextField(
         focusedIndicatorColor = Color.Transparent,
         unfocusedIndicatorColor = Color.Transparent
     )
-        val interactionSource = remember { MutableInteractionSource() }
-        val textStyle = TextStyle.Default.copy(
-            fontFamily = FontFamily.Monospace,
-            color = MaterialTheme.colorScheme.onSurface
-        )
+    val interactionSource = remember { MutableInteractionSource() }
+    val textStyle = TextStyle.Default.copy(
+        fontFamily = FontFamily.Monospace,
+        color = MaterialTheme.colorScheme.onSurface
+    )
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .imePadding()
+            .verticalScroll(rememberScrollState())
+    ) {
         CompositionLocalProvider(LocalTextSelectionColors provides colors.textSelectionColors) {
             BasicTextField(
                 value = textFieldValue,
-                modifier = modifier.fillMaxSize()
-                    .imePadding(),
+                modifier = Modifier.fillMaxSize(),
                 onValueChange = setTextFieldAndViewModelValues,
                 enabled = true,
                 readOnly = false,
@@ -102,6 +107,7 @@ fun MarkdownTextField(
                 }
             )
         }
+    }
 }
 
 private fun String.annotate(enableReadability: Boolean): AnnotatedString {
