@@ -72,9 +72,7 @@
         SimpleMarkdown is and always will be completely free and open source!</string>
     <string name="action_view_github">View SimpleMarkdown on GitHub</string>
     <string name="support_title">Support SimpleMarkdown</string>
-    <string name="support_button_purchase">%1$s – %2$s</string>
     <string name="action_rate">Rate SimpleMarkdown</string>
-    <string name="support_thank_you">Thank you so much for your support!</string>
     <string name="description_heart">Heart</string>
     <string-array name="pref_entries_dark_mode">
         <item>@string/pref_value_light</item>

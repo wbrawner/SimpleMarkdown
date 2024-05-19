@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.wbrawner.simplemarkdown.BuildConfig
 import com.wbrawner.simplemarkdown.ui.theme.SimpleMarkdownTheme
 import com.wbrawner.simplemarkdown.utility.Preference
 import com.wbrawner.simplemarkdown.utility.PreferenceHelper
@@ -79,6 +80,25 @@ fun SettingsScreen(navController: NavController, preferenceHelper: PreferenceHel
                 preference = Preference.READABILITY_ENABLED,
                 preferenceHelper = preferenceHelper
             )
+            if (BuildConfig.DEBUG) {
+                Row(modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        error("Forced crash")
+                    }
+                    .padding(16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically) {
+                    Column(verticalArrangement = Arrangement.Center) {
+                        Text(text = "Force a crash", style = MaterialTheme.typography.bodyLarge)
+                        Text(
+                            text = "Purposefully crash the app for testing purposes",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            }
         }
     }
 }

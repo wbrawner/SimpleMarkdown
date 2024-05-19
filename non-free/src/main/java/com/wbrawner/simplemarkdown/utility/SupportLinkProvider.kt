@@ -22,6 +22,7 @@ import com.android.billingclient.api.ConsumeParams
 import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.QueryProductDetailsParams
 import com.wbrawner.simplemarkdown.R
+import timber.log.Timber
 
 @Composable
 fun SupportLinks() {
@@ -68,6 +69,7 @@ fun SupportLinks() {
                     .build()
                 billingClient?.queryProductDetailsAsync(productDetailsQuery) { result, productDetails ->
                     if (result.responseCode != BillingClient.BillingResponseCode.OK || productDetails.isEmpty()) {
+                        Timber.w("Failed to load product details: ${result.debugMessage}")
                         return@queryProductDetailsAsync
                     }
                     products =

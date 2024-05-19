@@ -2,6 +2,7 @@ package com.wbrawner.simplemarkdown
 
 import android.app.Application
 import android.os.StrictMode
+import com.wbrawner.simplemarkdown.core.ErrorReporterTree
 import com.wbrawner.simplemarkdown.utility.AndroidFileHelper
 import com.wbrawner.simplemarkdown.utility.AndroidPreferenceHelper
 import com.wbrawner.simplemarkdown.utility.FileHelper
@@ -34,6 +35,7 @@ class MarkdownApplication : Application() {
                 }
             }
         }
+        Timber.plant(ErrorReporterTree.create(this))
         super.onCreate()
         ReviewHelper.init(this)
         fileHelper = AndroidFileHelper(this)

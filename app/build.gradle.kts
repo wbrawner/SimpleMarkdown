@@ -1,6 +1,5 @@
 import java.io.FileInputStream
 import java.io.FileNotFoundException
-import java.util.Locale
 import java.util.Properties
 
 plugins {
@@ -111,6 +110,8 @@ play {
 }
 
 dependencies {
+    "freeImplementation"(project(":free"))
+    "playImplementation"(project(":non-free"))
     implementation("androidx.compose.material3:material3-window-size-class-android:1.2.0")
     val navigationVersion = "2.7.2"
     implementation("androidx.navigation:navigation-fragment-ktx:$navigationVersion")
@@ -134,7 +135,6 @@ dependencies {
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation("com.google.android.material:material:1.9.0")
     implementation("androidx.legacy:legacy-support-v13:1.0.0")
-    implementation("com.jakewharton.timber:timber:5.0.1")
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.browser:browser:1.6.0")
     val commonMarkVersion = "0.22.0"
@@ -167,21 +167,6 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-extensions:$lifecycleVersion")
     kapt("androidx.lifecycle:lifecycle-common-java8:$lifecycleVersion")
     implementation("eu.crydee:syllable-counter:4.0.2")
-}
-
-android.productFlavors.forEach { flavor ->
-    if (gradle.startParameter.taskRequests.toString().lowercase(Locale.getDefault()).contains(flavor.name)
-        && flavor.name == "play"
-    ) {
-        apply(plugin = "com.google.gms.google-services")
-        apply(plugin = "com.google.firebase.crashlytics")
-
-        dependencies {
-            implementation("com.android.billingclient:billing:6.0.1")
-            implementation("com.google.android.play:core-ktx:1.8.1")
-            implementation("com.google.firebase:firebase-crashlytics:18.4.1")
-        }
-    }
 }
 
 fladle {

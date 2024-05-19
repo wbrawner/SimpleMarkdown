@@ -1,1 +1,1 @@
-include(":app")
+include(":app", ":core", ":free", "non-free")

@@ -41,6 +41,7 @@ import com.wbrawner.simplemarkdown.ui.SettingsScreen
 import com.wbrawner.simplemarkdown.ui.SupportScreen
 import com.wbrawner.simplemarkdown.ui.theme.SimpleMarkdownTheme
 import com.wbrawner.simplemarkdown.utility.Preference
+import org.acra.ACRA
 
 class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsResultCallback {
     private val viewModel: MarkdownViewModel by viewModels {
@@ -83,6 +84,11 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
                     }
                 }
                 AppCompatDelegate.setDefaultNightMode(darkMode)
+            }
+            val errorReporterPreference by preferenceHelper.observe<Boolean>(Preference.ERROR_REPORTS_ENABLED)
+                .collectAsState()
+            LaunchedEffect(errorReporterPreference) {
+                ACRA.errorReporter.setEnabled(errorReporterPreference)
             }
             val windowSizeClass = calculateWindowSizeClass(this)
             SimpleMarkdownTheme {

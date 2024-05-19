@@ -9,7 +9,6 @@ import androidx.core.content.edit
 import androidx.preference.PreferenceManager
 import com.google.android.play.core.review.ReviewManager
 import com.google.android.play.core.review.ReviewManagerFactory
-import com.wbrawner.simplemarkdown.MainActivity
 import timber.log.Timber
 
 private const val KEY_TIME_IN_APP = "timeInApp"
@@ -41,13 +40,12 @@ object ReviewHelper : Application.ActivityLifecycleCallbacks {
     fun init(
             application: Application,
             sharedPreferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(application),
-            reviewManager: ReviewManager = ReviewManagerFactory.create(application),
             timber: Timber.Tree = Timber.asTree()
     ) {
-        this.application = application
-        this.sharedPreferences = sharedPreferences
-        this.reviewManager = reviewManager
-        this.timber = timber
+        reviewManager = ReviewManagerFactory.create(application)
+        ReviewHelper.application = application
+        ReviewHelper.sharedPreferences = sharedPreferences
+        ReviewHelper.timber = timber
         if (sharedPreferences.getLong(KEY_TIME_IN_APP, 0L) == -1L) {
             // We've already prompted the user for the review so let's not be annoying about it
             timber.i("User already prompted for review, not configuring ReviewHelper")
@@ -64,7 +62,7 @@ object ReviewHelper : Application.ActivityLifecycleCallbacks {
         if (activityCount++ == 0) {
             activeTime = SystemClock.elapsedRealtime()
         }
-        if (activity !is MainActivity || sharedPreferences.getLong(KEY_TIME_IN_APP, 0L) < TIME_TO_PROMPT) {
+        if (sharedPreferences.getLong(KEY_TIME_IN_APP, 0L) < TIME_TO_PROMPT) {
             // Not ready to prompt just yet
             timber.v("Not ready to prompt user for review yet")
             return

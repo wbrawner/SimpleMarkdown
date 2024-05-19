@@ -62,6 +62,6 @@ enum class Preference(val key: String, val default: Any?) {
     AUTOSAVE_URI("autosave.uri", null),
     CUSTOM_CSS("pref.custom_css", null),
     DARK_MODE("darkMode", "Auto"),
-    ERROR_REPORTS_ENABLED("crashlytics.enable", true),
+    ERROR_REPORTS_ENABLED("acra.enable", true),
     READABILITY_ENABLED("readability.enable", false)
 }
