@@ -21,7 +21,7 @@ import com.android.billingclient.api.BillingResult
 import com.android.billingclient.api.ConsumeParams
 import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.QueryProductDetailsParams
-import com.wbrawner.simplemarkdown.R
+import com.wbrawner.simplemarkdown.nonfree.R
 import timber.log.Timber
 
 @Composable

@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.wbrawner.simplemarkdown"
+    namespace = "com.wbrawner.simplemarkdown.nonfree"
     compileSdk = 34
 
     defaultConfig {
