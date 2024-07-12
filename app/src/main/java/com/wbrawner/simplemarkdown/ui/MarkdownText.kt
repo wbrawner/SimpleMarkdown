@@ -3,6 +3,7 @@ package com.wbrawner.simplemarkdown.ui
 import android.view.ViewGroup
 import android.webkit.WebView
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.rememberScrollState
@@ -62,8 +63,9 @@ fun MarkdownText(modifier: Modifier = Modifier, markdown: String) {
         modifier = modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.Top
     ) {
-        HtmlText(modifier = modifier, html = html)
+        HtmlText(html = html)
     }
 }
 
@@ -75,6 +77,9 @@ fun HtmlText(html: String, modifier: Modifier = Modifier) {
         """body {
             |   background: #${materialColors.surface.toArgb().toHexString().substring(2)};
             |   color: #${materialColors.onSurface.toArgb().toHexString().substring(2)};
+            |}
+            |a {
+            |   color: #${materialColors.secondary.toArgb().toHexString().substring(2)};
             |}
             |pre {
             |   background: #${materialColors.surfaceVariant.toArgb().toHexString().substring(2)};
