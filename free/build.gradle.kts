@@ -1,17 +1,17 @@
 plugins {
-    id("com.android.library")
-    id("org.jetbrains.kotlin.android")
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.compose.compiler)
 }
 
 android {
     namespace = "com.wbrawner.simplemarkdown.free"
-    compileSdk = 34
+    compileSdk = libs.versions.maxSdk.get().toInt()
 
     defaultConfig {
-        minSdk = 23
+        minSdk = libs.versions.minSdk.get().toInt()
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        consumerProguardFiles("consumer-rules.pro")
     }
 
     buildTypes {
@@ -26,9 +26,6 @@ android {
     buildFeatures {
         compose = true
     }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.3"
-    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
@@ -39,9 +36,9 @@ android {
 }
 
 dependencies {
-    implementation("com.jakewharton.timber:timber:5.0.1")
-    val composeBom = platform("androidx.compose:compose-bom:2023.08.00")
+    implementation(libs.timber)
+    val composeBom = enforcedPlatform(libs.compose.bom)
     implementation(composeBom)
     androidTestImplementation(composeBom)
-    implementation("androidx.compose.runtime:runtime")
+    implementation(libs.runtime)
 }

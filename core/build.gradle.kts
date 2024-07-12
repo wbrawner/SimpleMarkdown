@@ -3,8 +3,8 @@ import java.io.FileNotFoundException
 import java.util.Properties
 
 plugins {
-    id("com.android.library")
-    id("org.jetbrains.kotlin.android")
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.android)
 }
 
 val acraProperties = Properties()
@@ -20,13 +20,12 @@ try {
 
 android {
     namespace = "com.wbrawner.simplemarkdown.core"
-    compileSdk = 34
+    compileSdk = libs.versions.maxSdk.get().toInt()
 
     defaultConfig {
-        minSdk = 23
+        minSdk = libs.versions.minSdk.get().toInt()
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        consumerProguardFiles("consumer-rules.pro")
         buildConfigField("String", "ACRA_URL", "\"${acraProperties["url"]}\"")
         buildConfigField("String", "ACRA_USER", "\"${acraProperties["user"]}\"")
         buildConfigField("String", "ACRA_PASS", "\"${acraProperties["pass"]}\"")
@@ -51,10 +50,9 @@ android {
 }
 
 dependencies {
-    val acraVersion = "5.11.3"
-    implementation("ch.acra:acra-core:$acraVersion")
-    implementation("ch.acra:acra-http:$acraVersion")
-    runtimeOnly("ch.acra:acra-limiter:$acraVersion")
-    runtimeOnly("ch.acra:acra-advanced-scheduler:$acraVersion")
-    api("com.jakewharton.timber:timber:5.0.1")
+    implementation(libs.acra.core)
+    implementation(libs.acra.http)
+    runtimeOnly(libs.acra.limiter)
+    runtimeOnly(libs.acra.advanced.scheduler)
+    api(libs.timber)
 }

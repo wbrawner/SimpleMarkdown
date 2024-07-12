@@ -3,10 +3,11 @@ import java.io.FileNotFoundException
 import java.util.Properties
 
 plugins {
-    id("com.android.application")
-    id("kotlin-android")
-    id("com.osacky.fladle")
-    id("com.github.triplet.play") version "3.8.4"
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.fladle)
+    alias(libs.plugins.triplet.play)
     id("com.wbrawner.releasehelper")
 }
 
@@ -23,7 +24,7 @@ try {
 }
 
 android {
-    packagingOptions {
+    packaging {
         resources {
             excludes += listOf(
                 "META-INF/LICENSE-LGPL-2.1.txt",
@@ -34,7 +35,7 @@ android {
             )
         }
     }
-    compileSdk = 34
+    compileSdk = libs.versions.maxSdk.get().toInt()
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
@@ -44,8 +45,8 @@ android {
     }
     defaultConfig {
         applicationId = "com.wbrawner.simplemarkdown"
-        minSdk = 23
-        targetSdk = 34
+        minSdk = libs.versions.minSdk.get().toInt()
+        targetSdk = libs.versions.maxSdk.get().toInt()
         versionCode = 41
         versionName = "0.8.16"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -90,9 +91,6 @@ android {
     buildFeatures {
         compose = true
     }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.3"
-    }
     playConfigs {
         register("play") {
             enabled.set(true)
@@ -111,70 +109,65 @@ play {
 dependencies {
     "freeImplementation"(project(":free"))
     "playImplementation"(project(":non-free"))
-    implementation("androidx.compose.material3:material3-window-size-class-android:1.2.0")
-    val navigationVersion = "2.7.2"
-    implementation("androidx.navigation:navigation-compose:$navigationVersion")
-    testImplementation("junit:junit:4.13.2")
-    testRuntimeOnly("org.robolectric:robolectric:4.2.1")
-    val espressoVersion = "3.5.1"
-    androidTestImplementation("androidx.test.espresso:espresso-core:$espressoVersion")
-    androidTestImplementation("androidx.test.espresso:espresso-web:$espressoVersion")
-    androidTestImplementation("androidx.test.espresso:espresso-intents:$espressoVersion")
-    androidTestRuntimeOnly("androidx.test:runner:1.5.2")
-    androidTestUtil("androidx.test:orchestrator:1.4.2")
-    implementation("androidx.core:core-splashscreen:1.0.1")
-    implementation("androidx.appcompat:appcompat:1.6.1")
-    implementation("com.google.android.material:material:1.9.0")
-    implementation("androidx.core:core-ktx:1.12.0")
-    implementation("androidx.browser:browser:1.6.0")
-    val commonMarkVersion = "0.22.0"
-    implementation("org.commonmark:commonmark:$commonMarkVersion")
-    implementation("org.commonmark:commonmark-ext-gfm-tables:$commonMarkVersion")
-    implementation("org.commonmark:commonmark-ext-gfm-strikethrough:$commonMarkVersion")
-    implementation("org.commonmark:commonmark-ext-autolink:$commonMarkVersion")
-    implementation("org.commonmark:commonmark-ext-task-list-items:$commonMarkVersion")
-    implementation("org.commonmark:commonmark-ext-yaml-front-matter:$commonMarkVersion")
-    implementation("org.commonmark:commonmark-ext-image-attributes:$commonMarkVersion")
-    implementation("org.commonmark:commonmark-ext-heading-anchor:$commonMarkVersion")
-    val composeBom = platform("androidx.compose:compose-bom:2023.08.00")
+    implementation(libs.androidx.material3.windowsizeclass)
+    implementation(libs.androidx.navigation.compose)
+    testImplementation(libs.junit)
+    testRuntimeOnly(libs.robolectric)
+    androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(libs.androidx.espresso.web)
+    androidTestImplementation(libs.androidx.espresso.intents)
+    androidTestRuntimeOnly(libs.androidx.runner)
+    androidTestUtil(libs.androidx.orchestrator)
+    implementation(libs.androidx.core.splashscreen)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.material)
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.browser)
+    implementation(libs.commonmark)
+    implementation(libs.commonmark.ext.gfm.tables)
+    implementation(libs.commonmark.ext.gfm.strikethrough)
+    implementation(libs.commonmark.ext.autolink)
+    implementation(libs.commonmark.ext.task.list.items)
+    implementation(libs.commonmark.ext.yaml.front.matter)
+    implementation(libs.commonmark.ext.image.attributes)
+    implementation(libs.commonmark.ext.heading.anchor)
+    val composeBom = enforcedPlatform(libs.compose.bom)
     implementation(composeBom)
     androidTestImplementation(composeBom)
-    implementation("androidx.compose.runtime:runtime")
-    implementation("androidx.compose.ui:ui")
-    implementation("androidx.activity:activity-compose")
-    implementation("androidx.compose.foundation:foundation")
-    implementation("androidx.compose.foundation:foundation-layout")
-    implementation("androidx.compose.ui:ui-tooling")
-    implementation("androidx.compose.material3:material3")
-    implementation("androidx.compose.material:material-icons-extended")
-    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
-    val coroutinesVersion = "1.7.1"
-    runtimeOnly("org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutinesVersion")
-    implementation("eu.crydee:syllable-counter:4.0.2")
-    androidTestImplementation("androidx.compose.ui:ui-test:1.6.0")
-    androidTestImplementation("androidx.test:core:1.5.0")
-    androidTestImplementation("androidx.test:monitor:1.6.1")
-    androidTestImplementation("junit:junit:4.13.2")
-    androidTestImplementation("org.hamcrest:hamcrest-core:1.3")
-    implementation("androidx.activity:activity-ktx:1.8.0")
-    implementation("androidx.activity:activity:1.8.0")
-    implementation("androidx.compose.animation:animation-core:1.6.0")
-    implementation("androidx.compose.animation:animation:1.6.0")
-    implementation("androidx.compose.material:material-icons-core:1.6.0")
-    implementation("androidx.compose.ui:ui-graphics:1.6.0")
-    implementation("androidx.compose.ui:ui-text:1.6.0")
-    implementation("androidx.compose.ui:ui-tooling-preview:1.6.0")
-    implementation("androidx.compose.ui:ui-unit:1.6.0")
-    implementation("androidx.core:core:1.13.1")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2")
-    implementation("androidx.lifecycle:lifecycle-viewmodel:2.6.2")
-    implementation("androidx.navigation:navigation-common:2.7.2")
-    implementation("androidx.navigation:navigation-runtime:2.7.2")
-    implementation("androidx.preference:preference:1.2.1")
-    implementation("ch.acra:acra-core:5.11.3")
-    implementation("com.jakewharton.timber:timber:5.0.1")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1")
+    implementation(libs.androidx.runtime)
+    implementation(libs.androidx.ui)
+    implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.foundation)
+    implementation(libs.androidx.foundation.layout)
+    implementation(libs.androidx.ui.tooling)
+    implementation(libs.androidx.material3)
+    implementation(libs.androidx.material.icons.extended)
+    androidTestImplementation(libs.androidx.ui.test.junit4)
+    runtimeOnly(libs.kotlinx.coroutines.android)
+    testImplementation(libs.kotlinx.coroutines.test)
+    implementation(libs.syllable.counter)
+    androidTestImplementation(libs.androidx.ui.test)
+    androidTestImplementation(libs.androidx.core)
+    androidTestImplementation(libs.androidx.monitor)
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.hamcrest.core)
+    implementation(libs.androidx.activity.ktx)
+    implementation(libs.androidx.activity.ktx)
+    implementation(libs.androidx.animation.core)
+    implementation(libs.androidx.animation)
+    implementation(libs.androidx.material.icons.core)
+    implementation(libs.androidx.ui.graphics)
+    implementation(libs.androidx.ui.text)
+    implementation(libs.androidx.ui.tooling.preview)
+    implementation(libs.androidx.ui.unit)
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(libs.androidx.navigation.common)
+    implementation(libs.androidx.navigation.runtime.ktx)
+    implementation(libs.androidx.preference.ktx)
+    implementation(libs.acra.core)
+    implementation(libs.timber)
+    implementation(libs.kotlinx.coroutines.core)
     implementation(project(":core"))
 }
 
