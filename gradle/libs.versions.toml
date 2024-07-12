@@ -1,41 +1,40 @@
 [versions]
 acra = "5.11.3"
-activityKtx = "1.8.0"
-animationCore = "1.6.0"
-appcompat = "1.6.1"
-billing = "6.0.1"
-browser = "1.6.0"
+activityKtx = "1.9.0"
+animationCore = "1.6.8"
+appcompat = "1.7.0"
+billing = "7.0.0"
+browser = "1.8.0"
 commonMarkVersion = "0.22.0"
-composeBom = "2023.08.00"
-core = "1.5.0"
-coreKtx = "1.12.0"
+composeBom = "2024.06.00"
+core = "1.6.1"
+coreKtx = "1.13.1"
 coreSplashscreen = "1.0.1"
-coroutinesVersion = "1.7.1"
+coroutines = "1.7.3"
 dependencyAnalysis = "1.31.0"
-espressoVersion = "3.5.1"
+espressoVersion = "3.6.1"
 fladle = "0.17.4"
-googleServices = "4.3.15"
-firebaseCrashlyticsGradle = "2.9.4"
-androidGradlePlugin = "8.5.0"
+googleServices = "4.4.2"
+firebaseCrashlyticsGradle = "3.0.2"
+androidGradlePlugin = "8.5.1"
 hamcrestCore = "1.3"
 junit = "4.13.2"
 kotlin = "2.0.0"
-kotlinxCoroutinesCore = "1.7.1"
-lifecycleViewmodelKtx = "2.6.2"
-material = "1.9.0"
-material3WindowSizeClassAndroid = "1.2.0"
-materialIconsCore = "1.6.0"
+lifecycleViewmodelKtx = "2.8.3"
+material = "1.12.0"
+material3WindowSizeClassAndroid = "1.2.1"
+materialIconsCore = "1.6.8"
 maxSdk = "35"
 minSdk = "23"
-monitor = "1.6.1"
-navigationCommon = "2.7.2"
-navigationRuntimeKtx = "2.7.2"
-navigationVersion = "2.7.2"
-orchestrator = "1.4.2"
+monitor = "1.7.1"
+navigationCommon = "2.7.7"
+navigationRuntimeKtx = "2.7.7"
+navigationVersion = "2.7.7"
+orchestrator = "1.5.0"
 play = "2.0.1"
 preferenceKtx = "1.2.1"
 robolectric = "4.2.1"
-runner = "1.5.2"
+runner = "1.6.1"
 syllableCounter = "4.0.2"
 timber = "5.0.1"
 tripletPlay = "3.8.4"
@@ -95,9 +94,9 @@ foundation = { module = "androidx.compose.foundation:foundation" }
 foundation-layout = { module = "androidx.compose.foundation:foundation-layout" }
 hamcrest-core = { module = "org.hamcrest:hamcrest-core", version.ref = "hamcrestCore" }
 junit = { module = "junit:junit", version.ref = "junit" }
-kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutinesVersion" }
-kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutinesCore" }
-kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutinesVersion" }
+kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
 material = { module = "com.google.android.material:material", version.ref = "material" }
 material3 = { module = "androidx.compose.material3:material3" }
 play-review-ktx = { module = "com.google.android.play:review-ktx", version.ref = "play" }
