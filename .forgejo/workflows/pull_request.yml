@@ -55,12 +55,12 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: '17'
+      - name: Setup Android SDK
+        uses: https://git.wbrawner.com/android-actions/setup-android@v3
       - name: Build with Gradle
         uses: https://git.wbrawner.com/gradle/gradle-build-action@v2
         with:
           arguments: assemblePlayDebug assemblePlayDebugAndroidTest
-      - name: Setup Android SDK
-        uses: https://git.wbrawner.com/android-actions/setup-android@v3
       - name: Grant execute permission for flank_auth.sh
         run: chmod +x flank_auth.sh
       - name: Add auth for flank
