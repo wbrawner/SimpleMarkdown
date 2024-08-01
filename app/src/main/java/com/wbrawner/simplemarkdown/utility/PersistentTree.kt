@@ -2,6 +2,7 @@ package com.wbrawner.simplemarkdown.utility
 
 import android.util.Log
 import com.wbrawner.simplemarkdown.utility.PersistentTree.Companion.create
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -18,7 +19,10 @@ import java.util.*
  * A [Timber.Tree] implementation that persists all logs to disk for retrieval later. Create
  * instances via [create] instead of calling the constructor directly.
  */
-class PersistentTree private constructor(private val logFile: File) : Timber.Tree() {
+class PersistentTree private constructor(
+    private val coroutineScope: CoroutineScope,
+    private val logFile: File
+) : Timber.Tree() {
     private val dateFormat = object : ThreadLocal<SimpleDateFormat>() {
         override fun initialValue(): SimpleDateFormat =
                 SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
@@ -26,7 +30,7 @@ class PersistentTree private constructor(private val logFile: File) : Timber.Tre
 
     override fun log(priority: Int, tag: String?, message: String, t: Throwable?) {
         val timestamp = dateFormat.get()!!.format(System.currentTimeMillis())
-        GlobalScope.launch(Dispatchers.IO) {
+        coroutineScope.launch(Dispatchers.IO) {
             val priorityLetter = when (priority) {
                 Log.ASSERT -> "A"
                 Log.DEBUG -> "D"
@@ -63,14 +67,14 @@ class PersistentTree private constructor(private val logFile: File) : Timber.Tre
          * created/written to
          */
         @Throws(IllegalArgumentException::class, IOException::class)
-        suspend fun create(logDir: File): PersistentTree = withContext(Dispatchers.IO) {
+        suspend fun create(coroutineScope: CoroutineScope, logDir: File): PersistentTree = withContext(Dispatchers.IO) {
             if (!logDir.mkdirs() && !logDir.isDirectory)
                 throw IllegalArgumentException("Unable to create log directory at ${logDir.absolutePath}")
             val timestamp = SimpleDateFormat("yyyyMMddHHmmss", Locale.US).format(Date())
             val logFile = File(logDir, "persistent-log-$timestamp.log")
             if (!logFile.createNewFile())
                 throw IOException("Unable to create logFile at ${logFile.absolutePath}")
-            PersistentTree(logFile)
+            PersistentTree(coroutineScope, logFile)
         }
     }
 }

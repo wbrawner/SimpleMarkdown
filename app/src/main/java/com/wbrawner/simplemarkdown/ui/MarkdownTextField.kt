@@ -24,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextRange
@@ -33,6 +34,7 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import com.wbrawner.simplemarkdown.R
 import com.wbrawner.simplemarkdown.model.Readability
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -96,7 +98,7 @@ fun MarkdownTextField(
                         visualTransformation = VisualTransformation.None,
                         innerTextField = innerTextField,
                         placeholder = {
-                            Text("Markdown here…")
+                            Text(stringResource(R.string.markdown_here))
                         },
                         singleLine = false,
                         enabled = true,

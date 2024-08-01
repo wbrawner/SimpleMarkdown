@@ -1,5 +1,6 @@
 package com.wbrawner.simplemarkdown.ui
 
+import android.annotation.SuppressLint
 import android.view.ViewGroup
 import android.webkit.WebView
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -69,6 +70,7 @@ fun MarkdownText(modifier: Modifier = Modifier, markdown: String) {
     }
 }
 
+@SuppressLint("SetJavaScriptEnabled")
 @OptIn(ExperimentalStdlibApi::class)
 @Composable
 fun HtmlText(html: String, modifier: Modifier = Modifier) {

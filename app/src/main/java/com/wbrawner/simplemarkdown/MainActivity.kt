@@ -4,6 +4,7 @@ import android.os.Build
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.animation.AnimatedContentTransitionScope
@@ -27,6 +28,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.core.app.ActivityCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
@@ -135,21 +137,21 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
                     }
                     composable(Route.HELP.path) {
                         MarkdownInfoScreen(
-                            title = Route.HELP.title,
+                            title = stringResource(Route.HELP.title),
                             file = "Cheatsheet.md",
                             navController = navController
                         )
                     }
                     composable(Route.ABOUT.path) {
                         MarkdownInfoScreen(
-                            title = Route.ABOUT.title,
+                            title = stringResource(Route.ABOUT.title),
                             file = "Libraries.md",
                             navController = navController
                         )
                     }
                     composable(Route.PRIVACY.path) {
                         MarkdownInfoScreen(
-                            title = Route.PRIVACY.title,
+                            title = stringResource(Route.PRIVACY.title),
                             file = "Privacy Policy.md",
                             navController = navController
                         )
@@ -162,13 +164,14 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
 
 enum class Route(
     val path: String,
-    val title: String,
+    @StringRes
+    val title: Int,
     val icon: ImageVector
 ) {
-    EDITOR("/", "Editor", Icons.Default.Edit),
-    SETTINGS("/settings", "Settings", Icons.Default.Settings),
-    SUPPORT("/support", "Support SimpleMarkdown", Icons.Default.Favorite),
-    HELP("/help", "Help", Icons.AutoMirrored.Filled.Help),
-    ABOUT("/about", "About", Icons.Default.Info),
-    PRIVACY("/privacy", "Privacy", Icons.Default.PrivacyTip),
+    EDITOR("/", R.string.title_editor, Icons.Default.Edit),
+    SETTINGS("/settings", R.string.title_settings, Icons.Default.Settings),
+    SUPPORT("/support", R.string.support_title, Icons.Default.Favorite),
+    HELP("/help", R.string.title_help, Icons.AutoMirrored.Filled.Help),
+    ABOUT("/about", R.string.title_about, Icons.Default.Info),
+    PRIVACY("/privacy", R.string.action_privacy, Icons.Default.PrivacyTip),
 }

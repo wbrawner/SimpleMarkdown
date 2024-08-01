@@ -10,17 +10,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.Reader
 
-fun View.showKeyboard() {
-    (context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager)
-            .toggleSoftInput(InputMethodManager.SHOW_FORCED, 0)
-    requestFocus()
-}
-
-fun View.hideKeyboard() =
-        (context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager)
-                .hideSoftInputFromWindow(windowToken, 0)
-
-suspend fun AssetManager.readAssetToString(asset: String): String? {
+suspend fun AssetManager.readAssetToString(asset: String): String {
     return withContext(Dispatchers.IO) {
         open(asset).reader().use(Reader::readText)
     }

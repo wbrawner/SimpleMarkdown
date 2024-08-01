@@ -31,7 +31,7 @@ fun MarkdownInfoScreen(
         val context = LocalContext.current
         val (markdown, setMarkdown) = remember { mutableStateOf("") }
         LaunchedEffect(file) {
-            setMarkdown(context.assets.readAssetToString(file) ?: "Failed to load $file")
+            setMarkdown(context.assets.readAssetToString(file))
         }
         MarkdownText(
             modifier = Modifier

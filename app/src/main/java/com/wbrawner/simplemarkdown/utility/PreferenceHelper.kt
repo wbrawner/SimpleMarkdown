@@ -23,7 +23,7 @@ interface PreferenceHelper {
     fun <T> observe(preference: Preference): StateFlow<T>
 }
 
-class AndroidPreferenceHelper(context: Context, val coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.IO)): PreferenceHelper {
+class AndroidPreferenceHelper(context: Context, private val coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.IO)): PreferenceHelper {
     private val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
     private val states = mapOf(
         Preference.ANALYTICS_ENABLED to MutableStateFlow(get(Preference.ANALYTICS_ENABLED)),

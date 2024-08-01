@@ -1,5 +1,6 @@
 package com.wbrawner.simplemarkdown
 
+import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -22,7 +23,7 @@ data class EditorState(
     val fileName: String = "Untitled.md",
     val markdown: String = "",
     val path: URI? = null,
-    val toast: String? = null,
+    val toast: ParameterizedText? = null,
     val alert: AlertDialogModel? = null,
     val saveCallback: (() -> Unit)? = null,
     /**
@@ -95,7 +96,7 @@ class MarkdownViewModel(
                             markdown = content,
                             initialMarkdown = content,
                             reloadToggle = currentState.reloadToggle.inv(),
-                            toast = "Successfully loaded $name"
+                            toast = ParameterizedText(R.string.file_loaded)
                         )
                         preferenceHelper[Preference.AUTOSAVE_URI] = actualLoadPath
                     } ?: throw IllegalStateException("Opened file was null")
@@ -103,8 +104,8 @@ class MarkdownViewModel(
                 Timber.e(e, "Failed to open file at path: $actualLoadPath")
                 _state.value = _state.value.copy(
                     alert = AlertDialogModel(
-                        text = "Failed to open file at path: $actualLoadPath",
-                        confirmButton = AlertDialogModel.ButtonModel("OK", onClick = ::dismissAlert)
+                        text = ParameterizedText(R.string.file_load_error),
+                        confirmButton = AlertDialogModel.ButtonModel(ParameterizedText(R.string.ok), onClick = ::dismissAlert)
                     )
                 )
             }
@@ -130,20 +131,19 @@ class MarkdownViewModel(
                     fileName = name,
                     path = actualSavePath,
                     initialMarkdown = currentState.markdown,
-                    toast = if (interactive) "Successfully saved $name" else null
+                    toast = if (interactive) ParameterizedText(R.string.file_saved, arrayOf(name)) else null
                 )
                 Timber.i("Saved file $name to uri $actualSavePath")
                 Timber.i("Persisting autosave uri in shared prefs: $actualSavePath")
                 preferenceHelper[Preference.AUTOSAVE_URI] = actualSavePath
                 true
             } catch (e: Exception) {
-                val message = "Failed to save file to $actualSavePath"
-                Timber.e(e, message)
+                Timber.e(e, "Failed to save file to $actualSavePath")
                 _state.value = _state.value.copy(
                     alert = AlertDialogModel(
-                        text = message,
+                        text = ParameterizedText(R.string.file_save_error),
                         confirmButton = AlertDialogModel.ButtonModel(
-                            text = "OK",
+                            text = ParameterizedText(R.string.ok),
                             onClick = ::dismissAlert
                         )
                     )
@@ -189,9 +189,9 @@ class MarkdownViewModel(
         Timber.i("Resetting view model to default state")
         if (!force && _state.value.dirty) {
             _state.value = _state.value.copy(alert = AlertDialogModel(
-                text = "Would you like to save your changes?",
+                text = ParameterizedText(R.string.prompt_save_changes),
                 confirmButton = AlertDialogModel.ButtonModel(
-                    text = "Yes",
+                    text = ParameterizedText(R.string.yes),
                     onClick = {
                         _state.value = _state.value.copy(
                             saveCallback = {
@@ -201,7 +201,7 @@ class MarkdownViewModel(
                     }
                 ),
                 dismissButton = AlertDialogModel.ButtonModel(
-                    text = "No",
+                    text = ParameterizedText(R.string.no),
                     onClick = {
                         reset(untitledFileName, true)
                     }
@@ -231,9 +231,29 @@ class MarkdownViewModel(
 }
 
 data class AlertDialogModel(
-    val text: String,
+    val text: ParameterizedText,
     val confirmButton: ButtonModel,
     val dismissButton: ButtonModel? = null
 ) {
-    data class ButtonModel(val text: String, val onClick: () -> Unit)
+    data class ButtonModel(val text: ParameterizedText, val onClick: () -> Unit)
+}
+
+data class ParameterizedText(@StringRes val text: Int, val params: Array<Any> = arrayOf()) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as ParameterizedText
+
+        if (text != other.text) return false
+        if (!params.contentEquals(other.params)) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = text
+        result = 31 * result + params.contentHashCode()
+        return result
+    }
 }

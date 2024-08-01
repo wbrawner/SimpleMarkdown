@@ -52,15 +52,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat.startActivity
 import androidx.navigation.NavController
 import com.wbrawner.simplemarkdown.AlertDialogModel
 import com.wbrawner.simplemarkdown.EditorState
 import com.wbrawner.simplemarkdown.MarkdownViewModel
+import com.wbrawner.simplemarkdown.ParameterizedText
 import com.wbrawner.simplemarkdown.R
 import com.wbrawner.simplemarkdown.Route
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -98,7 +101,7 @@ fun MainScreen(
         initialMarkdown = initialMarkdown,
         markdown = markdown,
         setMarkdown = viewModel::updateMarkdown,
-        message = toast,
+        message = toast?.stringRes(),
         dismissMessage = viewModel::dismissToast,
         alert = alert,
         dismissAlert = viewModel::dismissAlert,
@@ -181,17 +184,17 @@ private fun MainScreen(
             onDismissRequest = dismissAlert,
             confirmButton = {
                 TextButton(onClick = it.confirmButton.onClick) {
-                    Text(it.confirmButton.text)
+                    Text(stringResource(it.confirmButton.text.text))
                 }
             },
             dismissButton = {
                 it.dismissButton?.let { dismissButton ->
                     TextButton(onClick = dismissButton.onClick) {
-                        Text(dismissButton.text)
+                        Text(dismissButton.text.stringRes())
                     }
                 }
             },
-            text = { Text(it.text) }
+            text = { Text(it.text.stringRes()) }
         )
     }
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
@@ -215,28 +218,28 @@ private fun MainScreen(
                                 ), null
                             )
                         }) {
-                            Icon(imageVector = Icons.Default.Share, contentDescription = "Share")
+                            Icon(imageVector = Icons.Default.Share, contentDescription = stringResource(R.string.action_share))
                         }
                         Box {
                             var menuExpanded by remember { mutableStateOf(false) }
                             IconButton(onClick = { menuExpanded = true }) {
-                                Icon(imageVector = Icons.Default.MoreVert, "Editor Actions")
+                                Icon(imageVector = Icons.Default.MoreVert, stringResource(R.string.action_editor_actions))
                             }
                             DropdownMenu(expanded = menuExpanded,
                                 onDismissRequest = { menuExpanded = false }) {
-                                DropdownMenuItem(text = { Text("New") }, onClick = {
+                                DropdownMenuItem(text = { Text(stringResource(R.string.action_new)) }, onClick = {
                                     menuExpanded = false
                                     reset()
                                 })
-                                DropdownMenuItem(text = { Text("Open") }, onClick = {
+                                DropdownMenuItem(text = { Text(stringResource(R.string.action_open)) }, onClick = {
                                     menuExpanded = false
                                     openFileLauncher.launch(arrayOf("text/*"))
                                 })
-                                DropdownMenuItem(text = { Text("Save") }, onClick = {
+                                DropdownMenuItem(text = { Text(stringResource(R.string.action_save)) }, onClick = {
                                     menuExpanded = false
                                     saveFile(null)
                                 })
-                                DropdownMenuItem(text = { Text("Save as…") },
+                                DropdownMenuItem(text = { Text(stringResource(R.string.action_save_as )) },
                                     onClick = {
                                         menuExpanded = false
                                         saveFileLauncher.launch(fileName)
@@ -244,7 +247,7 @@ private fun MainScreen(
                                 if (!enableWideLayout) {
                                     DropdownMenuItem(text = {
                                         Row(verticalAlignment = Alignment.CenterVertically) {
-                                            Text("Lock Swiping")
+                                            Text(stringResource(R.string.action_lock_swipe))
                                             Checkbox(
                                                 checked = lockSwiping,
                                                 onCheckedChange = { lockSwiping = !lockSwiping })
@@ -332,10 +335,10 @@ private fun TabbedMarkdownEditor(
     val coroutineScope = rememberCoroutineScope()
     val pagerState = rememberPagerState { 2 }
     TabRow(selectedTabIndex = pagerState.currentPage) {
-        Tab(text = { Text("Edit") },
+        Tab(text = { Text(stringResource(R.string.action_edit)) },
             selected = pagerState.currentPage == 0,
             onClick = { coroutineScope.launch { pagerState.animateScrollToPage(0) } })
-        Tab(text = { Text("Preview") },
+        Tab(text = { Text(stringResource(R.string.action_preview)) },
             selected = pagerState.currentPage == 1,
             onClick = { coroutineScope.launch { pagerState.animateScrollToPage(1) } })
     }
@@ -374,5 +377,7 @@ private fun TabbedMarkdownEditor(
 
 @Composable
 fun <P> MarkdownViewModel.collectAsState(prop: KProperty1<EditorState, P>, initial: P): State<P> =
-    state.map { prop.get(it) }
-        .collectAsState(initial)
+    remember(prop) { state.map { prop.get(it) }.distinctUntilChanged() }.collectAsState(initial)
+
+@Composable
+fun ParameterizedText.stringRes() = stringResource(text, params)

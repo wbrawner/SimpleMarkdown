@@ -28,6 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat.startActivity
@@ -39,7 +40,7 @@ import com.wbrawner.simplemarkdown.utility.SupportLinks
 @Composable
 fun SupportScreen(navController: NavController) {
     Scaffold(topBar = {
-        MarkdownTopAppBar(title = "Support SimpleMarkdown", goBack = { navController.popBackStack() })
+        MarkdownTopAppBar(title = stringResource(R.string.support_title), goBack = { navController.popBackStack() })
     }) { paddingValues ->
         val context = LocalContext.current
         Column(
@@ -56,7 +57,7 @@ fun SupportScreen(navController: NavController) {
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary
             )
-            Text(context.getString(R.string.support_info), textAlign = TextAlign.Center)
+            Text(stringResource(R.string.support_info), textAlign = TextAlign.Center)
             Spacer(modifier = Modifier.height(8.dp))
             Button(
                 modifier = Modifier.fillMaxWidth(),
@@ -71,7 +72,7 @@ fun SupportScreen(navController: NavController) {
                     contentColor = Color.White
                 )
             ) {
-                Text(context.getString(R.string.action_view_github))
+                Text(stringResource(R.string.action_view_github))
             }
             Button(
                 modifier = Modifier.fillMaxWidth(),
@@ -98,7 +99,7 @@ fun SupportScreen(navController: NavController) {
                     contentColor = Color.White
                 )
             ) {
-                Text(context.getString(R.string.action_rate))
+                Text(stringResource(R.string.action_rate))
             }
             SupportLinks()
         }

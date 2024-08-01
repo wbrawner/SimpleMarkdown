@@ -26,10 +26,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringArrayResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.wbrawner.simplemarkdown.BuildConfig
+import com.wbrawner.simplemarkdown.R
 import com.wbrawner.simplemarkdown.ui.theme.SimpleMarkdownTheme
 import com.wbrawner.simplemarkdown.utility.Preference
 import com.wbrawner.simplemarkdown.utility.PreferenceHelper
@@ -47,36 +50,36 @@ fun SettingsScreen(navController: NavController, preferenceHelper: PreferenceHel
                 .verticalScroll(rememberScrollState())
         ) {
             BooleanPreference(
-                title = "Autosave",
-                enabledDescription = "Files will be saved automatically",
-                disabledDescription = "Files will not be saved automatically",
+                title = stringResource(R.string.pref_title_autosave),
+                enabledDescription = stringResource(R.string.pref_autosave_on),
+                disabledDescription = stringResource(R.string.pref_autosave_off),
                 preference = Preference.AUTOSAVE_ENABLED,
                 preferenceHelper = preferenceHelper
             )
             ListPreference(
-                title = "Dark mode",
-                options = listOf("auto", "dark", "light"),
+                title = stringResource(R.string.title_dark_mode),
+                options = stringArrayResource(R.array.pref_values_dark_mode),
                 preference = Preference.DARK_MODE,
                 preferenceHelper = preferenceHelper
             )
             BooleanPreference(
-                title = "Send crash reports",
-                enabledDescription = "Error reports will be sent",
-                disabledDescription = "Error reports will not be sent",
+                title = stringResource(R.string.pref_title_error_reports),
+                enabledDescription = stringResource(R.string.pref_error_reports_on),
+                disabledDescription = stringResource(R.string.pref_error_reports_off),
                 preference = Preference.ERROR_REPORTS_ENABLED,
                 preferenceHelper = preferenceHelper
             )
             BooleanPreference(
-                title = "Send analytics",
-                enabledDescription = "Analytics events will be sent",
-                disabledDescription = "Analytics events will not be sent",
+                title = stringResource(R.string.pref_title_analytics),
+                enabledDescription = stringResource(R.string.pref_analytics_on),
+                disabledDescription = stringResource(R.string.pref_analytics_off),
                 preference = Preference.ANALYTICS_ENABLED,
                 preferenceHelper = preferenceHelper
             )
             BooleanPreference(
-                title = "Readability highlighting",
-                enabledDescription = "Readability highlighting is on",
-                disabledDescription = "Readability highlighting is off",
+                title = stringResource(R.string.pref_title_readability),
+                enabledDescription = stringResource(R.string.pref_readability_on),
+                disabledDescription = stringResource(R.string.pref_readability_off),
                 preference = Preference.READABILITY_ENABLED,
                 preferenceHelper = preferenceHelper
             )
@@ -90,9 +93,9 @@ fun SettingsScreen(navController: NavController, preferenceHelper: PreferenceHel
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically) {
                     Column(verticalArrangement = Arrangement.Center) {
-                        Text(text = "Force a crash", style = MaterialTheme.typography.bodyLarge)
+                        Text(text = stringResource(R.string.action_force_crash), style = MaterialTheme.typography.bodyLarge)
                         Text(
-                            text = "Purposefully crash the app for testing purposes",
+                            text = stringResource(R.string.description_force_crash),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -155,7 +158,7 @@ fun BooleanPreference(
 @Composable
 fun ListPreference(
     title: String,
-    options: List<String>,
+    options: Array<String>,
     preference: Preference,
     preferenceHelper: PreferenceHelper
 ) {
@@ -171,7 +174,7 @@ fun ListPreference(
 
 @Composable
 fun ListPreference(
-    title: String, options: List<String>, selected: String, setSelected: (String) -> Unit
+    title: String, options: Array<String>, selected: String, setSelected: (String) -> Unit
 ) {
     var dialogShowing by remember { mutableStateOf(false) }
     Column(modifier = Modifier
@@ -248,7 +251,7 @@ fun ListPreference_Preview() {
     SimpleMarkdownTheme {
         Surface {
             ListPreference(
-                "Dark mode", listOf("Light", "Dark", "Auto"), selected, setSelected
+                "Dark mode", arrayOf("Light", "Dark", "Auto"), selected, setSelected
             )
         }
     }

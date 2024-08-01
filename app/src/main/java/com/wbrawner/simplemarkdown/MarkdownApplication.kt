@@ -9,12 +9,15 @@ import com.wbrawner.simplemarkdown.utility.FileHelper
 import com.wbrawner.simplemarkdown.utility.PersistentTree
 import com.wbrawner.simplemarkdown.utility.PreferenceHelper
 import com.wbrawner.simplemarkdown.utility.ReviewHelper
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.io.File
 
 class MarkdownApplication : Application() {
+
+    private val coroutineScope = CoroutineScope(Dispatchers.Default)
 
     override fun onCreate() {
         if (BuildConfig.DEBUG) {
@@ -27,9 +30,9 @@ class MarkdownApplication : Application() {
                     .penaltyLog()
                     .build())
             Timber.plant(Timber.DebugTree())
-            GlobalScope.launch {
+            coroutineScope.launch {
                 try {
-                    Timber.plant(PersistentTree.create(File(getExternalFilesDir(null), "logs")))
+                    Timber.plant(PersistentTree.create(coroutineScope, File(getExternalFilesDir(null), "logs")))
                 } catch (e: Exception) {
                     Timber.e(e, "Unable to create PersistentTree")
                 }

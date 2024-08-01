@@ -11,14 +11,14 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarColors
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
+import com.wbrawner.simplemarkdown.R
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -32,6 +32,7 @@ fun MarkdownTopAppBar(
     scrollBehavior: TopAppBarScrollBehavior? = null,
 ) {
     val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
     TopAppBar(
         title = {
             Text(text = title, maxLines = 1, overflow = TextOverflow.Ellipsis)
@@ -40,10 +41,10 @@ fun MarkdownTopAppBar(
         navigationIcon = {
             val (icon, contentDescription, onClick) = remember {
                 if (backAsUp) {
-                    Triple(Icons.AutoMirrored.Filled.ArrowBack, "Go Back", goBack)
+                    Triple(Icons.AutoMirrored.Filled.ArrowBack, context.getString(R.string.action_back), goBack)
                 } else {
                     Triple(
-                        Icons.Default.Menu, "Main Menu"
+                        Icons.Default.Menu, context.getString(R.string.action_menu)
                     ) {
                         coroutineScope.launch {
                             if (drawerState?.isOpen == true) {

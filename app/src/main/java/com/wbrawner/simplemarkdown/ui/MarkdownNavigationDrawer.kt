@@ -17,6 +17,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.wbrawner.simplemarkdown.R
 import com.wbrawner.simplemarkdown.Route
@@ -44,7 +45,7 @@ fun MarkdownNavigationDrawer(
                         tint = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
-                        text = "Simple Markdown",
+                        text = stringResource(R.string.app_name),
                         style = MaterialTheme.typography.titleLarge
                     )
                 }
@@ -56,7 +57,7 @@ fun MarkdownNavigationDrawer(
                         icon = {
                             Icon(imageVector = route.icon, contentDescription = null)
                         },
-                        label = { Text(route.title) },
+                        label = { Text(stringResource(route.title)) },
                         selected = false,
                         onClick = {
                             navigate(route)

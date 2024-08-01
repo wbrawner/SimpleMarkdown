@@ -97,6 +97,9 @@ android {
             commit.set(true)
         }
     }
+    lint {
+        warningsAsErrors = true
+    }
 }
 
 play {
