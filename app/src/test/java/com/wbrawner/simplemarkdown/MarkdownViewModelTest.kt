@@ -5,14 +5,11 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import com.wbrawner.simplemarkdown.utility.Preference
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.TestResult
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
-import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.Assert.assertEquals
@@ -25,8 +22,6 @@ import org.junit.Test
 import timber.log.Timber
 import java.io.File
 import java.net.URI
-import java.util.Deque
-import java.util.concurrent.ConcurrentLinkedDeque
 
 class MarkdownViewModelTest {
     private lateinit var fileHelper: FakeFileHelper
@@ -185,7 +180,7 @@ class MarkdownViewModelTest {
             requireNotNull(onClick)
             onClick.invoke()
         }
-        assertEquals(viewModel.state.value, EditorState())
+        assertEquals(viewModel.state.value, EditorState(reloadToggle = 0.inv()))
     }
 
     @Test
@@ -204,7 +199,7 @@ class MarkdownViewModelTest {
         viewModel.save(uri)
         assertNotNull(viewModel.state.value.saveCallback)
         requireNotNull(viewModel.state.value.saveCallback).invoke()
-        assertEquals(viewModel.state.value, EditorState())
+        assertEquals(viewModel.state.value, EditorState(reloadToggle = 0.inv()))
     }
 
     @Test
