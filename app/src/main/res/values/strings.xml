@@ -16,7 +16,7 @@
     <string name="share_file">Share file to…</string>
     <string name="file_saved">Successfully saved %1$s</string>
     <string name="file_save_error">An error occurred while saving the file</string>
-    <string name="file_loaded">File successfully loaded</string>
+    <string name="file_loaded">Successfully loaded %1$s</string>
     <string name="file_load_error">An error occurred while opening the file</string>
     <string name="action_back">Back</string>
     <string name="action_menu">Main Menu</string>

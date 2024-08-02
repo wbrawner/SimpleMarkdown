@@ -380,4 +380,4 @@ fun <P> MarkdownViewModel.collectAsState(prop: KProperty1<EditorState, P>, initi
     remember(prop) { state.map { prop.get(it) }.distinctUntilChanged() }.collectAsState(initial)
 
 @Composable
-fun ParameterizedText.stringRes() = stringResource(text, params)
+fun ParameterizedText.stringRes() = stringResource(text, *params)

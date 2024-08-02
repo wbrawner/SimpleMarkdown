@@ -96,7 +96,7 @@ class MarkdownViewModel(
                             markdown = content,
                             initialMarkdown = content,
                             reloadToggle = currentState.reloadToggle.inv(),
-                            toast = ParameterizedText(R.string.file_loaded)
+                            toast = ParameterizedText(R.string.file_loaded, arrayOf(name))
                         )
                         preferenceHelper[Preference.AUTOSAVE_URI] = actualLoadPath
                     } ?: throw IllegalStateException("Opened file was null")

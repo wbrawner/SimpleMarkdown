@@ -6,13 +6,10 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.webkit.WebView
-import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.KeyEvent
-import androidx.compose.ui.input.key.NativeKeyEvent
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
@@ -27,13 +24,8 @@ import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performKeyInput
-import androidx.compose.ui.test.performKeyPress
-import androidx.compose.ui.test.performTextInput
-import androidx.compose.ui.test.performTextInputSelection
 import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.test.printToLog
-import androidx.compose.ui.text.TextRange
 import androidx.core.content.FileProvider
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
@@ -233,7 +225,7 @@ class MarkdownTests {
 
     private fun ComposeTestRule.checkTitleEquals(title: String) =
         onNode(hasAnySibling(hasContentDescription("Main Menu")).and(hasText(title)))
-            .assertIsDisplayed()
+            .waitUntilIsDisplayed()
 
     private fun ComposeTestRule.typeMarkdown(markdown: String) =
         onNode(hasSetTextAction()).performTextReplacement(markdown)
@@ -258,12 +250,38 @@ class MarkdownTests {
     private fun ComposeTestRule.clickSaveMenuItem() = onNodeWithText("Save").performClick()
 
     private fun ComposeTestRule.verifyDialogIsShown(text: String) =
-        onNode(isDialog().and(hasAnyDescendant(hasText(text)))).assertIsDisplayed()
+        onNode(isDialog().and(hasAnyDescendant(hasText(text)))).waitUntilIsDisplayed()
 
-    private fun ComposeTestRule.verifyDialogIsNotShown() = onNode(isDialog()).assertIsNotDisplayed()
+    private fun ComposeTestRule.verifyDialogIsNotShown() =
+        onNode(isDialog()).waitUntilIsNotDisplayed()
 
     private fun ComposeTestRule.discardChanges() = onNodeWithText("No").performClick()
 
     private fun ComposeTestRule.verifyTextIsShown(text: String) =
-        onNodeWithText(text).assertIsDisplayed()
+        onNodeWithText(text).waitUntilIsDisplayed()
+
+    private val ASSERTION_TIMEOUT = 5_000L
+
+    private fun SemanticsNodeInteraction.waitUntil(assertion: SemanticsNodeInteraction.() -> Unit) {
+        val start = System.currentTimeMillis()
+        lateinit var assertionError: AssertionError
+        while (System.currentTimeMillis() - start < ASSERTION_TIMEOUT) {
+            try {
+                assertion()
+                return
+            } catch (e: AssertionError) {
+                assertionError = e
+                Thread.sleep(10)
+            }
+        }
+        throw assertionError
+    }
+
+    private fun SemanticsNodeInteraction.waitUntilIsDisplayed() = waitUntil {
+        assertIsDisplayed()
+    }
+
+    private fun SemanticsNodeInteraction.waitUntilIsNotDisplayed() = waitUntil {
+        assertIsNotDisplayed()
+    }
 }
