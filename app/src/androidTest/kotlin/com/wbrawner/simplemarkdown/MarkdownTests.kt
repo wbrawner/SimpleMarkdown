@@ -235,7 +235,9 @@ class MarkdownTests {
         val markdownMatcher = SemanticsMatcher("Markdown = [$markdown]") {
             it.config.getOrNull(SemanticsProperties.EditableText)?.text == markdown
         }
-        onNode(hasSetTextAction()).assert(markdownMatcher)
+        onNode(hasSetTextAction()).waitUntil {
+            assert(markdownMatcher)
+        }
     }
 
     private fun ComposeTestRule.openPreview() = onNodeWithText("Preview").performClick()

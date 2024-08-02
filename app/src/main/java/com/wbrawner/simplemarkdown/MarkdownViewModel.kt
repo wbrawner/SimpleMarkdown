@@ -209,7 +209,8 @@ class MarkdownViewModel(
             ))
             return
         }
-        _state.value = EditorState(fileName = untitledFileName)
+        _state.value =
+            EditorState(fileName = untitledFileName, reloadToggle = _state.value.reloadToggle.inv())
         Timber.i("Removing autosave uri from shared prefs")
         preferenceHelper[Preference.AUTOSAVE_URI] = null
     }
