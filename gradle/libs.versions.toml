@@ -35,7 +35,7 @@ play = "2.0.1"
 preferenceKtx = "1.2.1"
 robolectric = "4.2.1"
 runner = "1.6.1"
-syllableCounter = "4.0.2"
+syllableCounter = "4.1.0"
 timber = "5.0.1"
 tripletPlay = "3.10.1"
 
