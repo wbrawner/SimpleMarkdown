@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Validate
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: set up JDK
       uses: actions/setup-java@v3
       with:
@@ -30,7 +30,7 @@ jobs:
     needs:
     - validate
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: set up JDK
         uses: actions/setup-java@v3
         with:
@@ -54,7 +54,7 @@ jobs:
     needs:
       - validate
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: set up JDK
         uses: actions/setup-java@v3
         with:
