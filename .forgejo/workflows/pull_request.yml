@@ -51,7 +51,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: set up JDK
-        uses: https://git.wbrawner.com/actions/setup-java@v3
+        uses: https://git.wbrawner.com/actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: '17'
