@@ -37,7 +37,7 @@ robolectric = "4.2.1"
 runner = "1.6.1"
 syllableCounter = "4.0.2"
 timber = "5.0.1"
-tripletPlay = "3.8.4"
+tripletPlay = "3.10.1"
 
 [libraries]
 acra-advanced-scheduler = { module = "ch.acra:acra-advanced-scheduler", version.ref = "acra" }
