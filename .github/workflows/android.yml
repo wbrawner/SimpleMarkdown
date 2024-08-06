@@ -17,7 +17,7 @@ jobs:
         distribution: 'zulu'
         java-version: '17'
     - name: Validate Gradle Wrapper
-      uses: gradle/wrapper-validation-action@v1
+      uses: gradle/wrapper-validation-action@v3
     - name: Enable auto-merge
       if: ${{ github.event_name == 'pull_request' && github.actor == 'dependabot' }}
       run: gh pr merge --auto --rebase "$PR_URL"
