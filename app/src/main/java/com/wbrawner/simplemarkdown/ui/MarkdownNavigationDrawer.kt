@@ -1,5 +1,6 @@
 package com.wbrawner.simplemarkdown.ui
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
@@ -29,6 +30,11 @@ fun MarkdownNavigationDrawer(
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val coroutineScope = rememberCoroutineScope()
+    BackHandler(enabled = drawerState.isOpen) {
+        coroutineScope.launch {
+            drawerState.close()
+        }
+    }
     DismissibleNavigationDrawer(
         gesturesEnabled = drawerState.isOpen,
         drawerState = drawerState,
