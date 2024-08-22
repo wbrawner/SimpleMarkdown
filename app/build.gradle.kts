@@ -98,6 +98,7 @@ android {
         }
     }
     lint {
+        disable += "AndroidGradlePluginVersion"
         warningsAsErrors = true
     }
 }
