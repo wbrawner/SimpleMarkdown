@@ -11,6 +11,8 @@ import com.wbrawner.simplemarkdown.utility.PreferenceHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -31,6 +33,7 @@ data class EditorState(
      * a new file
      */
     val reloadToggle: Int = 0,
+    val lockSwiping: Boolean = false,
     private val initialMarkdown: String = "",
 ) {
     val dirty: Boolean
@@ -49,6 +52,11 @@ class MarkdownViewModel(
         viewModelScope.launch {
             load(null)
         }
+        preferenceHelper.observe<Boolean>(Preference.LOCK_SWIPING)
+            .onEach {
+                _state.value = _state.value.copy(lockSwiping = it)
+            }
+            .launchIn(viewModelScope)
     }
 
     fun updateMarkdown(markdown: String?) {
@@ -210,9 +218,17 @@ class MarkdownViewModel(
             return
         }
         _state.value =
-            EditorState(fileName = untitledFileName, reloadToggle = _state.value.reloadToggle.inv())
+            EditorState(
+                fileName = untitledFileName,
+                reloadToggle = _state.value.reloadToggle.inv(),
+                lockSwiping = preferenceHelper[Preference.LOCK_SWIPING] as Boolean
+            )
         Timber.i("Removing autosave uri from shared prefs")
         preferenceHelper[Preference.AUTOSAVE_URI] = null
+    }
+
+    fun setLockSwiping(enabled: Boolean) {
+        preferenceHelper[Preference.LOCK_SWIPING] = enabled
     }
 
     companion object {

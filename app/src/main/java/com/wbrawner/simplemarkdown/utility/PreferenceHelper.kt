@@ -1,19 +1,14 @@
 package com.wbrawner.simplemarkdown.utility
 
 import android.content.Context
-import android.net.Uri
 import androidx.core.content.edit
 import androidx.preference.PreferenceManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import timber.log.Timber
-import java.io.IOException
 
 interface PreferenceHelper {
     operator fun get(preference: Preference): Any?
@@ -25,15 +20,7 @@ interface PreferenceHelper {
 
 class AndroidPreferenceHelper(context: Context, private val coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.IO)): PreferenceHelper {
     private val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-    private val states = mapOf(
-        Preference.ANALYTICS_ENABLED to MutableStateFlow(get(Preference.ANALYTICS_ENABLED)),
-        Preference.AUTOSAVE_ENABLED to MutableStateFlow(get(Preference.AUTOSAVE_ENABLED)),
-        Preference.AUTOSAVE_URI to MutableStateFlow(get(Preference.AUTOSAVE_URI)),
-        Preference.CUSTOM_CSS to MutableStateFlow(get(Preference.CUSTOM_CSS)),
-        Preference.DARK_MODE to MutableStateFlow(get(Preference.DARK_MODE)),
-        Preference.ERROR_REPORTS_ENABLED to MutableStateFlow(get(Preference.ERROR_REPORTS_ENABLED)),
-        Preference.READABILITY_ENABLED to MutableStateFlow(get(Preference.READABILITY_ENABLED)),
-    )
+    private val states = Preference.entries.associateWith { MutableStateFlow(get(it)) }
 
     override fun get(preference: Preference): Any? = sharedPreferences.all[preference.key]?: preference.default
 
@@ -63,5 +50,6 @@ enum class Preference(val key: String, val default: Any?) {
     CUSTOM_CSS("pref.custom_css", null),
     DARK_MODE("darkMode", "Auto"),
     ERROR_REPORTS_ENABLED("acra.enable", true),
+    LOCK_SWIPING("lockSwiping", false),
     READABILITY_ENABLED("readability.enable", false)
 }

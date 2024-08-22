@@ -288,4 +288,18 @@ class MarkdownViewModelTest {
         viewModel.autosave()
         assertEquals(2, fileHelper.savedData.count())
     }
+
+    @Test
+    fun testSetLockSwiping() = runTest {
+        preferenceHelper[Preference.LOCK_SWIPING] = false
+        assertFalse(viewModel.state.value.lockSwiping)
+        viewModel.setLockSwiping(true)
+        viewModelScope.advanceUntilIdle()
+        assertTrue(preferenceHelper.preferences[Preference.LOCK_SWIPING] as Boolean)
+        assertTrue(viewModel.state.value.lockSwiping)
+        viewModel.setLockSwiping(false)
+        viewModelScope.advanceUntilIdle()
+        assertFalse(preferenceHelper.preferences[Preference.LOCK_SWIPING] as Boolean)
+        assertFalse(viewModel.state.value.lockSwiping)
+    }
 }

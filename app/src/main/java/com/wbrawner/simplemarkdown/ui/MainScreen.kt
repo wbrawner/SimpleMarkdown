@@ -86,6 +86,7 @@ fun MainScreen(
     val dirty by viewModel.collectAsState(EditorState::dirty, false)
     val alert by viewModel.collectAsState(EditorState::alert, null)
     val saveCallback by viewModel.collectAsState(EditorState::saveCallback, null)
+    val lockSwiping by viewModel.collectAsState(EditorState::lockSwiping, false)
     LaunchedEffect(enableAutosave) {
         if (!enableAutosave) return@LaunchedEffect
         while (isActive) {
@@ -101,6 +102,8 @@ fun MainScreen(
         initialMarkdown = initialMarkdown,
         markdown = markdown,
         setMarkdown = viewModel::updateMarkdown,
+        lockSwiping = lockSwiping,
+        toggleLockSwiping = viewModel::setLockSwiping,
         message = toast?.stringRes(),
         dismissMessage = viewModel::dismissToast,
         alert = alert,
@@ -137,6 +140,8 @@ private fun MainScreen(
     initialMarkdown: String = "",
     markdown: String = "",
     setMarkdown: (String) -> Unit = {},
+    lockSwiping: Boolean,
+    toggleLockSwiping: (Boolean) -> Unit,
     message: String? = null,
     dismissMessage: () -> Unit = {},
     alert: AlertDialogModel? = null,
@@ -150,7 +155,6 @@ private fun MainScreen(
     enableWideLayout: Boolean = false,
     enableReadability: Boolean = false
 ) {
-    var lockSwiping by remember { mutableStateOf(true) }
     val openFileLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) {
             loadFile(it)
@@ -250,10 +254,11 @@ private fun MainScreen(
                                             Text(stringResource(R.string.action_lock_swipe))
                                             Checkbox(
                                                 checked = lockSwiping,
-                                                onCheckedChange = { lockSwiping = !lockSwiping })
+                                                onCheckedChange = toggleLockSwiping
+                                            )
                                         }
                                     }, onClick = {
-                                        lockSwiping = !lockSwiping
+                                        toggleLockSwiping(!lockSwiping)
                                         menuExpanded = false
                                     })
                                 }
