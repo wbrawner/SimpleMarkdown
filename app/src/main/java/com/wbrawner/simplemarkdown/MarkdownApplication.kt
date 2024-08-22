@@ -38,7 +38,9 @@ class MarkdownApplication : Application() {
                 }
             }
         }
-        Timber.plant(ErrorReporterTree.create(this))
+        coroutineScope.launch {
+            Timber.plant(ErrorReporterTree.create(this@MarkdownApplication))
+        }
         super.onCreate()
         ReviewHelper.init(this)
         fileHelper = AndroidFileHelper(this)

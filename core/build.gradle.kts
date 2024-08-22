@@ -54,6 +54,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.kotlinx.coroutines.core)
     implementation(libs.acra.core)
     implementation(libs.acra.http)
     runtimeOnly(libs.acra.limiter)

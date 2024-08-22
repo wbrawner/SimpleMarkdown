@@ -2,7 +2,8 @@ package com.wbrawner.simplemarkdown.core
 
 import android.app.Application
 import android.util.Log
-import org.acra.ACRA
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.acra.config.httpSender
 import org.acra.data.StringFormat
 import org.acra.ktx.initAcra
@@ -17,18 +18,18 @@ class ErrorReporterTree private constructor(): Timber.Tree() {
     }
 
     companion object {
-        fun create(application: Application): ErrorReporterTree {
+        suspend fun create(application: Application): ErrorReporterTree {
             application.createErrorReporterTree()
             return ErrorReporterTree()
         }
     }
 }
 
-private fun Application.createErrorReporterTree() {
+private suspend fun Application.createErrorReporterTree() = withContext(Dispatchers.IO) {
     initAcra {
         reportFormat = StringFormat.JSON
         httpSender {
-            uri = "${BuildConfig.ACRA_URL}/report" /*best guess, you may need to adjust this*/
+            uri = "${BuildConfig.ACRA_URL}/report"
             basicAuthLogin = BuildConfig.ACRA_USER
             basicAuthPassword = BuildConfig.ACRA_PASS
             httpMethod = HttpSender.Method.POST

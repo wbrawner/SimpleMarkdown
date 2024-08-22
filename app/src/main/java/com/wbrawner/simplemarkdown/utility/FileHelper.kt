@@ -3,7 +3,6 @@ package com.wbrawner.simplemarkdown.utility
 import android.content.Context
 import android.content.Intent
 import android.os.Environment
-import android.provider.MediaStore
 import androidx.core.net.toUri
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -34,8 +33,10 @@ interface FileHelper {
 }
 
 class AndroidFileHelper(private val context: Context) : FileHelper {
-    override val defaultDirectory: File = context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS)
-        ?: context.filesDir
+    override val defaultDirectory: File by lazy {
+        context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS)
+            ?: context.filesDir
+    }
 
     override suspend fun open(source: URI): Pair<String, String>? = withContext(Dispatchers.IO) {
         val uri = source.toString().toUri()

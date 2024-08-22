@@ -19,10 +19,17 @@ interface PreferenceHelper {
 }
 
 class AndroidPreferenceHelper(context: Context, private val coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.IO)): PreferenceHelper {
-    private val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-    private val states = Preference.entries.associateWith { MutableStateFlow(get(it)) }
+    private val sharedPreferences by lazy {
+        PreferenceManager.getDefaultSharedPreferences(context)
+    }
+    private val states by lazy {
+        val allPrefs: Map<String, Any?> = sharedPreferences.all
+        Preference.entries.associateWith { preference ->
+            MutableStateFlow(allPrefs[preference.key] ?: preference.default)
+        }
+    }
 
-    override fun get(preference: Preference): Any? = sharedPreferences.all[preference.key]?: preference.default
+    override fun get(preference: Preference): Any? = states[preference]?.value
 
     override fun set(preference: Preference, value: Any?) {
         sharedPreferences.edit {
