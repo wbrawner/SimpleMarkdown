@@ -34,7 +34,7 @@ android {
         jvmTarget = "1.8"
     }
     lint {
-        disable += "AndroidGradlePluginVersion"
+        disable += listOf("AndroidGradlePluginVersion", "GradleDependency")
         warningsAsErrors = true
     }
 }
