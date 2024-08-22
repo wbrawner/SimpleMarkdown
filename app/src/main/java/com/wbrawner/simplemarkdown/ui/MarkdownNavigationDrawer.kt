@@ -30,7 +30,7 @@ fun MarkdownNavigationDrawer(
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val coroutineScope = rememberCoroutineScope()
     DismissibleNavigationDrawer(
-        gesturesEnabled = false,
+        gesturesEnabled = drawerState.isOpen,
         drawerState = drawerState,
         drawerContent = {
             DismissibleDrawerSheet {
