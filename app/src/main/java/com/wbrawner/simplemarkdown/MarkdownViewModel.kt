@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
+import com.wbrawner.simplemarkdown.core.LocalOnlyException
 import com.wbrawner.simplemarkdown.utility.FileHelper
 import com.wbrawner.simplemarkdown.utility.Preference
 import com.wbrawner.simplemarkdown.utility.PreferenceHelper
@@ -109,7 +110,7 @@ class MarkdownViewModel(
                         preferenceHelper[Preference.AUTOSAVE_URI] = actualLoadPath
                     } ?: throw IllegalStateException("Opened file was null")
             } catch (e: Exception) {
-                Timber.e(e, "Failed to open file at path: $actualLoadPath")
+                Timber.e(LocalOnlyException(e), "Failed to open file at path: $actualLoadPath")
                 _state.value = _state.value.copy(
                     alert = AlertDialogModel(
                         text = ParameterizedText(R.string.file_load_error),

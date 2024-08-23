@@ -14,7 +14,9 @@ import timber.log.Timber
 class ErrorReporterTree private constructor(): Timber.Tree() {
     override fun log(priority: Int, tag: String?, message: String, t: Throwable?) {
         if (priority != Log.ERROR) return
-        t?.sendSilentlyWithAcra()
+        if (t !is LocalOnlyException) {
+            t?.sendSilentlyWithAcra()
+        }
     }
 
     companion object {
@@ -23,6 +25,14 @@ class ErrorReporterTree private constructor(): Timber.Tree() {
             return ErrorReporterTree()
         }
     }
+}
+
+/**
+ * An exception wrapper that prevents exceptions from being sent to an error reporter. Useful for
+ * logging things like IOExceptions that are useful to see locally but not so helpful if reported
+ */
+class LocalOnlyException(override val message: String?, override val cause: Throwable): Exception(message, cause) {
+    constructor(cause: Throwable): this(null, cause)
 }
 
 private suspend fun Application.createErrorReporterTree() = withContext(Dispatchers.IO) {
