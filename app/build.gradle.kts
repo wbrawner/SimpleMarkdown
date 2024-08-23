@@ -181,7 +181,7 @@ fladle {
     environmentVariables.put("clearPackageData", "true")
     testTimeout.set("7m")
     devices.add(
-        mapOf("model" to "Pixel2.arm", "version" to "34")
+        mapOf("model" to "Pixel2.arm", "version" to "33")
     )
     projectId.set("simplemarkdown")
 }
