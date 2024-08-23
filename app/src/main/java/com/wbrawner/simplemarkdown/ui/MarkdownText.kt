@@ -1,8 +1,10 @@
 package com.wbrawner.simplemarkdown.ui
 
 import android.annotation.SuppressLint
+import android.graphics.Color.TRANSPARENT
 import android.view.ViewGroup
 import android.webkit.WebView
+import android.widget.FrameLayout
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -15,7 +17,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.viewinterop.AndroidView
 import com.wbrawner.simplemarkdown.BuildConfig
@@ -91,22 +92,34 @@ fun HtmlText(html: String, modifier: Modifier = Modifier) {
     AndroidView(
         modifier = modifier,
         factory = { context ->
-            WebView(context).apply {
-                WebView.setWebContentsDebuggingEnabled(BuildConfig.DEBUG)
+            FrameLayout(context).apply {
                 layoutParams = ViewGroup.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT
                 )
-                setBackgroundColor(Color.Transparent.toArgb())
-                isNestedScrollingEnabled = false
-                settings.javaScriptEnabled = true
-                loadDataWithBaseURL(null, style + html, "text/html", "UTF-8", null)
+                addView(
+                    WebView(context).apply {
+                        tag = WEBVIEW_TAG
+                        WebView.setWebContentsDebuggingEnabled(BuildConfig.DEBUG)
+                        layoutParams = ViewGroup.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT
+                        )
+                        setBackgroundColor(TRANSPARENT)
+                        isNestedScrollingEnabled = false
+                        settings.javaScriptEnabled = true
+                        loadDataWithBaseURL(null, style + html, "text/html", "UTF-8", null)
+                    }
+                )
             }
         },
-        update = { webView ->
-            webView.loadDataWithBaseURL(null, style + html, "text/html", "UTF-8", null)
+        update = { frameLayout ->
+            frameLayout.findViewWithTag<WebView>(WEBVIEW_TAG)
+                .loadDataWithBaseURL(null, style + html, "text/html", "UTF-8", null)
         }
     )
 }
+
+private const val WEBVIEW_TAG = "com.wbrawner.simplemarkdown.MarkdownText#WebView"
 
 private fun String.wrapTag(tag: String) = "<$tag>$this</$tag>"
