@@ -21,6 +21,7 @@ try {
     keystoreProperties["keyPassword"] = ""
     keystoreProperties["storeFile"] = File.createTempFile("temp", ".tmp").absolutePath
     keystoreProperties["storePassword"] = ""
+    keystoreProperties["publishCredentialsFile"] = ""
 }
 
 android {
@@ -108,6 +109,7 @@ play {
     enabled.set(false)
     track.set("production")
     defaultToAppBundles.set(true)
+    serviceAccountCredentials.set(file((keystoreProperties["publishCredentialsFile"] as? String).orEmpty()))
 }
 
 dependencies {
