@@ -1,7 +1,7 @@
 [versions]
 acra = "5.11.4"
 activityKtx = "1.9.2"
-animationCore = "1.7.0"
+animationCore = "1.7.1"
 appcompat = "1.7.0"
 billing = "7.0.0"
 browser = "1.8.0"
