@@ -37,7 +37,7 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
       - name: Run unit tests
-        uses: gradle/gradle-build-action@v2
+        uses: gradle/gradle-build-action@v3
         with:
             arguments: testPlayDebugUnitTest
       - name: Publish JUnit Results
@@ -61,7 +61,7 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
       - name: Build with Gradle
-        uses: gradle/gradle-build-action@v2
+        uses: gradle/gradle-build-action@v3
         with:
           arguments: assemblePlayDebug assemblePlayDebugAndroidTest
       - name: Grant execute permission for flank_auth.sh
@@ -72,6 +72,6 @@ jobs:
         run: |
           ./flank_auth.sh
       - name: Run UI tests
-        uses: gradle/gradle-build-action@v2
+        uses: gradle/gradle-build-action@v3
         with:
           arguments: runFlank

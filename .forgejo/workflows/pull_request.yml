@@ -56,7 +56,7 @@ jobs:
       - name: Setup Android SDK
         uses: https://git.wbrawner.com/android-actions/setup-android@v3
       - name: Build with Gradle
-        uses: https://git.wbrawner.com/gradle/gradle-build-action@v2
+        uses: https://git.wbrawner.com/gradle/gradle-build-action@v3
         with:
           arguments: assemblePlayDebug assemblePlayDebugAndroidTest
       - name: Grant execute permission for flank_auth.sh
@@ -67,6 +67,6 @@ jobs:
         run: |
           ./flank_auth.sh
       - name: Run UI tests
-        uses: https://git.wbrawner.com/gradle/gradle-build-action@v2
+        uses: https://git.wbrawner.com/gradle/gradle-build-action@v3
         with:
           arguments: runFlank
