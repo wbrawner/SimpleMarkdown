@@ -4,7 +4,6 @@ import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -327,7 +326,7 @@ private fun MainScreen(
 }
 
 @Composable
-@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 private fun TabbedMarkdownEditor(
     initialMarkdown: String,
     markdown: String,
@@ -349,7 +348,7 @@ private fun TabbedMarkdownEditor(
     }
     HorizontalPager(
         modifier = Modifier.fillMaxSize(1f), state = pagerState,
-        beyondBoundsPageCount = 1,
+        beyondViewportPageCount = 1,
         userScrollEnabled = !lockSwiping
     ) { page ->
         val keyboardController = LocalSoftwareKeyboardController.current
