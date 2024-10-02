@@ -47,6 +47,7 @@ class AndroidPreferenceHelper(context: Context, private val coroutineScope: Coro
         }
     }
 
+    @Suppress("UNCHECKED_CAST")
     override fun <T> observe(preference: Preference): StateFlow<T> = states[preference]!!.asStateFlow() as StateFlow<T>
 }
 
