@@ -14,7 +14,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -50,9 +49,6 @@ class MarkdownViewModel(
     private val saveMutex = Mutex()
 
     init {
-        viewModelScope.launch {
-            load(null)
-        }
         preferenceHelper.observe<Boolean>(Preference.LOCK_SWIPING)
             .onEach {
                 _state.value = _state.value.copy(lockSwiping = it)

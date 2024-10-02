@@ -61,6 +61,7 @@ import com.wbrawner.simplemarkdown.MarkdownViewModel
 import com.wbrawner.simplemarkdown.ParameterizedText
 import com.wbrawner.simplemarkdown.R
 import com.wbrawner.simplemarkdown.Route
+import com.wbrawner.simplemarkdown.utility.activity
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
@@ -86,6 +87,10 @@ fun MainScreen(
     val alert by viewModel.collectAsState(EditorState::alert, null)
     val saveCallback by viewModel.collectAsState(EditorState::saveCallback, null)
     val lockSwiping by viewModel.collectAsState(EditorState::lockSwiping, false)
+    val intentData = LocalContext.current.activity?.intent?.data
+    LaunchedEffect(intentData) {
+        viewModel.load(intentData?.toString())
+    }
     LaunchedEffect(enableAutosave) {
         if (!enableAutosave) return@LaunchedEffect
         while (isActive) {

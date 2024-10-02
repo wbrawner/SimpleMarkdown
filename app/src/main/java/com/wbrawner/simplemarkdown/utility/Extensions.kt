@@ -1,11 +1,11 @@
 package com.wbrawner.simplemarkdown.utility
 
+import android.app.Activity
 import android.content.Context
+import android.content.ContextWrapper
 import android.content.res.AssetManager
 import android.net.Uri
 import android.provider.OpenableColumns
-import android.view.View
-import android.view.inputmethod.InputMethodManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.Reader
@@ -22,11 +22,11 @@ suspend fun Uri.getName(context: Context): String {
         if ("content" == scheme) {
             withContext(Dispatchers.IO) {
                 context.contentResolver.query(
-                        this@getName,
-                        null,
-                        null,
-                        null,
-                        null
+                    this@getName,
+                    null,
+                    null,
+                    null,
+                    null
                 )?.use {
                     val nameIndex = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
                     it.moveToFirst()
@@ -41,3 +41,11 @@ suspend fun Uri.getName(context: Context): String {
     }
     return fileName ?: "Untitled.md"
 }
+
+@Suppress("RecursivePropertyAccessor")
+val Context.activity: Activity?
+    get() = when (this) {
+        is Activity -> this
+        is ContextWrapper -> baseContext.activity
+        else -> null
+    }

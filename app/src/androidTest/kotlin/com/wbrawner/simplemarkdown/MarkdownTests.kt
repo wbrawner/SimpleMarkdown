@@ -182,6 +182,29 @@ class MarkdownTests {
         }
     }
 
+    @Test
+    fun launchWithContentUriTest() = runTest {
+        val markdownText = "# UI Testing\n\nThe quick brown fox jumped over the lazy dog."
+        file.outputStream().writer().use { it.write(markdownText) }
+        val fileUri = FileProvider.getUriForFile(
+            getApplicationContext(),
+            "${BuildConfig.APPLICATION_ID}.fileprovider",
+            file
+        )
+        ActivityScenario.launch<MainActivity>(
+            Intent(
+                Intent.ACTION_VIEW,
+                fileUri,
+                getInstrumentation().targetContext,
+                MainActivity::class.java
+            )
+        )
+        onMainScreen(composeRule) {
+            awaitIdle()
+            checkMarkdownEquals(markdownText)
+            checkTitleEquals("temp.md")
+        }
+    }
 
     @Test
     fun openEditAndSaveMarkdownTest() = runTest {
