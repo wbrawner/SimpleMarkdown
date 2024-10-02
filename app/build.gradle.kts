@@ -109,7 +109,7 @@ play {
     enabled.set(false)
     track.set("production")
     defaultToAppBundles.set(true)
-    (keystoreProperties["publishCredentialsFile"] as? String)?.let {
+    (keystoreProperties["publishCredentialsFile"] as? String)?.ifBlank { null }?.let {
         serviceAccountCredentials.set(file(it))
     }
 }
