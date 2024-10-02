@@ -23,6 +23,7 @@ import timber.log.Timber
 import java.io.File
 import java.net.URI
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class MarkdownViewModelTest {
     private lateinit var fileHelper: FakeFileHelper
     private lateinit var preferenceHelper: FakePreferenceHelper
