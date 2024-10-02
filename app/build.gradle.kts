@@ -109,7 +109,9 @@ play {
     enabled.set(false)
     track.set("production")
     defaultToAppBundles.set(true)
-    serviceAccountCredentials.set(file((keystoreProperties["publishCredentialsFile"] as? String).orEmpty()))
+    (keystoreProperties["publishCredentialsFile"] as? String)?.let {
+        serviceAccountCredentials.set(file(it))
+    }
 }
 
 dependencies {
