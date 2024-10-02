@@ -17,7 +17,6 @@ fladle = "0.17.5"
 googleServices = "4.4.2"
 firebaseCrashlyticsGradle = "3.0.2"
 androidGradlePlugin = "8.5.2"
-hamcrestCore = "3.0"
 junit = "4.13.2"
 kotlin = "2.0.20"
 lifecycleViewmodelKtx = "2.8.6"
@@ -92,7 +91,6 @@ commonmark-ext-yaml-front-matter = { module = "org.commonmark:commonmark-ext-yam
 compose-bom = { module = "androidx.compose:compose-bom", version.ref = "composeBom" }
 foundation = { module = "androidx.compose.foundation:foundation" }
 foundation-layout = { module = "androidx.compose.foundation:foundation-layout" }
-hamcrest-core = { module = "org.hamcrest:hamcrest-core", version.ref = "hamcrestCore" }
 junit = { module = "junit:junit", version.ref = "junit" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }

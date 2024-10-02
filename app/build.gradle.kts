@@ -158,7 +158,6 @@ dependencies {
     androidTestImplementation(libs.androidx.core)
     androidTestImplementation(libs.androidx.monitor)
     androidTestImplementation(libs.junit)
-    androidTestImplementation(libs.hamcrest.core)
     implementation(libs.androidx.activity.ktx)
     implementation(libs.androidx.activity.ktx)
     implementation(libs.androidx.animation.core)
