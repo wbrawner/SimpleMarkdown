@@ -23,6 +23,7 @@ class FakePreferenceHelper: PreferenceHelper {
         preferences[preference] = value
     }
 
+    @Suppress("UNCHECKED_CAST")
     override fun <T> observe(preference: Preference): StateFlow<T> =
         preferenceFlow(preference) as StateFlow<T>
 }
