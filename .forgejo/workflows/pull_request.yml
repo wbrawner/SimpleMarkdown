@@ -30,10 +30,10 @@ jobs:
           java-version: '17'
       - name: Setup Android SDK
         uses: https://git.wbrawner.com/android-actions/setup-android@v3
-      - name: Run unit tests
+      - name: Setup Gradle
         uses: https://git.wbrawner.com/gradle/actions/setup-gradle@v4
-        with:
-            arguments: check
+      - name: Run unit tests
+        run: ./gradlew check
       - name: Publish JUnit Results
         uses: actions/upload-artifact@v3
         if: always()
