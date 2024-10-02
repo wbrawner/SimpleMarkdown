@@ -1,2 +1,2 @@
-- Fix files not opening from external apps
+- Fix opening files from external apps
 - Update dependencies
