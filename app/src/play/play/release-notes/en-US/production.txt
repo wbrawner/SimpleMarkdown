@@ -1,6 +1,0 @@
-- Fix crash on markdown preview
-- Close navigation drawer on back press
-- Enable gestures on nav drawer when open
-- Persist preference for Lock Swiping
-- Update dependencies
-- Other minor bug fixes and performance enhancements
