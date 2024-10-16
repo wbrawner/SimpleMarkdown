@@ -1,6 +1,6 @@
 [versions]
 acra = "5.11.4"
-activityKtx = "1.9.2"
+activityKtx = "1.9.3"
 animationCore = "1.7.4"
 appcompat = "1.7.0"
 billing = "7.1.1"
