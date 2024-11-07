@@ -1,21 +1,16 @@
 package com.wbrawner.simplemarkdown.ui
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
@@ -23,7 +18,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
@@ -70,45 +64,38 @@ fun MarkdownTextField(
         fontFamily = FontFamily.Monospace,
         color = MaterialTheme.colorScheme.onSurface
     )
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .imePadding()
-            .verticalScroll(rememberScrollState())
-    ) {
-        CompositionLocalProvider(LocalTextSelectionColors provides colors.textSelectionColors) {
-            BasicTextField(
-                value = textFieldValue,
-                modifier = Modifier.fillMaxSize(),
-                onValueChange = setTextFieldAndViewModelValues,
-                enabled = true,
-                readOnly = false,
-                textStyle = textStyle,
-                cursorBrush = SolidColor(colors.cursorColor),
-                keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
-                keyboardActions = KeyboardActions.Default,
-                interactionSource = interactionSource,
-                singleLine = false,
-                maxLines = Int.MAX_VALUE,
-                minLines = 1,
-                decorationBox = @Composable { innerTextField ->
-                    // places leading icon, text field with label and placeholder, trailing icon
-                    TextFieldDefaults.DecorationBox(
-                        value = textFieldValue.text,
-                        visualTransformation = VisualTransformation.None,
-                        innerTextField = innerTextField,
-                        placeholder = {
-                            Text(stringResource(R.string.markdown_here))
-                        },
-                        singleLine = false,
-                        enabled = true,
-                        interactionSource = interactionSource,
-                        colors = colors,
-                        contentPadding = PaddingValues(8.dp)
-                    )
-                }
-            )
-        }
+    CompositionLocalProvider(LocalTextSelectionColors provides colors.textSelectionColors) {
+        BasicTextField(
+            value = textFieldValue,
+            modifier = modifier.imePadding(),
+            onValueChange = setTextFieldAndViewModelValues,
+            enabled = true,
+            readOnly = false,
+            textStyle = textStyle,
+            cursorBrush = SolidColor(colors.cursorColor),
+            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+            keyboardActions = KeyboardActions.Default,
+            interactionSource = interactionSource,
+            singleLine = false,
+            maxLines = Int.MAX_VALUE,
+            minLines = 1,
+            decorationBox = @Composable { innerTextField ->
+                // places leading icon, text field with label and placeholder, trailing icon
+                TextFieldDefaults.DecorationBox(
+                    value = textFieldValue.text,
+                    visualTransformation = VisualTransformation.None,
+                    innerTextField = innerTextField,
+                    placeholder = {
+                        Text(stringResource(R.string.markdown_here))
+                    },
+                    singleLine = false,
+                    enabled = true,
+                    interactionSource = interactionSource,
+                    colors = colors,
+                    contentPadding = PaddingValues(8.dp)
+                )
+            },
+        )
     }
 }
 
