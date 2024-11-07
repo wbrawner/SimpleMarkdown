@@ -26,9 +26,7 @@ materialIconsCore = "1.7.5"
 maxSdk = "35"
 minSdk = "23"
 monitor = "1.7.2"
-navigationCommon = "2.7.7"
-navigationRuntimeKtx = "2.8.3"
-navigationVersion = "2.7.7"
+navigation = "2.8.3"
 orchestrator = "1.5.1"
 play = "2.0.2"
 preferenceKtx = "1.2.1"
@@ -64,9 +62,9 @@ androidx-material-icons-extended = { module = "androidx.compose.material:materia
 androidx-material3 = { module = "androidx.compose.material3:material3" }
 androidx-material3-windowsizeclass = { module = "androidx.compose.material3:material3-window-size-class-android", version.ref = "material3WindowSizeClassAndroid" }
 androidx-monitor = { module = "androidx.test:monitor", version.ref = "monitor" }
-androidx-navigation-common = { module = "androidx.navigation:navigation-common", version.ref = "navigationCommon" }
-androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationVersion" }
-androidx-navigation-runtime-ktx = { module = "androidx.navigation:navigation-runtime-ktx", version.ref = "navigationRuntimeKtx" }
+androidx-navigation-common = { module = "androidx.navigation:navigation-common", version.ref = "navigation" }
+androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigation" }
+androidx-navigation-runtime-ktx = { module = "androidx.navigation:navigation-runtime-ktx", version.ref = "navigation" }
 androidx-orchestrator = { module = "androidx.test:orchestrator", version.ref = "orchestrator" }
 androidx-preference-ktx = { module = "androidx.preference:preference-ktx", version.ref = "preferenceKtx" }
 androidx-runner = { module = "androidx.test:runner", version.ref = "runner" }
