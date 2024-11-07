@@ -1,5 +1,7 @@
 package com.wbrawner.simplemarkdown
 
+import android.app.ComponentCaller
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.compose.setContent
@@ -26,11 +28,13 @@ import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.core.app.ActivityCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -42,6 +46,7 @@ import com.wbrawner.simplemarkdown.ui.SettingsScreen
 import com.wbrawner.simplemarkdown.ui.SupportScreen
 import com.wbrawner.simplemarkdown.ui.theme.SimpleMarkdownTheme
 import com.wbrawner.simplemarkdown.utility.Preference
+import kotlinx.coroutines.launch
 import org.acra.ACRA
 
 class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsResultCallback {
@@ -59,8 +64,6 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
             val autosaveEnabled by preferenceHelper.observe<Boolean>(Preference.AUTOSAVE_ENABLED)
-                .collectAsState()
-            val readabilityEnabled by preferenceHelper.observe<Boolean>(Preference.READABILITY_ENABLED)
                 .collectAsState()
             val darkModePreference by preferenceHelper.observe<String>(Preference.DARK_MODE)
                 .collectAsState()
@@ -90,6 +93,10 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
                 .collectAsState()
             LaunchedEffect(errorReporterPreference) {
                 ACRA.errorReporter.setEnabled(errorReporterPreference)
+            }
+            val intentData = remember(intent) { intent?.data }
+            LaunchedEffect(intentData) {
+                viewModel.load(intentData?.toString())
             }
             val windowSizeClass = calculateWindowSizeClass(this)
             SimpleMarkdownTheme {
@@ -121,7 +128,6 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
                             viewModel = viewModel,
                             enableWideLayout = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Expanded,
                             enableAutosave = autosaveEnabled,
-                            enableReadability = readabilityEnabled
                         )
                     }
                     composable(Route.SETTINGS.path) {
@@ -152,6 +158,15 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
                         )
                     }
                 }
+            }
+        }
+    }
+
+    override fun onNewIntent(intent: Intent, caller: ComponentCaller) {
+        super.onNewIntent(intent, caller)
+        lifecycleScope.launch {
+            intent.data?.let {
+                viewModel.load(it.toString())
             }
         }
     }

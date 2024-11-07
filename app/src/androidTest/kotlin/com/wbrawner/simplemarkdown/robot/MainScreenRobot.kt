@@ -27,8 +27,10 @@ fun onMainScreen(composeRule: ComposeTestRule, block: MainScreenRobot.() -> Unit
 suspend fun CoroutineScope.onMainScreen(
     composeRule: ComposeTestRule,
     block: suspend MainScreenRobot.() -> Unit
-) {
-    block.invoke(MainScreenRobot(composeRule))
+): MainScreenRobot {
+    val mainScreenRobot = MainScreenRobot(composeRule)
+    block.invoke(mainScreenRobot)
+    return mainScreenRobot
 }
 
 class MainScreenRobot(private val composeRule: ComposeTestRule) :

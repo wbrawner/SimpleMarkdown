@@ -9,7 +9,6 @@ import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.core.content.FileProvider
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
-import androidx.test.espresso.action.ViewActions.*
 import androidx.test.espresso.intent.Intents.intending
 import androidx.test.espresso.intent.matcher.IntentMatchers.hasAction
 import androidx.test.espresso.intent.rule.IntentsRule
@@ -231,6 +230,25 @@ class MarkdownTests {
             verifyTextIsShown("Successfully saved temp.md")
             assertEquals(additionalText, file.inputStream().reader().use(Reader::readText))
             checkTitleEquals("temp.md")
+        }
+    }
+
+    @Test
+    fun editAndViewHelpMarkdownTest() = runTest {
+        ActivityScenario.launch(MainActivity::class.java)
+        onMainScreen(composeRule) {
+            checkTitleEquals("Untitled.md")
+            typeMarkdown("# Header test")
+            checkMarkdownEquals("# Header test")
+            openDrawer()
+        } onNavigationDrawer {
+            openHelpPage()
+        } onHelpScreen {
+            checkTitleEquals("Help")
+            verifyH1("Headings/Titles")
+            pressBack()
+        } onMainScreen {
+            checkMarkdownEquals("# Header test")
         }
     }
 }

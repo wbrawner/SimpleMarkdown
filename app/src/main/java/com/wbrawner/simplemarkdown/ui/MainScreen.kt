@@ -52,6 +52,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat.startActivity
 import androidx.navigation.NavController
@@ -61,7 +62,6 @@ import com.wbrawner.simplemarkdown.MarkdownViewModel
 import com.wbrawner.simplemarkdown.ParameterizedText
 import com.wbrawner.simplemarkdown.R
 import com.wbrawner.simplemarkdown.Route
-import com.wbrawner.simplemarkdown.utility.activity
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
@@ -76,21 +76,14 @@ fun MainScreen(
     viewModel: MarkdownViewModel,
     enableWideLayout: Boolean,
     enableAutosave: Boolean,
-    enableReadability: Boolean
 ) {
     val coroutineScope = rememberCoroutineScope()
     val fileName by viewModel.collectAsState(EditorState::fileName, "")
-    val initialMarkdown by viewModel.collectAsState(EditorState::markdown, "")
-    val reloadToggle by viewModel.collectAsState(EditorState::reloadToggle, 0)
-    val markdown by viewModel.collectAsState(EditorState::markdown, "")
+    val markdown by viewModel.collectAsState(EditorState::markdown, TextFieldValue(""))
     val dirty by viewModel.collectAsState(EditorState::dirty, false)
     val alert by viewModel.collectAsState(EditorState::alert, null)
     val saveCallback by viewModel.collectAsState(EditorState::saveCallback, null)
     val lockSwiping by viewModel.collectAsState(EditorState::lockSwiping, false)
-    val intentData = LocalContext.current.activity?.intent?.data
-    LaunchedEffect(intentData) {
-        viewModel.load(intentData?.toString())
-    }
     LaunchedEffect(enableAutosave) {
         if (!enableAutosave) return@LaunchedEffect
         while (isActive) {
@@ -102,8 +95,6 @@ fun MainScreen(
     MainScreen(
         dirty = dirty,
         fileName = fileName,
-        reloadToggle = reloadToggle,
-        initialMarkdown = initialMarkdown,
         markdown = markdown,
         setMarkdown = viewModel::updateMarkdown,
         lockSwiping = lockSwiping,
@@ -131,7 +122,6 @@ fun MainScreen(
             viewModel.reset("Untitled.md")
         },
         enableWideLayout = enableWideLayout,
-        enableReadability = enableReadability,
     )
 }
 
@@ -140,10 +130,8 @@ fun MainScreen(
 private fun MainScreen(
     fileName: String = "Untitled.md",
     dirty: Boolean = false,
-    reloadToggle: Int = 0,
-    initialMarkdown: String = "",
-    markdown: String = "",
-    setMarkdown: (String) -> Unit = {},
+    markdown: TextFieldValue = TextFieldValue(""),
+    setMarkdown: (TextFieldValue) -> Unit = {},
     lockSwiping: Boolean,
     toggleLockSwiping: (Boolean) -> Unit,
     message: String? = null,
@@ -157,7 +145,6 @@ private fun MainScreen(
     saveCallback: (() -> Unit)? = null,
     reset: () -> Unit = {},
     enableWideLayout: Boolean = false,
-    enableReadability: Boolean = false
 ) {
     val openFileLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) {
@@ -218,7 +205,7 @@ private fun MainScreen(
                     actions = {
                         IconButton(onClick = {
                             val shareIntent = Intent(Intent.ACTION_SEND)
-                            shareIntent.putExtra(Intent.EXTRA_TEXT, markdown)
+                            shareIntent.putExtra(Intent.EXTRA_TEXT, markdown.text)
                             shareIntent.type = "text/plain"
                             startActivity(
                                 context, Intent.createChooser(
@@ -291,10 +278,8 @@ private fun MainScreen(
                         modifier = Modifier
                             .fillMaxHeight()
                             .weight(1f),
-                        reload = reloadToggle,
                         markdown = markdown,
                         setMarkdown = setMarkdown,
-                        enableReadability = enableReadability,
                     )
                     Spacer(
                         modifier = Modifier
@@ -306,7 +291,7 @@ private fun MainScreen(
                         modifier = Modifier
                             .fillMaxHeight()
                             .weight(1f),
-                        markdown = markdown
+                        markdown = markdown.text
                     )
                 }
             } else {
@@ -316,12 +301,9 @@ private fun MainScreen(
                         .padding(paddingValues)
                 ) {
                     TabbedMarkdownEditor(
-                        initialMarkdown = initialMarkdown,
                         markdown = markdown,
                         setMarkdown = setMarkdown,
                         lockSwiping = lockSwiping,
-                        enableReadability = enableReadability,
-                        reloadToggle = reloadToggle,
                         scrollBehavior = scrollBehavior
                     )
                 }
@@ -333,12 +315,9 @@ private fun MainScreen(
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 private fun TabbedMarkdownEditor(
-    initialMarkdown: String,
-    markdown: String,
-    setMarkdown: (String) -> Unit,
+    markdown: TextFieldValue,
+    setMarkdown: (TextFieldValue) -> Unit,
     lockSwiping: Boolean,
-    enableReadability: Boolean,
-    reloadToggle: Int,
     scrollBehavior: TopAppBarScrollBehavior
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -368,17 +347,15 @@ private fun TabbedMarkdownEditor(
                 modifier = Modifier
                     .fillMaxSize()
                     .nestedScroll(scrollBehavior.nestedScrollConnection),
-                markdown = initialMarkdown,
+                markdown = markdown,
                 setMarkdown = setMarkdown,
-                enableReadability = enableReadability,
-                reload = reloadToggle,
             )
         } else {
             MarkdownText(
                 modifier = Modifier
                     .fillMaxSize()
                     .nestedScroll(scrollBehavior.nestedScrollConnection),
-                markdown
+                markdown.text
             )
         }
     }

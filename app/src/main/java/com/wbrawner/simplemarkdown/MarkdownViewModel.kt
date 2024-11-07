@@ -1,11 +1,16 @@
 package com.wbrawner.simplemarkdown
 
 import androidx.annotation.StringRes
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.wbrawner.simplemarkdown.core.LocalOnlyException
+import com.wbrawner.simplemarkdown.model.Readability
 import com.wbrawner.simplemarkdown.utility.FileHelper
 import com.wbrawner.simplemarkdown.utility.Preference
 import com.wbrawner.simplemarkdown.utility.PreferenceHelper
@@ -23,21 +28,17 @@ import java.net.URI
 
 data class EditorState(
     val fileName: String = "Untitled.md",
-    val markdown: String = "",
+    val markdown: TextFieldValue = TextFieldValue(""),
     val path: URI? = null,
     val toast: ParameterizedText? = null,
     val alert: AlertDialogModel? = null,
     val saveCallback: (() -> Unit)? = null,
-    /**
-     * Used to signal to the view that it should reload due to an external change, like loading
-     * a new file
-     */
-    val reloadToggle: Int = 0,
     val lockSwiping: Boolean = false,
-    private val initialMarkdown: String = "",
+    val enableReadability: Boolean = false,
+    val initialMarkdown: String = "",
 ) {
     val dirty: Boolean
-        get() = markdown != initialMarkdown
+        get() = markdown.text != initialMarkdown
 }
 
 class MarkdownViewModel(
@@ -51,27 +52,41 @@ class MarkdownViewModel(
     init {
         preferenceHelper.observe<Boolean>(Preference.LOCK_SWIPING)
             .onEach {
-                _state.value = _state.value.copy(lockSwiping = it)
+                updateState { copy(lockSwiping = it) }
+            }
+            .launchIn(viewModelScope)
+        preferenceHelper.observe<Boolean>(Preference.READABILITY_ENABLED)
+            .onEach {
+                updateState {
+                    copy(
+                        enableReadability = it,
+                        markdown = markdown.copy(annotatedString = markdown.text.annotate(it)),
+                    )
+                }
             }
             .launchIn(viewModelScope)
     }
 
-    fun updateMarkdown(markdown: String?) {
-        _state.value = _state.value.copy(
-            markdown = markdown ?: "",
-        )
+    fun updateMarkdown(markdown: String?) = updateMarkdown(TextFieldValue(markdown.orEmpty()))
+
+    fun updateMarkdown(markdown: TextFieldValue) {
+        updateState {
+            copy(
+                markdown = markdown.copy(annotatedString = markdown.text.annotate(enableReadability)),
+            )
+        }
     }
 
     fun dismissToast() {
-        _state.value = _state.value.copy(toast = null)
+        updateState { copy(toast = null) }
     }
 
     fun dismissAlert() {
-        _state.value = _state.value.copy(alert = null)
+        updateState { copy(alert = null) }
     }
 
     private fun unsetSaveCallback() {
-        _state.value = _state.value.copy(saveCallback = null)
+        updateState { copy(saveCallback = null) }
     }
 
     suspend fun load(loadPath: String?) {
@@ -94,25 +109,30 @@ class MarkdownViewModel(
                 val uri = URI.create(actualLoadPath)
                 fileHelper.open(uri)
                     ?.let { (name, content) ->
-                        val currentState = _state.value
-                        _state.value = currentState.copy(
-                            path = uri,
-                            fileName = name,
-                            markdown = content,
-                            initialMarkdown = content,
-                            reloadToggle = currentState.reloadToggle.inv(),
-                            toast = ParameterizedText(R.string.file_loaded, arrayOf(name))
-                        )
+                        updateState {
+                            copy(
+                                path = uri,
+                                fileName = name,
+                                markdown = TextFieldValue(content),
+                                initialMarkdown = content,
+                                toast = ParameterizedText(R.string.file_loaded, arrayOf(name))
+                            )
+                        }
                         preferenceHelper[Preference.AUTOSAVE_URI] = actualLoadPath
                     } ?: throw IllegalStateException("Opened file was null")
             } catch (e: Exception) {
                 Timber.e(LocalOnlyException(e), "Failed to open file at path: $actualLoadPath")
-                _state.value = _state.value.copy(
-                    alert = AlertDialogModel(
-                        text = ParameterizedText(R.string.file_load_error),
-                        confirmButton = AlertDialogModel.ButtonModel(ParameterizedText(R.string.ok), onClick = ::dismissAlert)
+                updateState {
+                    copy(
+                        alert = AlertDialogModel(
+                            text = ParameterizedText(R.string.file_load_error),
+                            confirmButton = AlertDialogModel.ButtonModel(
+                                ParameterizedText(R.string.ok),
+                                onClick = ::dismissAlert
+                            )
+                        )
                     )
-                )
+                }
             }
         }
     }
@@ -124,35 +144,44 @@ class MarkdownViewModel(
                 ?: run {
                     Timber.w("Attempted to save file with empty path")
                     if (interactive) {
-                        _state.value = _state.value.copy(saveCallback = ::unsetSaveCallback)
+                        updateState {
+                            copy(saveCallback = ::unsetSaveCallback)
+                        }
                     }
                     return@withLock false
                 }
             try {
                 Timber.i("Saving file to $actualSavePath...")
                 val currentState = _state.value
-                val name = fileHelper.save(actualSavePath, currentState.markdown)
-                _state.value = currentState.copy(
-                    fileName = name,
-                    path = actualSavePath,
-                    initialMarkdown = currentState.markdown,
-                    toast = if (interactive) ParameterizedText(R.string.file_saved, arrayOf(name)) else null
-                )
+                val name = fileHelper.save(actualSavePath, currentState.markdown.text)
+                updateState {
+                    currentState.copy(
+                        fileName = name,
+                        path = actualSavePath,
+                        initialMarkdown = currentState.markdown.text,
+                        toast = if (interactive) ParameterizedText(
+                            R.string.file_saved,
+                            arrayOf(name)
+                        ) else null
+                    )
+                }
                 Timber.i("Saved file $name to uri $actualSavePath")
                 Timber.i("Persisting autosave uri in shared prefs: $actualSavePath")
                 preferenceHelper[Preference.AUTOSAVE_URI] = actualSavePath
                 true
             } catch (e: Exception) {
                 Timber.e(e, "Failed to save file to $actualSavePath")
-                _state.value = _state.value.copy(
-                    alert = AlertDialogModel(
-                        text = ParameterizedText(R.string.file_save_error),
-                        confirmButton = AlertDialogModel.ButtonModel(
-                            text = ParameterizedText(R.string.ok),
-                            onClick = ::dismissAlert
+                updateState {
+                    copy(
+                        alert = AlertDialogModel(
+                            text = ParameterizedText(R.string.file_save_error),
+                            confirmButton = AlertDialogModel.ButtonModel(
+                                text = ParameterizedText(R.string.ok),
+                                onClick = ::dismissAlert
+                            )
                         )
                     )
-                )
+                }
                 false
             }
         }
@@ -184,7 +213,7 @@ class MarkdownViewModel(
                 // to an internal storage location, thus marking it as not dirty, but no longer able to
                 // access the file if the accidentally go to create a new file without properly saving
                 // the current one
-                fileHelper.save(file, _state.value.markdown)
+                fileHelper.save(file, _state.value.markdown.text)
                 preferenceHelper[Preference.AUTOSAVE_URI] = file
             }
         }
@@ -193,39 +222,45 @@ class MarkdownViewModel(
     fun reset(untitledFileName: String, force: Boolean = false) {
         Timber.i("Resetting view model to default state")
         if (!force && _state.value.dirty) {
-            _state.value = _state.value.copy(alert = AlertDialogModel(
-                text = ParameterizedText(R.string.prompt_save_changes),
-                confirmButton = AlertDialogModel.ButtonModel(
-                    text = ParameterizedText(R.string.yes),
-                    onClick = {
-                        _state.value = _state.value.copy(
-                            saveCallback = {
-                                reset(untitledFileName, false)
-                            }
-                        )
-                    }
-                ),
-                dismissButton = AlertDialogModel.ButtonModel(
-                    text = ParameterizedText(R.string.no),
-                    onClick = {
-                        reset(untitledFileName, true)
-                    }
-                )
-            ))
+            updateState {
+                copy(alert = AlertDialogModel(
+                    text = ParameterizedText(R.string.prompt_save_changes),
+                    confirmButton = AlertDialogModel.ButtonModel(
+                        text = ParameterizedText(R.string.yes),
+                        onClick = {
+                            _state.value = _state.value.copy(
+                                saveCallback = {
+                                    reset(untitledFileName, false)
+                                }
+                            )
+                        }
+                    ),
+                    dismissButton = AlertDialogModel.ButtonModel(
+                        text = ParameterizedText(R.string.no),
+                        onClick = {
+                            reset(untitledFileName, true)
+                        }
+                    )
+                ))
+            }
             return
         }
-        _state.value =
+        updateState {
             EditorState(
                 fileName = untitledFileName,
-                reloadToggle = _state.value.reloadToggle.inv(),
                 lockSwiping = preferenceHelper[Preference.LOCK_SWIPING] as Boolean
             )
+        }
         Timber.i("Removing autosave uri from shared prefs")
         preferenceHelper[Preference.AUTOSAVE_URI] = null
     }
 
     fun setLockSwiping(enabled: Boolean) {
         preferenceHelper[Preference.LOCK_SWIPING] = enabled
+    }
+
+    private fun updateState(block: EditorState.() -> EditorState) {
+        _state.value = _state.value.block()
     }
 
     companion object {
@@ -270,4 +305,17 @@ data class ParameterizedText(@StringRes val text: Int, val params: Array<Any> = 
         result = 31 * result + params.contentHashCode()
         return result
     }
+}
+
+private fun String.annotate(enableReadability: Boolean): AnnotatedString {
+    if (!enableReadability) return AnnotatedString(this)
+    val readability = Readability(this)
+    val annotated = AnnotatedString.Builder(this)
+    for (sentence in readability.sentences()) {
+        var color = Color.Transparent
+        if (sentence.syllableCount() > 25) color = Color(229, 232, 42, 100)
+        if (sentence.syllableCount() > 35) color = Color(193, 66, 66, 100)
+        annotated.addStyle(SpanStyle(background = color), sentence.start(), sentence.end())
+    }
+    return annotated.toAnnotatedString()
 }
