@@ -99,7 +99,11 @@ android {
         }
     }
     lint {
-        disable += listOf("AndroidGradlePluginVersion", "GradleDependency")
+        disable += listOf(
+            "AndroidGradlePluginVersion",
+            "GradleDependency",
+            "ObsoleteLintCustomCheck"
+        )
         warningsAsErrors = true
     }
 }
