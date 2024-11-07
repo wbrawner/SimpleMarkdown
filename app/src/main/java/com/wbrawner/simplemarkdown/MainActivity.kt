@@ -8,12 +8,11 @@ import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.animation.AnimatedContentTransitionScope
-import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.core.EaseIn
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleOut
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Help
 import androidx.compose.material.icons.filled.Edit
@@ -108,13 +107,9 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
                             towards = AnimatedContentTransitionScope.SlideDirection.Start
                         )
                     },
-                    popEnterTransition = { EnterTransition.None },
+                    popEnterTransition = { fadeIn() },
                     popExitTransition = {
-                        fadeOut(
-                            animationSpec = tween(
-                                300, easing = LinearEasing
-                            )
-                        ) + slideOutOfContainer(
+                        scaleOut(targetScale = 0.9f) + slideOutOfContainer(
                             animationSpec = tween(300, easing = EaseIn),
                             towards = AnimatedContentTransitionScope.SlideDirection.End
                         )
