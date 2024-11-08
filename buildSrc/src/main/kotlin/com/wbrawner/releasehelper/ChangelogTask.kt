@@ -2,16 +2,14 @@ package com.wbrawner.releasehelper
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
-import org.gradle.api.internal.provider.Providers
 import org.gradle.api.model.ObjectFactory
-import org.gradle.api.provider.Property
 import org.gradle.api.provider.ProviderFactory
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import javax.inject.Inject
 
-private const val CHANGELOG_PATH = "src/play/play/release-notes/en-US/production.txt"
+private const val CHANGELOG_PATH = "src/play/play/release-notes/en-US/default.txt"
 
 abstract class ChangelogTask @Inject constructor(
     objectFactory: ObjectFactory,
