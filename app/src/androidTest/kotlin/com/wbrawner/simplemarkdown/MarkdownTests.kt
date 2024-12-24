@@ -14,6 +14,7 @@ import androidx.test.espresso.intent.matcher.IntentMatchers.hasAction
 import androidx.test.espresso.intent.rule.IntentsRule
 import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import com.wbrawner.simplemarkdown.robot.onMainScreen
+import com.wbrawner.simplemarkdown.utility.readAssetToString
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -97,14 +98,16 @@ class MarkdownTests {
     }
 
     @Test
-    fun typingTest() {
+    fun typingTest() = runTest {
+        val markdownText =
+            getApplicationContext<Context>().assets.readAssetToString("Cheatsheet.md")
+        val additionalText =
+            "\n\nThis is some additional text added to an already fairly long file to see if the input lag is resolved"
         ActivityScenario.launch(MainActivity::class.java)
-        val markdownText = "# UI Testing\n\nThe quick brown fox jumped over the lazy dog."
         onMainScreen(composeRule) {
-            markdownText.forEach {
-                inputMarkdown(it.toString())
-            }
-            checkMarkdownEquals(markdownText)
+            typeMarkdown(markdownText)
+            typeMarkdown(additionalText, replace = false)
+            checkMarkdownEquals(markdownText + additionalText)
         }
     }
 

@@ -36,12 +36,17 @@ suspend fun CoroutineScope.onMainScreen(
 
 class MainScreenRobot(private val composeRule: ComposeTestRule) :
     TopAppBarRobot by ComposeTopAppBarRobot(composeRule) {
-
-    fun typeMarkdown(markdown: String) = composeRule.onNode(hasSetTextAction())
-        .performTextReplacement(markdown)
-
-    fun inputMarkdown(markdown: String) = composeRule.onNode(hasSetTextAction())
-        .performTextInput(markdown)
+    fun typeMarkdown(markdown: String, replace: Boolean = true) =
+        composeRule.onNode(hasSetTextAction())
+            .apply {
+                if (replace) {
+                    performTextReplacement(markdown)
+                } else {
+                    markdown.forEach {
+                        performTextInput(it.toString())
+                    }
+                }
+            }
 
     fun checkMarkdownEquals(markdown: String) {
         val markdownMatcher = SemanticsMatcher("Markdown = [$markdown]") {
