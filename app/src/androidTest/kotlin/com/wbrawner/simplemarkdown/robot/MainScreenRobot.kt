@@ -14,6 +14,7 @@ import androidx.compose.ui.test.junit4.ComposeTestRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
 import com.wbrawner.simplemarkdown.waitUntil
 import com.wbrawner.simplemarkdown.waitUntilIsDisplayed
@@ -38,6 +39,9 @@ class MainScreenRobot(private val composeRule: ComposeTestRule) :
 
     fun typeMarkdown(markdown: String) = composeRule.onNode(hasSetTextAction())
         .performTextReplacement(markdown)
+
+    fun inputMarkdown(markdown: String) = composeRule.onNode(hasSetTextAction())
+        .performTextInput(markdown)
 
     fun checkMarkdownEquals(markdown: String) {
         val markdownMatcher = SemanticsMatcher("Markdown = [$markdown]") {

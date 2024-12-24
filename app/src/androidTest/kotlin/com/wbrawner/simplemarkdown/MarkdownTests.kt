@@ -12,7 +12,6 @@ import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.espresso.intent.Intents.intending
 import androidx.test.espresso.intent.matcher.IntentMatchers.hasAction
 import androidx.test.espresso.intent.rule.IntentsRule
-import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import com.wbrawner.simplemarkdown.robot.onMainScreen
 import kotlinx.coroutines.test.runTest
@@ -94,6 +93,18 @@ class MarkdownTests {
             verifyDialogIsShown("Would you like to save your changes?")
             discardChanges()
             checkMarkdownEquals("")
+        }
+    }
+
+    @Test
+    fun typingTest() {
+        ActivityScenario.launch(MainActivity::class.java)
+        val markdownText = "# UI Testing\n\nThe quick brown fox jumped over the lazy dog."
+        onMainScreen(composeRule) {
+            markdownText.forEach {
+                inputMarkdown(it.toString())
+            }
+            checkMarkdownEquals(markdownText)
         }
     }
 
