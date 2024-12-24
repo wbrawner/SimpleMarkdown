@@ -13,11 +13,17 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -25,13 +31,15 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.wbrawner.simplemarkdown.R
+import com.wbrawner.simplemarkdown.model.Readability
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MarkdownTextField(
     modifier: Modifier = Modifier,
-    markdown: TextFieldValue,
-    setMarkdown: (TextFieldValue) -> Unit,
+    markdown: String,
+    setMarkdown: (String) -> Unit,
+    enableReadability: Boolean,
 ) {
     val colors = TextFieldDefaults.colors(
         focusedContainerColor = MaterialTheme.colorScheme.surface,
@@ -46,11 +54,26 @@ fun MarkdownTextField(
         fontFamily = FontFamily.Monospace,
         color = MaterialTheme.colorScheme.onSurface
     )
+    var selection: TextRange by remember { mutableStateOf(TextRange.Zero) }
+    var composition: TextRange? by remember { mutableStateOf(null) }
+    val (localMarkdown) = remember(markdown, selection, composition, enableReadability) {
+        mutableStateOf(
+            TextFieldValue(
+                markdown.annotate(enableReadability),
+                selection = selection,
+                composition = composition
+            )
+        )
+    }
     CompositionLocalProvider(LocalTextSelectionColors provides colors.textSelectionColors) {
         BasicTextField(
-            value = markdown,
+            value = localMarkdown,
             modifier = modifier.imePadding(),
-            onValueChange = setMarkdown,
+            onValueChange = {
+                selection = it.selection
+                composition = it.composition
+                setMarkdown(it.text)
+            },
             enabled = true,
             readOnly = false,
             textStyle = textStyle,
@@ -64,7 +87,7 @@ fun MarkdownTextField(
             decorationBox = @Composable { innerTextField ->
                 // places leading icon, text field with label and placeholder, trailing icon
                 TextFieldDefaults.DecorationBox(
-                    value = markdown.text,
+                    value = localMarkdown.text,
                     visualTransformation = VisualTransformation.None,
                     innerTextField = innerTextField,
                     placeholder = {
@@ -79,4 +102,17 @@ fun MarkdownTextField(
             },
         )
     }
+}
+
+private fun String.annotate(enableReadability: Boolean): AnnotatedString {
+    if (!enableReadability) return AnnotatedString(this)
+    val readability = Readability(this)
+    val annotated = AnnotatedString.Builder(this)
+    for (sentence in readability.sentences()) {
+        var color = Color.Transparent
+        if (sentence.syllableCount() > 25) color = Color(229, 232, 42, 100)
+        if (sentence.syllableCount() > 35) color = Color(193, 66, 66, 100)
+        annotated.addStyle(SpanStyle(background = color), sentence.start(), sentence.end())
+    }
+    return annotated.toAnnotatedString()
 }

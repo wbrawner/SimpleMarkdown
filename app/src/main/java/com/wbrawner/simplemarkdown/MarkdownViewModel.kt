@@ -1,16 +1,11 @@
 package com.wbrawner.simplemarkdown
 
 import androidx.annotation.StringRes
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.wbrawner.simplemarkdown.core.LocalOnlyException
-import com.wbrawner.simplemarkdown.model.Readability
 import com.wbrawner.simplemarkdown.utility.FileHelper
 import com.wbrawner.simplemarkdown.utility.Preference
 import com.wbrawner.simplemarkdown.utility.PreferenceHelper
@@ -28,7 +23,7 @@ import java.net.URI
 
 data class EditorState(
     val fileName: String = "Untitled.md",
-    val markdown: TextFieldValue = TextFieldValue(""),
+    val markdown: String = "",
     val path: URI? = null,
     val toast: ParameterizedText? = null,
     val alert: AlertDialogModel? = null,
@@ -38,7 +33,7 @@ data class EditorState(
     val initialMarkdown: String = "",
 ) {
     val dirty: Boolean
-        get() = markdown.text != initialMarkdown
+        get() = markdown != initialMarkdown
 }
 
 class MarkdownViewModel(
@@ -58,22 +53,15 @@ class MarkdownViewModel(
         preferenceHelper.observe<Boolean>(Preference.READABILITY_ENABLED)
             .onEach {
                 updateState {
-                    copy(
-                        enableReadability = it,
-                        markdown = markdown.copy(annotatedString = markdown.text.annotate(it)),
-                    )
+                    copy(enableReadability = it)
                 }
             }
             .launchIn(viewModelScope)
     }
 
-    fun updateMarkdown(markdown: String?) = updateMarkdown(TextFieldValue(markdown.orEmpty()))
-
-    fun updateMarkdown(markdown: TextFieldValue) {
+    fun updateMarkdown(markdown: String?) {
         updateState {
-            copy(
-                markdown = markdown.copy(annotatedString = markdown.text.annotate(enableReadability)),
-            )
+            copy(markdown = markdown.orEmpty())
         }
     }
 
@@ -113,7 +101,7 @@ class MarkdownViewModel(
                             copy(
                                 path = uri,
                                 fileName = name,
-                                markdown = TextFieldValue(content),
+                                markdown = content,
                                 initialMarkdown = content,
                                 toast = ParameterizedText(R.string.file_loaded, arrayOf(name))
                             )
@@ -153,12 +141,12 @@ class MarkdownViewModel(
             try {
                 Timber.i("Saving file to $actualSavePath...")
                 val currentState = _state.value
-                val name = fileHelper.save(actualSavePath, currentState.markdown.text)
+                val name = fileHelper.save(actualSavePath, currentState.markdown)
                 updateState {
                     currentState.copy(
                         fileName = name,
                         path = actualSavePath,
-                        initialMarkdown = currentState.markdown.text,
+                        initialMarkdown = currentState.markdown,
                         toast = if (interactive) ParameterizedText(
                             R.string.file_saved,
                             arrayOf(name)
@@ -213,7 +201,7 @@ class MarkdownViewModel(
                 // to an internal storage location, thus marking it as not dirty, but no longer able to
                 // access the file if the accidentally go to create a new file without properly saving
                 // the current one
-                fileHelper.save(file, _state.value.markdown.text)
+                fileHelper.save(file, _state.value.markdown)
                 preferenceHelper[Preference.AUTOSAVE_URI] = file
             }
         }
@@ -305,17 +293,4 @@ data class ParameterizedText(@StringRes val text: Int, val params: Array<Any> = 
         result = 31 * result + params.contentHashCode()
         return result
     }
-}
-
-private fun String.annotate(enableReadability: Boolean): AnnotatedString {
-    if (!enableReadability) return AnnotatedString(this)
-    val readability = Readability(this)
-    val annotated = AnnotatedString.Builder(this)
-    for (sentence in readability.sentences()) {
-        var color = Color.Transparent
-        if (sentence.syllableCount() > 25) color = Color(229, 232, 42, 100)
-        if (sentence.syllableCount() > 35) color = Color(193, 66, 66, 100)
-        annotated.addStyle(SpanStyle(background = color), sentence.start(), sentence.end())
-    }
-    return annotated.toAnnotatedString()
 }

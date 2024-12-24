@@ -52,9 +52,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat.startActivity
 import androidx.navigation.NavController
 import com.wbrawner.simplemarkdown.AlertDialogModel
 import com.wbrawner.simplemarkdown.EditorState
@@ -79,11 +77,12 @@ fun MainScreen(
 ) {
     val coroutineScope = rememberCoroutineScope()
     val fileName by viewModel.collectAsState(EditorState::fileName, "")
-    val markdown by viewModel.collectAsState(EditorState::markdown, TextFieldValue(""))
+    val markdown by viewModel.collectAsState(EditorState::markdown, "")
     val dirty by viewModel.collectAsState(EditorState::dirty, false)
     val alert by viewModel.collectAsState(EditorState::alert, null)
     val saveCallback by viewModel.collectAsState(EditorState::saveCallback, null)
     val lockSwiping by viewModel.collectAsState(EditorState::lockSwiping, false)
+    val enableReadability by viewModel.collectAsState(EditorState::enableReadability, false)
     LaunchedEffect(enableAutosave) {
         if (!enableAutosave) return@LaunchedEffect
         while (isActive) {
@@ -122,6 +121,7 @@ fun MainScreen(
             viewModel.reset("Untitled.md")
         },
         enableWideLayout = enableWideLayout,
+        enableReadability = enableReadability,
     )
 }
 
@@ -130,8 +130,8 @@ fun MainScreen(
 private fun MainScreen(
     fileName: String = "Untitled.md",
     dirty: Boolean = false,
-    markdown: TextFieldValue = TextFieldValue(""),
-    setMarkdown: (TextFieldValue) -> Unit = {},
+    markdown: String = "",
+    setMarkdown: (String) -> Unit = {},
     lockSwiping: Boolean,
     toggleLockSwiping: (Boolean) -> Unit,
     message: String? = null,
@@ -145,6 +145,7 @@ private fun MainScreen(
     saveCallback: (() -> Unit)? = null,
     reset: () -> Unit = {},
     enableWideLayout: Boolean = false,
+    enableReadability: Boolean = false,
 ) {
     val openFileLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) {
@@ -205,10 +206,10 @@ private fun MainScreen(
                     actions = {
                         IconButton(onClick = {
                             val shareIntent = Intent(Intent.ACTION_SEND)
-                            shareIntent.putExtra(Intent.EXTRA_TEXT, markdown.text)
+                            shareIntent.putExtra(Intent.EXTRA_TEXT, markdown)
                             shareIntent.type = "text/plain"
-                            startActivity(
-                                context, Intent.createChooser(
+                            context.startActivity(
+                                Intent.createChooser(
                                     shareIntent, context.getString(R.string.share_file)
                                 ), null
                             )
@@ -280,6 +281,7 @@ private fun MainScreen(
                             .weight(1f),
                         markdown = markdown,
                         setMarkdown = setMarkdown,
+                        enableReadability = enableReadability,
                     )
                     Spacer(
                         modifier = Modifier
@@ -291,7 +293,7 @@ private fun MainScreen(
                         modifier = Modifier
                             .fillMaxHeight()
                             .weight(1f),
-                        markdown = markdown.text
+                        markdown = markdown
                     )
                 }
             } else {
@@ -304,7 +306,8 @@ private fun MainScreen(
                         markdown = markdown,
                         setMarkdown = setMarkdown,
                         lockSwiping = lockSwiping,
-                        scrollBehavior = scrollBehavior
+                        enableReadability = enableReadability,
+                        scrollBehavior = scrollBehavior,
                     )
                 }
             }
@@ -315,10 +318,11 @@ private fun MainScreen(
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 private fun TabbedMarkdownEditor(
-    markdown: TextFieldValue,
-    setMarkdown: (TextFieldValue) -> Unit,
+    markdown: String,
+    setMarkdown: (String) -> Unit,
     lockSwiping: Boolean,
-    scrollBehavior: TopAppBarScrollBehavior
+    enableReadability: Boolean,
+    scrollBehavior: TopAppBarScrollBehavior,
 ) {
     val coroutineScope = rememberCoroutineScope()
     val pagerState = rememberPagerState { 2 }
@@ -349,13 +353,14 @@ private fun TabbedMarkdownEditor(
                     .nestedScroll(scrollBehavior.nestedScrollConnection),
                 markdown = markdown,
                 setMarkdown = setMarkdown,
+                enableReadability = enableReadability,
             )
         } else {
             MarkdownText(
                 modifier = Modifier
                     .fillMaxSize()
                     .nestedScroll(scrollBehavior.nestedScrollConnection),
-                markdown.text
+                markdown
             )
         }
     }

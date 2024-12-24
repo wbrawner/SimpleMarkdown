@@ -1,6 +1,5 @@
 package com.wbrawner.simplemarkdown
 
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.wbrawner.simplemarkdown.utility.Preference
@@ -53,9 +52,9 @@ class MarkdownViewModelTest {
 
     @Test
     fun testMarkdownUpdate() = runTest {
-        assertEquals("".asTextFieldValue(), viewModel.state.value.markdown)
+        assertEquals("", viewModel.state.value.markdown)
         viewModel.updateMarkdown("Updated content")
-        assertEquals("Updated content".asTextFieldValue(), viewModel.state.value.markdown)
+        assertEquals("Updated content", viewModel.state.value.markdown)
     }
 
     @Test
@@ -73,7 +72,7 @@ class MarkdownViewModelTest {
         assertEquals(uri, fileHelper.openedUris.firstOrNull())
         val (fileName, contents) = fileHelper.file
         assertEquals(fileName, viewModel.state.value.fileName)
-        assertEquals(contents.asTextFieldValue(), viewModel.state.value.markdown)
+        assertEquals(contents, viewModel.state.value.markdown)
     }
 
     @Test
@@ -83,7 +82,7 @@ class MarkdownViewModelTest {
         assertEquals(uri, fileHelper.openedUris.firstOrNull())
         val (fileName, contents) = fileHelper.file
         assertEquals(fileName, viewModel.state.value.fileName)
-        assertEquals(contents.asTextFieldValue(), viewModel.state.value.markdown)
+        assertEquals(contents, viewModel.state.value.markdown)
     }
 
     @Test
@@ -127,7 +126,7 @@ class MarkdownViewModelTest {
         val uri = URI.create("file:///home/user/Saved.md")
         val testMarkdown = "# Test"
         viewModel.updateMarkdown(testMarkdown)
-        assertEquals(testMarkdown.asTextFieldValue(), viewModel.state.value.markdown)
+        assertEquals(testMarkdown, viewModel.state.value.markdown)
         assertTrue(viewModel.save(uri))
         assertEquals("Saved.md", viewModel.state.value.fileName)
         assertEquals(uri, fileHelper.savedData.last().uri)
@@ -140,7 +139,7 @@ class MarkdownViewModelTest {
         val uri = URI.create("file:///home/user/Untitled.md")
         val testMarkdown = "# Test"
         viewModel.updateMarkdown(testMarkdown)
-        assertEquals(testMarkdown.asTextFieldValue(), viewModel.state.value.markdown)
+        assertEquals(testMarkdown, viewModel.state.value.markdown)
         fileHelper.errorOnSave = true
         assertNull(viewModel.state.value.alert)
         assertFalse(viewModel.save(uri))
@@ -160,7 +159,7 @@ class MarkdownViewModelTest {
         assertNull(viewModel.state.value.alert)
         with(viewModel.state.value) {
             assertEquals("New.md", fileName)
-            assertEquals("".asTextFieldValue(), markdown)
+            assertEquals("", markdown)
             assertNull(path)
             assertNull(saveCallback)
             assertNull(alert)
@@ -179,8 +178,7 @@ class MarkdownViewModelTest {
             requireNotNull(this)
             val onClick = dismissButton?.onClick
             assertNotNull(onClick)
-            requireNotNull(onClick)
-            onClick.invoke()
+            requireNotNull(onClick).invoke()
         }
         assertEquals(viewModel.state.value, EditorState())
     }
@@ -218,7 +216,7 @@ class MarkdownViewModelTest {
         assertNull(viewModel.state.value.alert)
         with(viewModel.state.value) {
             assertEquals("Unsaved.md", fileName)
-            assertEquals("".asTextFieldValue(), markdown)
+            assertEquals("", markdown)
             assertNull(path)
             assertNull(saveCallback)
             assertNull(alert)
@@ -304,6 +302,4 @@ class MarkdownViewModelTest {
         assertFalse(preferenceHelper.preferences[Preference.LOCK_SWIPING] as Boolean)
         assertFalse(viewModel.state.value.lockSwiping)
     }
-
-    private fun String.asTextFieldValue() = TextFieldValue(this)
 }
