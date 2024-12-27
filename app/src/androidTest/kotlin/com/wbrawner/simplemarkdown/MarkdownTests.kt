@@ -101,6 +101,7 @@ class MarkdownTests {
     fun typingTest() = runTest {
         val markdownText =
             getApplicationContext<Context>().assets.readAssetToString("Cheatsheet.md")
+                .repeat(100)
         val additionalText =
             "\n\nThis is some additional text added to an already fairly long file to see if the input lag is resolved"
         ActivityScenario.launch(MainActivity::class.java)

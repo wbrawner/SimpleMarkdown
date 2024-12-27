@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.wbrawner.simplemarkdown.core.LocalOnlyException
+import com.wbrawner.simplemarkdown.ui.replace
 import com.wbrawner.simplemarkdown.utility.FileHelper
 import com.wbrawner.simplemarkdown.utility.Preference
 import com.wbrawner.simplemarkdown.utility.PreferenceHelper
@@ -23,14 +24,14 @@ import java.net.URI
 
 data class EditorState(
     val fileName: String = "Untitled.md",
-    val markdown: String = "",
+    val markdown: List<String> = listOf(""),
     val path: URI? = null,
     val toast: ParameterizedText? = null,
     val alert: AlertDialogModel? = null,
     val saveCallback: (() -> Unit)? = null,
     val lockSwiping: Boolean = false,
     val enableReadability: Boolean = false,
-    val initialMarkdown: String = "",
+    val initialMarkdown: List<String> = listOf(""),
 ) {
     val dirty: Boolean
         get() = markdown != initialMarkdown
@@ -59,9 +60,9 @@ class MarkdownViewModel(
             .launchIn(viewModelScope)
     }
 
-    fun updateMarkdown(markdown: String?) {
+    fun updateMarkdown(index: Int, markdown: String?) {
         updateState {
-            copy(markdown = markdown.orEmpty())
+            copy(markdown = this.markdown.replace(index, markdown))
         }
     }
 
@@ -97,12 +98,13 @@ class MarkdownViewModel(
                 val uri = URI.create(actualLoadPath)
                 fileHelper.open(uri)
                     ?.let { (name, content) ->
+                        val lines = content.split("\n")
                         updateState {
                             copy(
                                 path = uri,
                                 fileName = name,
-                                markdown = content,
-                                initialMarkdown = content,
+                                markdown = lines,
+                                initialMarkdown = lines,
                                 toast = ParameterizedText(R.string.file_loaded, arrayOf(name))
                             )
                         }
@@ -141,7 +143,7 @@ class MarkdownViewModel(
             try {
                 Timber.i("Saving file to $actualSavePath...")
                 val currentState = _state.value
-                val name = fileHelper.save(actualSavePath, currentState.markdown)
+                val name = fileHelper.save(actualSavePath, currentState.markdown.joinToString("\n"))
                 updateState {
                     currentState.copy(
                         fileName = name,
@@ -201,7 +203,7 @@ class MarkdownViewModel(
                 // to an internal storage location, thus marking it as not dirty, but no longer able to
                 // access the file if the accidentally go to create a new file without properly saving
                 // the current one
-                fileHelper.save(file, _state.value.markdown)
+                fileHelper.save(file, _state.value.markdown.joinToString("\n"))
                 preferenceHelper[Preference.AUTOSAVE_URI] = file
             }
         }

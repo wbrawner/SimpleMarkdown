@@ -77,7 +77,7 @@ fun MainScreen(
 ) {
     val coroutineScope = rememberCoroutineScope()
     val fileName by viewModel.collectAsState(EditorState::fileName, "")
-    val markdown by viewModel.collectAsState(EditorState::markdown, "")
+    val markdown by viewModel.collectAsState(EditorState::markdown, listOf(""))
     val dirty by viewModel.collectAsState(EditorState::dirty, false)
     val alert by viewModel.collectAsState(EditorState::alert, null)
     val saveCallback by viewModel.collectAsState(EditorState::saveCallback, null)
@@ -95,7 +95,7 @@ fun MainScreen(
         dirty = dirty,
         fileName = fileName,
         markdown = markdown,
-        setMarkdown = viewModel::updateMarkdown,
+        updateMarkdown = viewModel::updateMarkdown,
         lockSwiping = lockSwiping,
         toggleLockSwiping = viewModel::setLockSwiping,
         message = toast?.stringRes(),
@@ -130,8 +130,8 @@ fun MainScreen(
 private fun MainScreen(
     fileName: String = "Untitled.md",
     dirty: Boolean = false,
-    markdown: String = "",
-    setMarkdown: (String) -> Unit = {},
+    markdown: List<String> = listOf(""),
+    updateMarkdown: (Int, String?) -> Unit = { _, _ -> },
     lockSwiping: Boolean,
     toggleLockSwiping: (Boolean) -> Unit,
     message: String? = null,
@@ -206,7 +206,7 @@ private fun MainScreen(
                     actions = {
                         IconButton(onClick = {
                             val shareIntent = Intent(Intent.ACTION_SEND)
-                            shareIntent.putExtra(Intent.EXTRA_TEXT, markdown)
+                            shareIntent.putExtra(Intent.EXTRA_TEXT, markdown.joinToString("\n"))
                             shareIntent.type = "text/plain"
                             context.startActivity(
                                 Intent.createChooser(
@@ -214,28 +214,41 @@ private fun MainScreen(
                                 ), null
                             )
                         }) {
-                            Icon(imageVector = Icons.Default.Share, contentDescription = stringResource(R.string.action_share))
+                            Icon(
+                                imageVector = Icons.Default.Share,
+                                contentDescription = stringResource(R.string.action_share)
+                            )
                         }
                         Box {
                             var menuExpanded by remember { mutableStateOf(false) }
                             IconButton(onClick = { menuExpanded = true }) {
-                                Icon(imageVector = Icons.Default.MoreVert, stringResource(R.string.action_editor_actions))
+                                Icon(
+                                    imageVector = Icons.Default.MoreVert,
+                                    stringResource(R.string.action_editor_actions)
+                                )
                             }
                             DropdownMenu(expanded = menuExpanded,
                                 onDismissRequest = { menuExpanded = false }) {
-                                DropdownMenuItem(text = { Text(stringResource(R.string.action_new)) }, onClick = {
-                                    menuExpanded = false
-                                    reset()
-                                })
-                                DropdownMenuItem(text = { Text(stringResource(R.string.action_open)) }, onClick = {
-                                    menuExpanded = false
-                                    openFileLauncher.launch(arrayOf("text/*"))
-                                })
-                                DropdownMenuItem(text = { Text(stringResource(R.string.action_save)) }, onClick = {
-                                    menuExpanded = false
-                                    saveFile(null)
-                                })
-                                DropdownMenuItem(text = { Text(stringResource(R.string.action_save_as )) },
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.action_new)) },
+                                    onClick = {
+                                        menuExpanded = false
+                                        reset()
+                                    })
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.action_open)) },
+                                    onClick = {
+                                        menuExpanded = false
+                                        openFileLauncher.launch(arrayOf("text/*"))
+                                    })
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.action_save)) },
+                                    onClick = {
+                                        menuExpanded = false
+                                        saveFile(null)
+                                    })
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.action_save_as)) },
                                     onClick = {
                                         menuExpanded = false
                                         saveFileLauncher.launch(fileName)
@@ -275,13 +288,13 @@ private fun MainScreen(
                         .fillMaxSize()
                         .padding(paddingValues)
                 ) {
-                    MarkdownTextField(
+                    MarkdownEditor(
                         modifier = Modifier
                             .fillMaxHeight()
                             .weight(1f),
-                        markdown = markdown,
-                        setMarkdown = setMarkdown,
-                        enableReadability = enableReadability,
+                        lines = markdown,
+                        updateLine = updateMarkdown,
+                        enableReadability = enableReadability
                     )
                     Spacer(
                         modifier = Modifier
@@ -293,7 +306,7 @@ private fun MainScreen(
                         modifier = Modifier
                             .fillMaxHeight()
                             .weight(1f),
-                        markdown = markdown
+                        markdown = markdown.joinToString("\n") // TODO: Use lines in preview as well to match scroll position
                     )
                 }
             } else {
@@ -304,7 +317,7 @@ private fun MainScreen(
                 ) {
                     TabbedMarkdownEditor(
                         markdown = markdown,
-                        setMarkdown = setMarkdown,
+                        updateMarkdown = updateMarkdown,
                         lockSwiping = lockSwiping,
                         enableReadability = enableReadability,
                         scrollBehavior = scrollBehavior,
@@ -318,8 +331,8 @@ private fun MainScreen(
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 private fun TabbedMarkdownEditor(
-    markdown: String,
-    setMarkdown: (String) -> Unit,
+    markdown: List<String>,
+    updateMarkdown: (Int, String?) -> Unit,
     lockSwiping: Boolean,
     enableReadability: Boolean,
     scrollBehavior: TopAppBarScrollBehavior,
@@ -347,12 +360,12 @@ private fun TabbedMarkdownEditor(
             }
         }
         if (page == 0) {
-            MarkdownTextField(
+            MarkdownEditor(
                 modifier = Modifier
                     .fillMaxSize()
                     .nestedScroll(scrollBehavior.nestedScrollConnection),
-                markdown = markdown,
-                setMarkdown = setMarkdown,
+                lines = markdown,
+                updateLine = updateMarkdown,
                 enableReadability = enableReadability,
             )
         } else {
@@ -360,7 +373,7 @@ private fun TabbedMarkdownEditor(
                 modifier = Modifier
                     .fillMaxSize()
                     .nestedScroll(scrollBehavior.nestedScrollConnection),
-                markdown
+                markdown.joinToString("\n")
             )
         }
     }

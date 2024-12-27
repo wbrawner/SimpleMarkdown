@@ -2,7 +2,6 @@ package com.wbrawner.simplemarkdown.ui
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -20,6 +19,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
@@ -38,8 +40,9 @@ import com.wbrawner.simplemarkdown.model.Readability
 fun MarkdownTextField(
     modifier: Modifier = Modifier,
     markdown: String,
-    setMarkdown: (String) -> Unit,
+    setMarkdown: (String?) -> Unit,
     enableReadability: Boolean,
+    showPlaceHolder: Boolean,
 ) {
     val colors = TextFieldDefaults.colors(
         focusedContainerColor = MaterialTheme.colorScheme.surface,
@@ -68,7 +71,14 @@ fun MarkdownTextField(
     CompositionLocalProvider(LocalTextSelectionColors provides colors.textSelectionColors) {
         BasicTextField(
             value = localMarkdown,
-            modifier = modifier.imePadding(),
+            modifier = modifier.onKeyEvent {
+                if (it.key == Key.Backspace && localMarkdown.text.isEmpty()) {
+                    setMarkdown(null)
+                    true
+                } else {
+                    false
+                }
+            },
             onValueChange = {
                 selection = it.selection
                 composition = it.composition
@@ -90,8 +100,10 @@ fun MarkdownTextField(
                     value = localMarkdown.text,
                     visualTransformation = VisualTransformation.None,
                     innerTextField = innerTextField,
-                    placeholder = {
-                        Text(stringResource(R.string.markdown_here))
+                    placeholder = if (showPlaceHolder) {
+                        { Text(stringResource(R.string.markdown_here)) }
+                    } else {
+                        null
                     },
                     singleLine = false,
                     enabled = true,
