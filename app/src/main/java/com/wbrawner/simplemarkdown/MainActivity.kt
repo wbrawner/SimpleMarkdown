@@ -93,6 +93,8 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
                 }
                 AppCompatDelegate.setDefaultNightMode(darkMode)
             }
+            val amoledDarkTheme by preferenceHelper.observe<Boolean>(Preference.AMOLED_DARK_THEME)
+                .collectAsState()
             val errorReporterPreference by preferenceHelper.observe<Boolean>(Preference.ERROR_REPORTS_ENABLED)
                 .collectAsState()
             LaunchedEffect(errorReporterPreference) {
@@ -103,7 +105,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
                 viewModel.load(intentData?.toString())
             }
             val windowSizeClass = calculateWindowSizeClass(this)
-            SimpleMarkdownTheme {
+            SimpleMarkdownTheme(useAmoledDarkTheme = amoledDarkTheme) {
                 val navController = rememberNavController()
                 NavHost(
                     navController = navController,

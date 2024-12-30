@@ -63,6 +63,13 @@ fun SettingsScreen(navController: NavController, preferenceHelper: PreferenceHel
                 preferenceHelper = preferenceHelper
             )
             BooleanPreference(
+                title = stringResource(R.string.pref_title_amoled_dark_theme),
+                enabledDescription = stringResource(R.string.pref_description_amoled_dark_theme),
+                disabledDescription = stringResource(R.string.pref_description_amoled_dark_theme),
+                preference = Preference.AMOLED_DARK_THEME,
+                preferenceHelper = preferenceHelper
+            )
+            BooleanPreference(
                 title = stringResource(R.string.pref_title_error_reports),
                 enabledDescription = stringResource(R.string.pref_error_reports_on),
                 disabledDescription = stringResource(R.string.pref_error_reports_off),
@@ -230,7 +237,7 @@ fun ListPreference(
 @Composable
 fun BooleanPreference_Preview() {
     val (enabled, setEnabled) = remember { mutableStateOf(true) }
-    SimpleMarkdownTheme {
+    SimpleMarkdownTheme(useAmoledDarkTheme = false) {
         Surface {
             BooleanPreference(
                 "Autosave",
@@ -248,7 +255,7 @@ fun BooleanPreference_Preview() {
 @Composable
 fun ListPreference_Preview() {
     val (selected, setSelected) = remember { mutableStateOf("Auto") }
-    SimpleMarkdownTheme {
+    SimpleMarkdownTheme(useAmoledDarkTheme = false) {
         Surface {
             ListPreference(
                 "Dark mode", arrayOf("Light", "Dark", "Auto"), selected, setSelected

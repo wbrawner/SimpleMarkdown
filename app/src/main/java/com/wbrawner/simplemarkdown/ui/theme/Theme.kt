@@ -2,9 +2,10 @@ package com.wbrawner.simplemarkdown.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.lightColorScheme
 import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 
 
 private val LightColors = lightColorScheme(
@@ -72,15 +73,23 @@ private val DarkColors = darkColorScheme(
     scrim = md_theme_dark_scrim,
 )
 
+private val AmoledDarkColors = DarkColors.copy(
+    background = Color.Black,
+    surface = Color.Black
+)
+
 @Composable
 fun SimpleMarkdownTheme(
   useDarkTheme: Boolean = isSystemInDarkTheme(),
+  useAmoledDarkTheme: Boolean,
   content: @Composable () -> Unit
 ) {
   val colors = if (!useDarkTheme) {
     LightColors
-  } else {
+  } else if (!useAmoledDarkTheme) {
     DarkColors
+  } else {
+      AmoledDarkColors
   }
 
   MaterialTheme(

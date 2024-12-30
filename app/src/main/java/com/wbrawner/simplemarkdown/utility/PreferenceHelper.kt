@@ -52,6 +52,7 @@ class AndroidPreferenceHelper(context: Context, private val coroutineScope: Coro
 }
 
 enum class Preference(val key: String, val default: Any?) {
+    AMOLED_DARK_THEME("amoled_dark_theme", false),
     ANALYTICS_ENABLED("analytics.enable", true),
     AUTOSAVE_ENABLED("autosave", true),
     AUTOSAVE_URI("autosave.uri", null),
