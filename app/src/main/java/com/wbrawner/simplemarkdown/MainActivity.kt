@@ -4,6 +4,10 @@ import android.app.ComponentCaller
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.view.KeyEvent
+import android.view.KeyboardShortcutGroup
+import android.view.KeyboardShortcutInfo
+import android.view.Menu
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
@@ -168,6 +172,28 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
                 viewModel.load(it.toString())
             }
         }
+    }
+
+    override fun onProvideKeyboardShortcuts(
+        data: MutableList<KeyboardShortcutGroup?>?,
+        menu: Menu?,
+        deviceId: Int
+    ) {
+        if (Build.VERSION.SDK_INT < 24) return
+        val fileOperationsShortcutGroup = KeyboardShortcutGroup(
+            getString(R.string.title_keyboard_shortcuts_file_operations),
+            listOf(
+                KeyboardShortcutInfo(getString(R.string.action_new), KeyEvent.KEYCODE_N, 0),
+                KeyboardShortcutInfo(getString(R.string.action_open), KeyEvent.KEYCODE_O, 0),
+                KeyboardShortcutInfo(getString(R.string.action_save), KeyEvent.KEYCODE_S, 0),
+                KeyboardShortcutInfo(
+                    getString(R.string.action_save_as),
+                    KeyEvent.KEYCODE_S,
+                    KeyEvent.META_CTRL_ON
+                ),
+            )
+        )
+        data?.add(fileOperationsShortcutGroup)
     }
 }
 

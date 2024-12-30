@@ -50,6 +50,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.isAltPressed
+import androidx.compose.ui.input.key.isCtrlPressed
+import androidx.compose.ui.input.key.isMetaPressed
+import androidx.compose.ui.input.key.isShiftPressed
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -198,6 +207,47 @@ private fun MainScreen(
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     MarkdownNavigationDrawer(navigate) { drawerState ->
         Scaffold(
+            modifier = Modifier.onKeyEvent { keyEvent ->
+                if (
+                    keyEvent.type != KeyEventType.KeyUp
+                    || !keyEvent.isCtrlPressed
+                    || keyEvent.isAltPressed
+                    || keyEvent.isMetaPressed
+                ) {
+                    return@onKeyEvent false
+                }
+
+                when (keyEvent.key) {
+                    Key.N -> {
+                        if (!keyEvent.isShiftPressed) {
+                            reset()
+                            true
+                        } else {
+                            false
+                        }
+                    }
+
+                    Key.O -> {
+                        if (!keyEvent.isShiftPressed) {
+                            openFileLauncher.launch(arrayOf("text/*"))
+                            true
+                        } else {
+                            false
+                        }
+                    }
+
+                    Key.S -> {
+                        if (keyEvent.isShiftPressed) {
+                            saveFileLauncher.launch(fileName)
+                        } else {
+                            saveFile(null)
+                        }
+                        true
+                    }
+
+                    else -> false
+                }
+            },
             topBar = {
                 val context = LocalContext.current
                 MarkdownTopAppBar(
@@ -219,28 +269,41 @@ private fun MainScreen(
                                 ), null
                             )
                         }) {
-                            Icon(imageVector = Icons.Default.Share, contentDescription = stringResource(R.string.action_share))
+                            Icon(
+                                imageVector = Icons.Default.Share,
+                                contentDescription = stringResource(R.string.action_share)
+                            )
                         }
                         Box {
                             var menuExpanded by remember { mutableStateOf(false) }
                             IconButton(onClick = { menuExpanded = true }) {
-                                Icon(imageVector = Icons.Default.MoreVert, stringResource(R.string.action_editor_actions))
+                                Icon(
+                                    imageVector = Icons.Default.MoreVert,
+                                    stringResource(R.string.action_editor_actions)
+                                )
                             }
                             DropdownMenu(expanded = menuExpanded,
                                 onDismissRequest = { menuExpanded = false }) {
-                                DropdownMenuItem(text = { Text(stringResource(R.string.action_new)) }, onClick = {
-                                    menuExpanded = false
-                                    reset()
-                                })
-                                DropdownMenuItem(text = { Text(stringResource(R.string.action_open)) }, onClick = {
-                                    menuExpanded = false
-                                    openFileLauncher.launch(arrayOf("text/*"))
-                                })
-                                DropdownMenuItem(text = { Text(stringResource(R.string.action_save)) }, onClick = {
-                                    menuExpanded = false
-                                    saveFile(null)
-                                })
-                                DropdownMenuItem(text = { Text(stringResource(R.string.action_save_as )) },
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.action_new)) },
+                                    onClick = {
+                                        menuExpanded = false
+                                        reset()
+                                    })
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.action_open)) },
+                                    onClick = {
+                                        menuExpanded = false
+                                        openFileLauncher.launch(arrayOf("text/*"))
+                                    })
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.action_save)) },
+                                    onClick = {
+                                        menuExpanded = false
+                                        saveFile(null)
+                                    })
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.action_save_as)) },
                                     onClick = {
                                         menuExpanded = false
                                         saveFileLauncher.launch(fileName)
