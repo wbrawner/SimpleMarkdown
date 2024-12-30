@@ -1,6 +1,7 @@
 package com.wbrawner.simplemarkdown
 
 import androidx.annotation.StringRes
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -9,11 +10,15 @@ import com.wbrawner.simplemarkdown.core.LocalOnlyException
 import com.wbrawner.simplemarkdown.utility.FileHelper
 import com.wbrawner.simplemarkdown.utility.Preference
 import com.wbrawner.simplemarkdown.utility.PreferenceHelper
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -23,22 +28,28 @@ import java.net.URI
 
 data class EditorState(
     val fileName: String = "Untitled.md",
-    val markdown: String = "",
+    val textFieldState: TextFieldState = TextFieldState(),
     val path: URI? = null,
     val toast: ParameterizedText? = null,
     val alert: AlertDialogModel? = null,
     val saveCallback: (() -> Unit)? = null,
     val lockSwiping: Boolean = false,
     val enableReadability: Boolean = false,
-    val initialMarkdown: String = "",
+    val enableAutosave: Boolean = false,
+    // I'd rather this be a derived property but unfortunately it needs to be handled manually in
+    // order to properly trigger state updates in the UI
+    val dirty: Boolean = false,
+    val initialMarkdown: String = ""
 ) {
-    val dirty: Boolean
-        get() = markdown != initialMarkdown
+    val markdown: String
+        get() = textFieldState.text.toString()
 }
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class MarkdownViewModel(
     private val fileHelper: FileHelper,
-    private val preferenceHelper: PreferenceHelper
+    private val preferenceHelper: PreferenceHelper,
+    private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
     private val _state = MutableStateFlow(EditorState())
     val state = _state.asStateFlow()
@@ -50,6 +61,11 @@ class MarkdownViewModel(
                 updateState { copy(lockSwiping = it) }
             }
             .launchIn(viewModelScope)
+        preferenceHelper.observe<Boolean>(Preference.AUTOSAVE_ENABLED)
+            .onEach {
+                updateState { copy(enableAutosave = it) }
+            }
+            .launchIn(viewModelScope)
         preferenceHelper.observe<Boolean>(Preference.READABILITY_ENABLED)
             .onEach {
                 updateState {
@@ -59,9 +75,14 @@ class MarkdownViewModel(
             .launchIn(viewModelScope)
     }
 
-    fun updateMarkdown(markdown: String?) {
-        updateState {
-            copy(markdown = markdown.orEmpty())
+    private var autosaveJob: Job? = null
+
+    fun markdownUpdated() {
+        updateState { copy(dirty = markdown != initialMarkdown) }
+        autosaveJob?.cancel()
+        autosaveJob = viewModelScope.launch {
+            delay(500)
+            autosave()
         }
     }
 
@@ -101,8 +122,9 @@ class MarkdownViewModel(
                             copy(
                                 path = uri,
                                 fileName = name,
-                                markdown = content,
                                 initialMarkdown = content,
+                                dirty = false,
+                                textFieldState = TextFieldState(initialText = content),
                                 toast = ParameterizedText(R.string.file_loaded, arrayOf(name))
                             )
                         }
@@ -147,6 +169,7 @@ class MarkdownViewModel(
                         fileName = name,
                         path = actualSavePath,
                         initialMarkdown = currentState.markdown,
+                        dirty = false,
                         toast = if (interactive) ParameterizedText(
                             R.string.file_saved,
                             arrayOf(name)
@@ -190,7 +213,7 @@ class MarkdownViewModel(
         }
         Timber.d("Performing autosave")
         if (!save(interactive = false)) {
-            withContext(Dispatchers.IO) {
+            withContext(ioDispatcher) {
                 // The user has left the app, with autosave enabled, and we don't already have a
                 // Uri for them or for some reason we were unable to save to the original Uri. In
                 // this case, we need to just save to internal file storage so that we can recover
@@ -254,14 +277,15 @@ class MarkdownViewModel(
     companion object {
         fun factory(
             fileHelper: FileHelper,
-            preferenceHelper: PreferenceHelper
+            preferenceHelper: PreferenceHelper,
+            ioDispatcher: CoroutineDispatcher
         ): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(
                 modelClass: Class<T>,
                 extras: CreationExtras
             ): T {
-                return MarkdownViewModel(fileHelper, preferenceHelper) as T
+                return MarkdownViewModel(fileHelper, preferenceHelper, ioDispatcher) as T
             }
         }
     }

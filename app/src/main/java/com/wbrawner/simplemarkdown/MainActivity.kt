@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
@@ -33,7 +34,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.core.app.ActivityCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -46,6 +46,7 @@ import com.wbrawner.simplemarkdown.ui.SettingsScreen
 import com.wbrawner.simplemarkdown.ui.SupportScreen
 import com.wbrawner.simplemarkdown.ui.theme.SimpleMarkdownTheme
 import com.wbrawner.simplemarkdown.utility.Preference
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.acra.ACRA
 
@@ -53,18 +54,17 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
     private val viewModel: MarkdownViewModel by viewModels {
         MarkdownViewModel.factory(
             fileHelper,
-            preferenceHelper
+            preferenceHelper,
+            Dispatchers.IO
         )
     }
 
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
-        WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
-            val autosaveEnabled by preferenceHelper.observe<Boolean>(Preference.AUTOSAVE_ENABLED)
-                .collectAsState()
             val darkModePreference by preferenceHelper.observe<String>(Preference.DARK_MODE)
                 .collectAsState()
             LaunchedEffect(darkModePreference) {
@@ -127,7 +127,6 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
                             navController = navController,
                             viewModel = viewModel,
                             enableWideLayout = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Expanded,
-                            enableAutosave = autosaveEnabled,
                         )
                     }
                     composable(Route.SETTINGS.path) {

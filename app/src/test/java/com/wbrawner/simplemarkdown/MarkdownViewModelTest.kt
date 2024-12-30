@@ -1,13 +1,14 @@
 package com.wbrawner.simplemarkdown
 
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.wbrawner.simplemarkdown.utility.Preference
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestResult
 import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -22,6 +23,10 @@ import org.junit.Test
 import timber.log.Timber
 import java.io.File
 import java.net.URI
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class MarkdownViewModelTest {
@@ -29,42 +34,35 @@ class MarkdownViewModelTest {
     private lateinit var preferenceHelper: FakePreferenceHelper
     private lateinit var viewModelFactory: ViewModelProvider.Factory
     private lateinit var viewModel: MarkdownViewModel
-    private lateinit var viewModelScope: TestScope
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Before
     fun setup() {
-        Timber.plant(object: Timber.Tree() {
+        Timber.plant(object : Timber.Tree() {
             override fun log(priority: Int, tag: String?, message: String, t: Throwable?) {
                 println("$tag/$priority: $message")
                 t?.printStackTrace()
             }
         })
-        val scheduler = StandardTestDispatcher()
-        Dispatchers.setMain(scheduler)
-        viewModelScope = TestScope(scheduler)
         fileHelper = FakeFileHelper()
         preferenceHelper = FakePreferenceHelper()
-        viewModelFactory = MarkdownViewModel.factory(fileHelper, preferenceHelper)
-        viewModel = viewModelFactory.create(MarkdownViewModel::class.java, CreationExtras.Empty)
-        viewModelScope.advanceUntilIdle()
     }
 
     @Test
-    fun testMarkdownUpdate() = runTest {
+    fun testMarkdownUpdate() = runTestWithViewModel {
         assertEquals("", viewModel.state.value.markdown)
         viewModel.updateMarkdown("Updated content")
         assertEquals("Updated content", viewModel.state.value.markdown)
     }
 
     @Test
-    fun testLoadWithNoPathAndNoAutosaveUri() = runTest {
+    fun testLoadWithNoPathAndNoAutosaveUri() = runTestWithViewModel {
         viewModel.load(null)
         assertTrue(fileHelper.openedUris.isEmpty())
     }
 
     @Test
-    fun testAutoLoad() = runTest {
+    fun testAutoLoad() = runTestWithViewModel {
         val uri = URI.create("file:///home/user/Untitled.md")
         preferenceHelper[Preference.AUTOSAVE_URI] = uri.toString()
         viewModel = viewModelFactory.create(MarkdownViewModel::class.java, CreationExtras.Empty)
@@ -76,7 +74,7 @@ class MarkdownViewModelTest {
     }
 
     @Test
-    fun testLoadWithPath() = runTest {
+    fun testLoadWithPath() = runTestWithViewModel {
         val uri = URI.create("file:///home/user/Untitled.md")
         viewModel.load(uri.toString())
         assertEquals(uri, fileHelper.openedUris.firstOrNull())
@@ -86,7 +84,7 @@ class MarkdownViewModelTest {
     }
 
     @Test
-    fun testLoadWithEmptyPath() = runTest {
+    fun testLoadWithEmptyPath() = runTestWithViewModel {
         preferenceHelper[Preference.AUTOSAVE_URI] = ""
         viewModel.load("")
         assertEquals(null, preferenceHelper[Preference.AUTOSAVE_URI])
@@ -94,12 +92,12 @@ class MarkdownViewModelTest {
     }
 
     @Test
-    fun testLoadWithInvalidUri() = runTest {
+    fun testLoadWithInvalidUri() = runTestWithViewModel {
         viewModel.load(":/:/")
     }
 
     @Test
-    fun testLoadWithError() = runTest {
+    fun testLoadWithError() = runTestWithViewModel {
         fileHelper.errorOnOpen = true
         val uri = URI.create("file:///home/user/Untitled.md")
         viewModel.load(uri.toString())
@@ -107,14 +105,14 @@ class MarkdownViewModelTest {
     }
 
     @Test
-    fun testSaveWithNullPath() = runTest {
+    fun testSaveWithNullPath() = runTestWithViewModel {
         assertFalse(viewModel.save(null, false))
         assertNull(viewModel.state.value.alert)
         assertNull(viewModel.state.value.saveCallback)
     }
 
     @Test
-    fun testSaveWithNullPathAndPrompt() = runTest {
+    fun testSaveWithNullPathAndPrompt() = runTestWithViewModel {
         assertFalse(viewModel.save(null, true))
         assertNotNull(viewModel.state.value.saveCallback)
         viewModel.state.value.saveCallback!!.invoke()
@@ -122,7 +120,7 @@ class MarkdownViewModelTest {
     }
 
     @Test
-    fun testSaveWithValidPath() = runTest {
+    fun testSaveWithValidPath() = runTestWithViewModel {
         val uri = URI.create("file:///home/user/Saved.md")
         val testMarkdown = "# Test"
         viewModel.updateMarkdown(testMarkdown)
@@ -135,7 +133,7 @@ class MarkdownViewModelTest {
     }
 
     @Test
-    fun testSaveWithException() = runTest {
+    fun testSaveWithException() = runTestWithViewModel {
         val uri = URI.create("file:///home/user/Untitled.md")
         val testMarkdown = "# Test"
         viewModel.updateMarkdown(testMarkdown)
@@ -149,7 +147,7 @@ class MarkdownViewModelTest {
     }
 
     @Test
-    fun testResetWithSavedChanges() = runTest {
+    fun testResetWithSavedChanges() = runTestWithViewModel {
         viewModel.updateMarkdown("# Test")
         val uri = URI.create("file:///home/user/Saved.md")
         assertTrue(viewModel.save(uri))
@@ -168,7 +166,7 @@ class MarkdownViewModelTest {
     }
 
     @Test
-    fun testResetWithUnsavedChanges() = runTest {
+    fun testResetWithUnsavedChanges() = runTestWithViewModel {
         viewModel.updateMarkdown("# Test")
         assertTrue(viewModel.state.value.dirty)
         assertNull(viewModel.state.value.alert)
@@ -180,11 +178,11 @@ class MarkdownViewModelTest {
             assertNotNull(onClick)
             requireNotNull(onClick).invoke()
         }
-        assertEquals(viewModel.state.value, EditorState())
+        assertEquals(viewModel.state.value.toString(), EditorState().toString())
     }
 
     @Test
-    fun testResetWithUnsavedChangesAndPrompt() = runTest {
+    fun testResetWithUnsavedChangesAndPrompt() = runTestWithViewModel {
         viewModel.updateMarkdown("# Test")
         assertTrue(viewModel.state.value.dirty)
         assertNull(viewModel.state.value.alert)
@@ -199,11 +197,11 @@ class MarkdownViewModelTest {
         viewModel.save(uri)
         assertNotNull(viewModel.state.value.saveCallback)
         requireNotNull(viewModel.state.value.saveCallback).invoke()
-        assertEquals(viewModel.state.value, EditorState())
+        assertEquals(viewModel.state.value.toString(), EditorState().toString())
     }
 
     @Test
-    fun testForceResetWithUnsavedChanges() = runTest {
+    fun testForceResetWithUnsavedChanges() = runTestWithViewModel {
         viewModel.updateMarkdown("# Test")
         assertTrue(viewModel.state.value.dirty)
         val uri = URI.create("file:///home/user/Saved.md")
@@ -226,48 +224,40 @@ class MarkdownViewModelTest {
     }
 
     @Test
-    fun testAutosaveWithPreferenceDisabled() = runTest {
+    fun testAutosaveWithPreferenceDisabled() = runTestWithViewModel {
         preferenceHelper[Preference.AUTOSAVE_ENABLED] = false
         viewModel.updateMarkdown("# Test")
         assertTrue(viewModel.state.value.dirty)
-        viewModel.autosave()
         assertEquals(0, fileHelper.savedData.count())
     }
 
     @Test
-    fun testAutosaveWithNoNewData() = runTest {
+    fun testAutosaveWithNoNewData() = runTestWithViewModel {
         viewModel.updateMarkdown("# Test")
         val uri = URI.create("file:///home/user/Saved.md")
         assertTrue(viewModel.save(uri))
         assertEquals(1, fileHelper.savedData.count())
         assertFalse(viewModel.state.value.dirty)
-        viewModel.autosave()
         assertEquals(1, fileHelper.savedData.count())
     }
 
     @Test
-    fun testAutosaveWithSaveInProgress() = runTest {
+    fun testAutosaveWithSaveInProgress() = runTestWithViewModel {
         viewModel.updateMarkdown("# Test")
         val uri = URI.create("file:///home/user/Saved.md")
-        val coroutineScope = TestScope(StandardTestDispatcher())
-        coroutineScope.launch {
-            assertTrue(viewModel.save(uri))
-        }
-        coroutineScope.advanceTimeBy(500)
         assertEquals(0, fileHelper.savedData.count())
         assertTrue(viewModel.state.value.dirty)
-        viewModel.autosave()
-        assertEquals(0, fileHelper.savedData.count())
-        coroutineScope.advanceTimeBy(1000)
+        assertTrue(viewModel.save(uri))
+        assertEquals(1, fileHelper.savedData.count())
+        advanceTimeBy(2_000)
         assertEquals(1, fileHelper.savedData.count())
     }
 
     @Test
-    fun testAutosaveWithUnknownUri() = runTest {
+    fun testAutosaveWithUnknownUri() = runTestWithViewModel {
         viewModel.updateMarkdown("# Test")
         assertTrue(viewModel.state.value.dirty)
-        viewModel.autosave()
-        assertTrue(viewModel.state.value.dirty)
+        advanceTimeBy(2_000)
         assertEquals(1, fileHelper.savedData.count())
         assertEquals(
             File(fileHelper.defaultDirectory, "Untitled.md").toURI(),
@@ -276,7 +266,7 @@ class MarkdownViewModelTest {
     }
 
     @Test
-    fun testAutosaveWithKnownUri() = runTest {
+    fun testAutosaveWithKnownUri() = runTestWithViewModel {
         viewModel.updateMarkdown("# Test")
         assertTrue(viewModel.state.value.dirty)
         val uri = URI.create("file:///home/user/Saved.md")
@@ -285,21 +275,42 @@ class MarkdownViewModelTest {
         assertFalse(viewModel.state.value.dirty)
         viewModel.updateMarkdown("# Test\n\nDirty changes")
         assertTrue(viewModel.state.value.dirty)
-        viewModel.autosave()
+        advanceTimeBy(2_000)
         assertEquals(2, fileHelper.savedData.count())
     }
 
     @Test
-    fun testSetLockSwiping() = runTest {
+    fun testSetLockSwiping() = runTestWithViewModel {
         preferenceHelper[Preference.LOCK_SWIPING] = false
         assertFalse(viewModel.state.value.lockSwiping)
         viewModel.setLockSwiping(true)
-        viewModelScope.advanceUntilIdle()
+        advanceUntilIdle()
         assertTrue(preferenceHelper.preferences[Preference.LOCK_SWIPING] as Boolean)
         assertTrue(viewModel.state.value.lockSwiping)
         viewModel.setLockSwiping(false)
-        viewModelScope.advanceUntilIdle()
+        advanceUntilIdle()
         assertFalse(preferenceHelper.preferences[Preference.LOCK_SWIPING] as Boolean)
         assertFalse(viewModel.state.value.lockSwiping)
+    }
+
+    fun runTestWithViewModel(
+        context: CoroutineContext = EmptyCoroutineContext,
+        timeout: Duration = 60.seconds,
+        testBody: suspend TestScope.() -> Unit
+    ): TestResult = runTest(context, timeout) {
+        val testDispatcher = UnconfinedTestDispatcher(testScheduler)
+        Dispatchers.setMain(testDispatcher)
+        viewModelFactory = MarkdownViewModel.factory(
+            fileHelper,
+            preferenceHelper,
+            testDispatcher
+        )
+        viewModel = viewModelFactory.create(MarkdownViewModel::class.java, CreationExtras.Empty)
+        testBody()
+    }
+
+    fun MarkdownViewModel.updateMarkdown(markdown: String?) {
+        state.value.textFieldState.setTextAndPlaceCursorAtEnd(markdown.orEmpty())
+        markdownUpdated()
     }
 }

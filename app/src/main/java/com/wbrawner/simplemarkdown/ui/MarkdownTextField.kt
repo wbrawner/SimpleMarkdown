@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -37,9 +39,21 @@ import com.wbrawner.simplemarkdown.model.Readability
 @Composable
 fun MarkdownTextField(
     modifier: Modifier = Modifier,
-    markdown: String,
-    setMarkdown: (String) -> Unit,
+    textFieldState: TextFieldState,
     enableReadability: Boolean,
+) {
+    if (enableReadability) {
+        ReadabilityMarkdownTextField(modifier, textFieldState)
+    } else {
+        MarkdownTextField(modifier, textFieldState)
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MarkdownTextField(
+    modifier: Modifier = Modifier,
+    textFieldState: TextFieldState,
 ) {
     val colors = TextFieldDefaults.colors(
         focusedContainerColor = MaterialTheme.colorScheme.surface,
@@ -47,7 +61,80 @@ fun MarkdownTextField(
         disabledIndicatorColor = Color.Transparent,
         errorIndicatorColor = Color.Transparent,
         focusedIndicatorColor = Color.Transparent,
-        unfocusedIndicatorColor = Color.Transparent
+        unfocusedIndicatorColor = Color.Transparent,
+        cursorColor = MaterialTheme.colorScheme.onSurface
+    )
+    val interactionSource = remember { MutableInteractionSource() }
+    val textStyle = TextStyle.Default.copy(
+        fontFamily = FontFamily.Monospace,
+        color = MaterialTheme.colorScheme.onSurface
+    )
+    CompositionLocalProvider(LocalTextSelectionColors provides colors.textSelectionColors) {
+        BasicTextField(
+            modifier = modifier.imePadding(),
+            state = textFieldState,
+            enabled = true,
+            readOnly = false,
+            textStyle = textStyle,
+            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+            interactionSource = interactionSource,
+            lineLimits = TextFieldLineLimits.MultiLine(),
+            cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+            decorator = { innerTextField ->
+                TextFieldDefaults.DecorationBox(
+                    value = textFieldState.text.toString(),
+                    visualTransformation = VisualTransformation.None,
+                    innerTextField = innerTextField,
+                    placeholder = {
+                        Text(stringResource(R.string.markdown_here))
+                    },
+                    singleLine = false,
+                    enabled = true,
+                    interactionSource = interactionSource,
+                    colors = colors,
+                    contentPadding = PaddingValues(8.dp)
+                )
+            }
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ReadabilityMarkdownTextField(
+    modifier: Modifier = Modifier,
+    textFieldState: TextFieldState,
+) {
+    val (markdown, setMarkdown) = remember(textFieldState) {
+        mutableStateOf(textFieldState.text.toString())
+    }
+    ReadabilityMarkdownTextField(
+        modifier = modifier,
+        markdown = markdown,
+        setMarkdown = {
+            setMarkdown(it)
+            textFieldState.edit {
+                replace(0, length, it)
+            }
+        }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ReadabilityMarkdownTextField(
+    markdown: String,
+    setMarkdown: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val colors = TextFieldDefaults.colors(
+        focusedContainerColor = MaterialTheme.colorScheme.surface,
+        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+        disabledIndicatorColor = Color.Transparent,
+        errorIndicatorColor = Color.Transparent,
+        focusedIndicatorColor = Color.Transparent,
+        unfocusedIndicatorColor = Color.Transparent,
+        cursorColor = MaterialTheme.colorScheme.primary
     )
     val interactionSource = remember { MutableInteractionSource() }
     val textStyle = TextStyle.Default.copy(
@@ -56,10 +143,10 @@ fun MarkdownTextField(
     )
     var selection: TextRange by remember { mutableStateOf(TextRange.Zero) }
     var composition: TextRange? by remember { mutableStateOf(null) }
-    val (localMarkdown) = remember(markdown, selection, composition, enableReadability) {
+    val (localMarkdown) = remember(markdown, selection, composition) {
         mutableStateOf(
             TextFieldValue(
-                markdown.annotate(enableReadability),
+                markdown.annotate(),
                 selection = selection,
                 composition = composition
             )
@@ -104,8 +191,7 @@ fun MarkdownTextField(
     }
 }
 
-private fun String.annotate(enableReadability: Boolean): AnnotatedString {
-    if (!enableReadability) return AnnotatedString(this)
+private fun String.annotate(): AnnotatedString {
     val readability = Readability(this)
     val annotated = AnnotatedString.Builder(this)
     for (sentence in readability.sentences()) {
