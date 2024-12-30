@@ -1,4 +1,4 @@
-- Fix issues with reloading files when navigating between app screens
-- Fix scroll position not updating while typing in edit pane
-- Improve animations for predictive back
+- Add AMOLED Dark Theme preference option
+- Add keyboard shortcuts for file operations
+- Improve typing performance
 - Update dependencies
