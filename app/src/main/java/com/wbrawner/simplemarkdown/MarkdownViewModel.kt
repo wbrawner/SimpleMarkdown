@@ -182,16 +182,18 @@ class MarkdownViewModel(
                 true
             } catch (e: Exception) {
                 Timber.e(e, "Failed to save file to $actualSavePath")
-                updateState {
-                    copy(
-                        alert = AlertDialogModel(
-                            text = ParameterizedText(R.string.file_save_error),
-                            confirmButton = AlertDialogModel.ButtonModel(
-                                text = ParameterizedText(R.string.ok),
-                                onClick = ::dismissAlert
+                if (interactive) {
+                    updateState {
+                        copy(
+                            alert = AlertDialogModel(
+                                text = ParameterizedText(R.string.file_save_error),
+                                confirmButton = AlertDialogModel.ButtonModel(
+                                    text = ParameterizedText(R.string.ok),
+                                    onClick = ::dismissAlert
+                                )
                             )
                         )
-                    )
+                    }
                 }
                 false
             }
