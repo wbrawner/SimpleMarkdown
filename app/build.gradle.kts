@@ -38,6 +38,7 @@ android {
     }
     compileSdk = libs.versions.maxSdk.get().toInt()
     compileOptions {
+        isCoreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
@@ -119,6 +120,7 @@ play {
 }
 
 dependencies {
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
     "freeImplementation"(project(":free"))
     "playImplementation"(project(":non-free"))
     implementation(libs.androidx.material3.windowsizeclass)

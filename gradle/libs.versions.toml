@@ -12,6 +12,7 @@ coreKtx = "1.15.0"
 coreSplashscreen = "1.0.1"
 coroutines = "1.10.1"
 dependencyAnalysis = "2.10.1"
+desugar_jdk_libs = "2.0.3"
 espressoVersion = "3.6.1"
 fladle = "0.17.5"
 googleServices = "4.4.2"
@@ -87,6 +88,7 @@ commonmark-ext-image-attributes = { module = "org.commonmark:commonmark-ext-imag
 commonmark-ext-task-list-items = { module = "org.commonmark:commonmark-ext-task-list-items", version.ref = "commonMarkVersion" }
 commonmark-ext-yaml-front-matter = { module = "org.commonmark:commonmark-ext-yaml-front-matter", version.ref = "commonMarkVersion" }
 compose-bom = { module = "androidx.compose:compose-bom", version.ref = "composeBom" }
+desugar_jdk_libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar_jdk_libs" }
 foundation = { module = "androidx.compose.foundation:foundation" }
 foundation-layout = { module = "androidx.compose.foundation:foundation-layout" }
 junit = { module = "junit:junit", version.ref = "junit" }
