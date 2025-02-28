@@ -1,3 +1,2 @@
-- Prevent showing save error dialog for autosave
-- Fix app not opening on older devices
+- Fix crash on older versions of Android without Java 9
 - Update dependencies
