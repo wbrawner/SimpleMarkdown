@@ -39,7 +39,8 @@ data class EditorState(
     // I'd rather this be a derived property but unfortunately it needs to be handled manually in
     // order to properly trigger state updates in the UI
     val dirty: Boolean = false,
-    val initialMarkdown: String = ""
+    val initialMarkdown: String = "",
+    val exitApp: Boolean = false,
 ) {
     val markdown: String
         get() = textFieldState.text.toString()
@@ -92,6 +93,18 @@ class MarkdownViewModel(
 
     fun dismissAlert() {
         updateState { copy(alert = null) }
+    }
+
+    fun onBackPressed() {
+        if (_state.value.toast == ParameterizedText.ConfirmExitOnBack) {
+            updateState {
+                copy(exitApp = true)
+            }
+        } else {
+            updateState {
+                copy(toast = ParameterizedText.ConfirmExitOnBack)
+            }
+        }
     }
 
     private fun unsetSaveCallback() {
@@ -318,5 +331,9 @@ data class ParameterizedText(@StringRes val text: Int, val params: Array<Any> = 
         var result = text
         result = 31 * result + params.contentHashCode()
         return result
+    }
+
+    companion object {
+        val ConfirmExitOnBack = ParameterizedText(R.string.confirm_exit)
     }
 }

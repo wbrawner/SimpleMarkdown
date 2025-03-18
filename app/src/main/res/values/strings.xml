@@ -10,6 +10,7 @@
     <string name="action_edit">Edit</string>
     <string name="action_preview">Preview</string>
     <string name="ok">OK</string>
+    <string name="confirm_exit">Press back again to exit</string>
     <string name="markdown_here">Markdown here…</string>
     <string name="action_save">Save</string>
     <string name="action_editor_actions">Editor Actions</string>

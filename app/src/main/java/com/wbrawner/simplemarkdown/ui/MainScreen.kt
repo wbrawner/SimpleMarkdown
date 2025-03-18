@@ -2,6 +2,7 @@ package com.wbrawner.simplemarkdown.ui
 
 import android.content.Intent
 import android.net.Uri
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -71,6 +72,7 @@ import com.wbrawner.simplemarkdown.MarkdownViewModel
 import com.wbrawner.simplemarkdown.ParameterizedText
 import com.wbrawner.simplemarkdown.R
 import com.wbrawner.simplemarkdown.Route
+import com.wbrawner.simplemarkdown.utility.activity
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
@@ -96,6 +98,14 @@ fun MainScreen(
     val lockSwiping by viewModel.collectAsState(EditorState::lockSwiping, false)
     val enableReadability by viewModel.collectAsState(EditorState::enableReadability, false)
     val toast by viewModel.collectAsState(EditorState::toast, null)
+    val exitApp by viewModel.collectAsState(EditorState::exitApp, false)
+    val activity = LocalContext.current.activity
+    LaunchedEffect(exitApp) {
+        if (exitApp) {
+            activity?.finish()
+        }
+    }
+    BackHandler(onBack = viewModel::onBackPressed)
 
     MainScreen(
         dirty = dirty,
@@ -203,6 +213,10 @@ private fun MainScreen(
             },
             text = { Text(it.text.stringRes()) }
         )
+    }
+    var backPressed by remember { mutableStateOf(false) }
+    BackHandler(enabled = !backPressed) {
+        backPressed = true
     }
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     MarkdownNavigationDrawer(navigate) { drawerState ->

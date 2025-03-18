@@ -293,6 +293,23 @@ class MarkdownViewModelTest {
         assertFalse(viewModel.state.value.lockSwiping)
     }
 
+    @Test
+    fun testBackPress() = runTestWithViewModel {
+        assertFalse(viewModel.state.value.exitApp)
+        assertNull(viewModel.state.value.toast)
+        viewModel.onBackPressed()
+        assertFalse(viewModel.state.value.exitApp)
+        assertEquals(ParameterizedText.ConfirmExitOnBack, viewModel.state.value.toast)
+        viewModel.dismissToast()
+        assertFalse(viewModel.state.value.exitApp)
+        assertNull(viewModel.state.value.toast)
+        viewModel.onBackPressed()
+        assertFalse(viewModel.state.value.exitApp)
+        assertEquals(ParameterizedText.ConfirmExitOnBack, viewModel.state.value.toast)
+        viewModel.onBackPressed()
+        assertTrue(viewModel.state.value.exitApp)
+    }
+
     fun runTestWithViewModel(
         context: CoroutineContext = EmptyCoroutineContext,
         timeout: Duration = 60.seconds,
