@@ -15,6 +15,9 @@
     <string name="action_save">Save</string>
     <string name="action_editor_actions">Editor Actions</string>
     <string name="action_share">Share</string>
+    <string name="title_share_as">Share as:</string>
+    <string name="share_markdown">Markdown</string>
+    <string name="share_html">HTML</string>
     <string name="share_file">Share file to…</string>
     <string name="file_saved">Successfully saved %1$s</string>
     <string name="file_save_error">An error occurred while saving the file</string>

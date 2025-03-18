@@ -7,6 +7,9 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.wbrawner.simplemarkdown.core.LocalOnlyException
+import com.wbrawner.simplemarkdown.ui.markdownParser
+import com.wbrawner.simplemarkdown.ui.markdownRenderer
+import com.wbrawner.simplemarkdown.ui.toHtml
 import com.wbrawner.simplemarkdown.utility.FileHelper
 import com.wbrawner.simplemarkdown.utility.Preference
 import com.wbrawner.simplemarkdown.utility.PreferenceHelper
@@ -41,6 +44,7 @@ data class EditorState(
     val dirty: Boolean = false,
     val initialMarkdown: String = "",
     val exitApp: Boolean = false,
+    val shareText: ShareText? = null,
 ) {
     val markdown: String
         get() = textFieldState.text.toString()
@@ -149,7 +153,7 @@ class MarkdownViewModel(
                     copy(
                         alert = AlertDialogModel(
                             text = ParameterizedText(R.string.file_load_error),
-                            confirmButton = AlertDialogModel.ButtonModel(
+                            primaryButton = AlertDialogModel.ButtonModel(
                                 ParameterizedText(R.string.ok),
                                 onClick = ::dismissAlert
                             )
@@ -200,7 +204,7 @@ class MarkdownViewModel(
                         copy(
                             alert = AlertDialogModel(
                                 text = ParameterizedText(R.string.file_save_error),
-                                confirmButton = AlertDialogModel.ButtonModel(
+                                primaryButton = AlertDialogModel.ButtonModel(
                                     text = ParameterizedText(R.string.ok),
                                     onClick = ::dismissAlert
                                 )
@@ -251,7 +255,7 @@ class MarkdownViewModel(
             updateState {
                 copy(alert = AlertDialogModel(
                     text = ParameterizedText(R.string.prompt_save_changes),
-                    confirmButton = AlertDialogModel.ButtonModel(
+                    primaryButton = AlertDialogModel.ButtonModel(
                         text = ParameterizedText(R.string.yes),
                         onClick = {
                             _state.value = _state.value.copy(
@@ -261,7 +265,7 @@ class MarkdownViewModel(
                             )
                         }
                     ),
-                    dismissButton = AlertDialogModel.ButtonModel(
+                    secondaryButton = AlertDialogModel.ButtonModel(
                         text = ParameterizedText(R.string.no),
                         onClick = {
                             reset(untitledFileName, true)
@@ -279,6 +283,47 @@ class MarkdownViewModel(
         }
         Timber.i("Removing autosave uri from shared prefs")
         preferenceHelper[Preference.AUTOSAVE_URI] = null
+    }
+
+    fun share() {
+        if (markdownParser == null || markdownRenderer == null) {
+            updateState {
+                copy(alert = null, shareText = ShareText(markdown))
+            }
+            return
+        }
+
+        updateState {
+            copy(
+                alert = AlertDialogModel(
+                    text = ParameterizedText(R.string.title_share_as),
+                primaryButton = AlertDialogModel.ButtonModel(
+                    text = ParameterizedText(R.string.share_markdown),
+                    onClick = {
+                        updateState {
+                            copy(alert = null, shareText = ShareText(markdown))
+                        }
+                    }
+                ),
+                secondaryButton = AlertDialogModel.ButtonModel(
+                    text = ParameterizedText(R.string.share_html),
+                    onClick = {
+                        updateState {
+                            copy(
+                                alert = null,
+                                shareText = ShareText(markdown.toHtml() ?: markdown)
+                            )
+                        }
+                    }
+                )
+            ))
+        }
+    }
+
+    fun dismissShare() {
+        updateState {
+            copy(alert = null, shareText = null)
+        }
     }
 
     fun setLockSwiping(enabled: Boolean) {
@@ -308,8 +353,8 @@ class MarkdownViewModel(
 
 data class AlertDialogModel(
     val text: ParameterizedText,
-    val confirmButton: ButtonModel,
-    val dismissButton: ButtonModel? = null
+    val primaryButton: ButtonModel,
+    val secondaryButton: ButtonModel? = null
 ) {
     data class ButtonModel(val text: ParameterizedText, val onClick: () -> Unit)
 }
@@ -337,3 +382,5 @@ data class ParameterizedText(@StringRes val text: Int, val params: Array<Any> = 
         val ConfirmExitOnBack = ParameterizedText(R.string.confirm_exit)
     }
 }
+
+data class ShareText(val text: String, val contentType: String = "text/plain")

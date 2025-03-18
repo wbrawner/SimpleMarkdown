@@ -142,7 +142,7 @@ class MarkdownViewModelTest {
         assertNull(viewModel.state.value.alert)
         assertFalse(viewModel.save(uri))
         assertNotNull(viewModel.state.value.alert)
-        requireNotNull(viewModel.state.value.alert?.confirmButton?.onClick).invoke()
+        requireNotNull(viewModel.state.value.alert?.primaryButton?.onClick).invoke()
         assertNull(viewModel.state.value.alert)
     }
 
@@ -174,7 +174,7 @@ class MarkdownViewModelTest {
         with(viewModel.state.value.alert) {
             assertNotNull(this)
             requireNotNull(this)
-            val onClick = dismissButton?.onClick
+            val onClick = secondaryButton?.onClick
             assertNotNull(onClick)
             requireNotNull(onClick).invoke()
         }
@@ -191,7 +191,7 @@ class MarkdownViewModelTest {
         with(viewModel.state.value.alert) {
             assertNotNull(this)
             requireNotNull(this)
-            confirmButton.onClick.invoke()
+            primaryButton.onClick.invoke()
         }
         val uri = URI.create("file:///home/user/Saved.md")
         viewModel.save(uri)
@@ -308,6 +308,58 @@ class MarkdownViewModelTest {
         assertEquals(ParameterizedText.ConfirmExitOnBack, viewModel.state.value.toast)
         viewModel.onBackPressed()
         assertTrue(viewModel.state.value.exitApp)
+    }
+
+    @Test
+    fun testDismissShare() = runTestWithViewModel {
+        assertNull(viewModel.state.value.alert)
+        assertNull(viewModel.state.value.shareText)
+        viewModel.share()
+        assertNotNull(viewModel.state.value.alert)
+        viewModel.dismissShare()
+        assertNull(viewModel.state.value.alert)
+        assertNull(viewModel.state.value.shareText)
+    }
+
+    @Test
+    fun testShareMarkdown() = runTestWithViewModel {
+        assertNull(viewModel.state.value.alert)
+        assertNull(viewModel.state.value.shareText)
+        viewModel.updateMarkdown("# Test")
+        viewModel.share()
+        val alertDialog = viewModel.state.value.alert
+        assertNotNull(alertDialog)
+        requireNotNull(alertDialog)
+        assertEquals(R.string.title_share_as, alertDialog.text.text)
+        assertEquals(R.string.share_markdown, alertDialog.primaryButton.text.text)
+        alertDialog.primaryButton.onClick()
+        val shareText = viewModel.state.value.shareText
+        assertNotNull(shareText)
+        requireNotNull(shareText)
+        assertEquals("# Test", shareText.text)
+        assertEquals("text/plain", shareText.contentType)
+    }
+
+    @Test
+    fun testShareHtml() = runTestWithViewModel {
+        assertNull(viewModel.state.value.alert)
+        assertNull(viewModel.state.value.shareText)
+        viewModel.updateMarkdown("# Test")
+        viewModel.share()
+        val alertDialog = viewModel.state.value.alert
+        assertNotNull(alertDialog)
+        requireNotNull(alertDialog)
+        assertEquals(R.string.title_share_as, alertDialog.text.text)
+        val htmlButton = alertDialog.secondaryButton
+        assertNotNull(htmlButton)
+        requireNotNull(htmlButton)
+        assertEquals(R.string.share_html, htmlButton.text.text)
+        htmlButton.onClick()
+        val shareText = viewModel.state.value.shareText
+        assertNotNull(shareText)
+        requireNotNull(shareText)
+        assertEquals("<h1 id=\"test\">Test</h1>\n", shareText.text)
+        assertEquals("text/plain", shareText.contentType)
     }
 
     fun runTestWithViewModel(

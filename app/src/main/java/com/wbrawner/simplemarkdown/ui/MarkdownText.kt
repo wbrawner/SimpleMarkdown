@@ -44,7 +44,7 @@ private val markdownExtensions = listOf(
     TaskListItemsExtension.create(),
 )
 
-private val markdownParser = try {
+val markdownParser = try {
     Parser.builder()
         .extensions(markdownExtensions)
         .build()
@@ -53,7 +53,7 @@ private val markdownParser = try {
     null
 }
 
-private val renderer = try {
+val markdownRenderer = try {
     HtmlRenderer.builder()
         .extensions(markdownExtensions)
         .build()
@@ -64,7 +64,7 @@ private val renderer = try {
 
 @Composable
 fun MarkdownText(modifier: Modifier = Modifier, markdown: String) {
-    if (markdownParser == null || renderer == null) {
+    if (markdownParser == null || markdownRenderer == null) {
         Text(modifier = modifier, text = markdown)
         return
     }
@@ -72,10 +72,7 @@ fun MarkdownText(modifier: Modifier = Modifier, markdown: String) {
     val (html, setHtml) = remember { mutableStateOf("") }
     LaunchedEffect(markdown) {
         withContext(Dispatchers.IO) {
-            val parsedHtml = renderer.render(
-                markdownParser.parse(markdown)
-            )
-            setHtml(parsedHtml)
+            setHtml(markdown.toHtml() ?: markdown)
         }
     }
     Column(
@@ -136,6 +133,8 @@ fun HtmlText(html: String, modifier: Modifier = Modifier) {
         }
     )
 }
+
+fun String.toHtml() = markdownRenderer?.render(markdownParser?.parse(this))
 
 private const val WEBVIEW_TAG = "com.wbrawner.simplemarkdown.MarkdownText#WebView"
 

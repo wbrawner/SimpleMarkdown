@@ -72,6 +72,7 @@ import com.wbrawner.simplemarkdown.MarkdownViewModel
 import com.wbrawner.simplemarkdown.ParameterizedText
 import com.wbrawner.simplemarkdown.R
 import com.wbrawner.simplemarkdown.Route
+import com.wbrawner.simplemarkdown.ShareText
 import com.wbrawner.simplemarkdown.utility.activity
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -100,6 +101,7 @@ fun MainScreen(
     val toast by viewModel.collectAsState(EditorState::toast, null)
     val exitApp by viewModel.collectAsState(EditorState::exitApp, false)
     val activity = LocalContext.current.activity
+    val shareText by viewModel.collectAsState(EditorState::shareText, null)
     LaunchedEffect(exitApp) {
         if (exitApp) {
             activity?.finish()
@@ -135,6 +137,9 @@ fun MainScreen(
         reset = {
             viewModel.reset("Untitled.md")
         },
+        shareText = shareText,
+        share = viewModel::share,
+        dismissShare = viewModel::dismissShare,
         markdownUpdated = viewModel::markdownUpdated,
         enableWideLayout = enableWideLayout,
         enableReadability = enableReadability,
@@ -159,6 +164,9 @@ private fun MainScreen(
     saveFile: (URI?) -> Unit = {},
     saveCallback: (() -> Unit)? = null,
     reset: () -> Unit = {},
+    shareText: ShareText? = null,
+    share: () -> Unit = {},
+    dismissShare: () -> Unit = {},
     markdownUpdated: () -> Unit = {},
     enableWideLayout: Boolean = false,
     enableReadability: Boolean = false,
@@ -200,12 +208,12 @@ private fun MainScreen(
         AlertDialog(
             onDismissRequest = dismissAlert,
             confirmButton = {
-                TextButton(onClick = it.confirmButton.onClick) {
-                    Text(stringResource(it.confirmButton.text.text))
+                TextButton(onClick = it.primaryButton.onClick) {
+                    Text(stringResource(it.primaryButton.text.text))
                 }
             },
             dismissButton = {
-                it.dismissButton?.let { dismissButton ->
+                it.secondaryButton?.let { dismissButton ->
                     TextButton(onClick = dismissButton.onClick) {
                         Text(dismissButton.text.stringRes())
                     }
@@ -214,6 +222,24 @@ private fun MainScreen(
             text = { Text(it.text.stringRes()) }
         )
     }
+    val context = LocalContext.current
+    LaunchedEffect(shareText) {
+        shareText?.let {
+            val shareIntent = Intent(Intent.ACTION_SEND)
+            shareIntent.putExtra(
+                Intent.EXTRA_TEXT,
+                shareText.text
+            )
+            shareIntent.type = shareText.contentType
+            context.startActivity(
+                Intent.createChooser(
+                    shareIntent, context.getString(R.string.share_file)
+                ), null
+            )
+        }
+        dismissShare()
+    }
+
     var backPressed by remember { mutableStateOf(false) }
     BackHandler(enabled = !backPressed) {
         backPressed = true
@@ -263,26 +289,13 @@ private fun MainScreen(
                 }
             },
             topBar = {
-                val context = LocalContext.current
                 MarkdownTopAppBar(
                     title = if (dirty) "$fileName*" else fileName,
                     backAsUp = false,
                     goBack = navigateBack,
                     drawerState = drawerState,
                     actions = {
-                        IconButton(onClick = {
-                            val shareIntent = Intent(Intent.ACTION_SEND)
-                            shareIntent.putExtra(
-                                Intent.EXTRA_TEXT,
-                                markdownTextFieldState.text.toString()
-                            )
-                            shareIntent.type = "text/plain"
-                            context.startActivity(
-                                Intent.createChooser(
-                                    shareIntent, context.getString(R.string.share_file)
-                                ), null
-                            )
-                        }) {
+                        IconButton(onClick = share) {
                             Icon(
                                 imageVector = Icons.Default.Share,
                                 contentDescription = stringResource(R.string.action_share)
