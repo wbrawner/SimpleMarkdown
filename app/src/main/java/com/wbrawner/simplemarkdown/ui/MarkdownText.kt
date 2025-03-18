@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
@@ -31,6 +32,7 @@ import org.commonmark.ext.image.attributes.ImageAttributesExtension
 import org.commonmark.ext.task.list.items.TaskListItemsExtension
 import org.commonmark.parser.Parser
 import org.commonmark.renderer.html.HtmlRenderer
+import timber.log.Timber
 
 private val markdownExtensions = listOf(
     AutolinkExtension.create(),
@@ -42,16 +44,31 @@ private val markdownExtensions = listOf(
     TaskListItemsExtension.create(),
 )
 
-private val markdownParser = Parser.builder()
-    .extensions(markdownExtensions)
-    .build()
+private val markdownParser = try {
+    Parser.builder()
+        .extensions(markdownExtensions)
+        .build()
+} catch (t: Throwable) {
+    Timber.e(t, "Failed to initialize markdown parser")
+    null
+}
 
-private val renderer = HtmlRenderer.builder()
-    .extensions(markdownExtensions)
-    .build()
+private val renderer = try {
+    HtmlRenderer.builder()
+        .extensions(markdownExtensions)
+        .build()
+} catch (t: Throwable) {
+    Timber.e(t, "Failed to initialize markdown renderer")
+    null
+}
 
 @Composable
 fun MarkdownText(modifier: Modifier = Modifier, markdown: String) {
+    if (markdownParser == null || renderer == null) {
+        Text(modifier = modifier, text = markdown)
+        return
+    }
+
     val (html, setHtml) = remember { mutableStateOf("") }
     LaunchedEffect(markdown) {
         withContext(Dispatchers.IO) {
