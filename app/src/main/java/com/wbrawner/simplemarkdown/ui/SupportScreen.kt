@@ -2,7 +2,6 @@ package com.wbrawner.simplemarkdown.ui
 
 import android.content.ActivityNotFoundException
 import android.content.Intent
-import android.net.Uri
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.browser.customtabs.CustomTabsIntent.SHARE_STATE_ON
 import androidx.compose.foundation.layout.Arrangement.Absolute.spacedBy
@@ -32,6 +31,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat.startActivity
+import androidx.core.net.toUri
 import androidx.navigation.NavController
 import com.wbrawner.simplemarkdown.R
 import com.wbrawner.simplemarkdown.utility.SupportLinks
@@ -65,7 +65,7 @@ fun SupportScreen(navController: NavController) {
                     CustomTabsIntent.Builder()
                         .setShareState(SHARE_STATE_ON)
                         .build()
-                        .launchUrl(context, Uri.parse("https://github.com/wbrawner/SimpleMarkdown"))
+                        .launchUrl(context, "https://github.com/wbrawner/SimpleMarkdown".toUri())
                 },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(context.getColor(R.color.colorBackgroundGitHub)),
@@ -79,7 +79,7 @@ fun SupportScreen(navController: NavController) {
                 onClick = {
                     val playStoreIntent = Intent(Intent.ACTION_VIEW)
                         .apply {
-                            data = Uri.parse("market://details?id=${context.packageName}")
+                            data = "market://details?id=${context.packageName}".toUri()
                             addFlags(
                                 Intent.FLAG_ACTIVITY_NO_HISTORY or
                                         Intent.FLAG_ACTIVITY_NEW_DOCUMENT or
@@ -88,9 +88,9 @@ fun SupportScreen(navController: NavController) {
                         }
                     try {
                         startActivity(context, playStoreIntent, null)
-                    } catch (ignored: ActivityNotFoundException) {
+                    } catch (_: ActivityNotFoundException) {
                         playStoreIntent.data =
-                            Uri.parse("https://play.google.com/store/apps/details?id=${context.packageName}")
+                            "https://play.google.com/store/apps/details?id=${context.packageName}".toUri()
                         startActivity(context, playStoreIntent, null)
                     }
                 },
