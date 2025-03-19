@@ -1,2 +1,4 @@
-- Fix crash on older versions of Android without Java 9
+- Add option to share editor input as markdown or HTML
+- Require confirmation to close app with back button
+- Fall back to plain text if markdown parsing or rendering fail
 - Update dependencies
