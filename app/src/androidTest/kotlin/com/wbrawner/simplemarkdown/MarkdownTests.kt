@@ -2,6 +2,7 @@ package com.wbrawner.simplemarkdown
 
 import android.app.Activity.RESULT_OK
 import android.app.Instrumentation
+import android.app.UiAutomation
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -9,7 +10,9 @@ import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.core.content.FileProvider
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
+import androidx.test.espresso.Espresso.pressBack
 import androidx.test.espresso.Espresso.pressBackUnconditionally
+import androidx.test.espresso.NoActivityResumedException
 import androidx.test.espresso.intent.Intents.intending
 import androidx.test.espresso.intent.matcher.IntentMatchers.hasAction
 import androidx.test.espresso.intent.rule.IntentsRule
@@ -267,15 +270,15 @@ class MarkdownTests {
         }
     }
 
-    @Test
+    @Test(expected = NoActivityResumedException::class)
     fun confirmExitOnBackTest() = runTest {
         ActivityScenario.launch(MainActivity::class.java)
         onMainScreen(composeRule) {
-            pressBackUnconditionally()
-            verifyTextIsShown("Untitled.md")
+            pressBack()
+            pressBack()
+            checkTitleEquals("Untitled.md")
             verifyTextIsShown("Press back again to exit")
-            pressBackUnconditionally()
-            verifyTextIsNotShown("Untitled.md")
+            pressBack()
         }
     }
 }
