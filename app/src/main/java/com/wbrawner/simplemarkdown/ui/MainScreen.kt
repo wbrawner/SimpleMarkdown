@@ -240,10 +240,6 @@ private fun MainScreen(
         dismissShare()
     }
 
-    var backPressed by remember { mutableStateOf(false) }
-    BackHandler(enabled = !backPressed) {
-        backPressed = true
-    }
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     MarkdownNavigationDrawer(navigate) { drawerState ->
         Scaffold(

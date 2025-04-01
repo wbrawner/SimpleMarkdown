@@ -274,7 +274,6 @@ class MarkdownTests {
         ActivityScenario.launch(MainActivity::class.java)
         onMainScreen(composeRule) {
             pressBack()
-            pressBack()
             checkTitleEquals("Untitled.md")
             verifyTextIsShown("Press back again to exit")
             pressBack()
