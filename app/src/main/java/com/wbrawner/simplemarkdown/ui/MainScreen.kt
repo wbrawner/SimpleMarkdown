@@ -269,7 +269,7 @@ private fun MainScreen(
 
                     Key.O -> {
                         if (!keyEvent.isShiftPressed) {
-                            openFileLauncher.launch(arrayOf("text/*"))
+                            openFileLauncher.launch(arrayOf("*/*"))
                             true
                         } else {
                             false
@@ -321,7 +321,7 @@ private fun MainScreen(
                                     text = { Text(stringResource(R.string.action_open)) },
                                     onClick = {
                                         menuExpanded = false
-                                        openFileLauncher.launch(arrayOf("text/*"))
+                                        openFileLauncher.launch(arrayOf("*/*"))
                                     })
                                 DropdownMenuItem(
                                     text = { Text(stringResource(R.string.action_save)) },

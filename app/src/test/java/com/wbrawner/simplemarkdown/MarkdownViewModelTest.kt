@@ -3,6 +3,7 @@ package com.wbrawner.simplemarkdown
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.CreationExtras
+import com.wbrawner.simplemarkdown.utility.FileHelper
 import com.wbrawner.simplemarkdown.utility.Preference
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -68,7 +69,7 @@ class MarkdownViewModelTest {
         viewModel = viewModelFactory.create(MarkdownViewModel::class.java, CreationExtras.Empty)
         viewModel.load(null)
         assertEquals(uri, fileHelper.openedUris.firstOrNull())
-        val (fileName, contents) = fileHelper.file
+        val (fileName, _, contents) = fileHelper.file
         assertEquals(fileName, viewModel.state.value.fileName)
         assertEquals(contents, viewModel.state.value.markdown)
     }
@@ -78,7 +79,7 @@ class MarkdownViewModelTest {
         val uri = URI.create("file:///home/user/Untitled.md")
         viewModel.load(uri.toString())
         assertEquals(uri, fileHelper.openedUris.firstOrNull())
-        val (fileName, contents) = fileHelper.file
+        val (fileName, _, contents) = fileHelper.file
         assertEquals(fileName, viewModel.state.value.fileName)
         assertEquals(contents, viewModel.state.value.markdown)
     }
@@ -102,6 +103,48 @@ class MarkdownViewModelTest {
         val uri = URI.create("file:///home/user/Untitled.md")
         viewModel.load(uri.toString())
         assertNotNull(viewModel.state.value.alert)
+    }
+
+    @Test
+    fun testLoadNonTextFile() = runTestWithViewModel {
+        val uri = URI.create("file:///home/user/Untitled.bin")
+        fileHelper.file = FileHelper.FileData(
+            name = "Untitled.bin",
+            type = "application/octet-stream",
+            content = "aisNO++GXmaXKErKGqd+cQ=="
+        )
+        assertEquals("", viewModel.state.value.markdown)
+        viewModel.load(uri.toString())
+        val alert = viewModel.state.value.alert
+        assertNotNull(alert)
+        requireNotNull(alert)
+        val secondaryButton = alert.secondaryButton
+        assertNotNull(secondaryButton)
+        requireNotNull(secondaryButton)
+        secondaryButton.onClick.invoke()
+        assertNull(viewModel.state.value.alert)
+        assertEquals("", viewModel.state.value.markdown)
+    }
+
+    @Test
+    fun testLoadTextFileWithUnrecognizedType() = runTestWithViewModel {
+        val uri = URI.create("file:///home/user/Untitled.bin")
+        fileHelper.file = FileHelper.FileData(
+            name = "Untitled.bin",
+            type = "application/octet-stream",
+            content = "This is actually a markdown file that the serving app didn't recognize"
+        )
+        assertEquals("", viewModel.state.value.markdown)
+        viewModel.load(uri.toString())
+        val alert = viewModel.state.value.alert
+        assertNotNull(alert)
+        requireNotNull(alert)
+        alert.primaryButton.onClick.invoke()
+        assertNull(viewModel.state.value.alert)
+        assertEquals(
+            "This is actually a markdown file that the serving app didn't recognize",
+            viewModel.state.value.markdown
+        )
     }
 
     @Test

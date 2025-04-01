@@ -14,7 +14,11 @@ class FakeFileHelper : FileHelper {
             }
     }
 
-    var file: Pair<String, String> = "Untitled.md" to "This is a test file"
+    var file: FileHelper.FileData = FileHelper.FileData(
+        name = "Untitled.md",
+        type = "text/plain",
+        content = "This is a test file"
+    )
     var openedUris = ArrayDeque<URI>()
     var savedData = ArrayDeque<SavedData>()
     @Volatile
@@ -22,7 +26,7 @@ class FakeFileHelper : FileHelper {
     @Volatile
     var errorOnSave: Boolean = false
 
-    override suspend fun open(source: URI): Pair<String, String> {
+    override suspend fun open(source: URI): FileHelper.FileData {
         delay(1000)
         if (errorOnOpen) error("errorOnOpen set to true")
         openedUris.addLast(source)

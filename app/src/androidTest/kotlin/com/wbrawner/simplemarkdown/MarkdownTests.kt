@@ -2,16 +2,15 @@ package com.wbrawner.simplemarkdown
 
 import android.app.Activity.RESULT_OK
 import android.app.Instrumentation
-import android.app.UiAutomation
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.util.Base64
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.core.content.FileProvider
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.espresso.Espresso.pressBack
-import androidx.test.espresso.Espresso.pressBackUnconditionally
 import androidx.test.espresso.NoActivityResumedException
 import androidx.test.espresso.intent.Intents.intending
 import androidx.test.espresso.intent.matcher.IntentMatchers.hasAction
@@ -279,6 +278,50 @@ class MarkdownTests {
             checkTitleEquals("Untitled.md")
             verifyTextIsShown("Press back again to exit")
             pressBack()
+        }
+    }
+
+    @Test
+    fun loadNonTextFileAndDecline() = runTest {
+        val bytes = Base64.decode("aisNO++GXmaXKErKGqd+cQ==", Base64.DEFAULT)
+        file = File(getApplicationContext<Context>().filesDir.absolutePath + "/tmp", "temp.bin")
+        file.outputStream().write(bytes)
+        val activityResult = Instrumentation.ActivityResult(RESULT_OK, Intent().apply {
+            data = Uri.fromFile(file)
+        })
+        intending(hasAction(Intent.ACTION_OPEN_DOCUMENT)).respondWith(activityResult)
+        ActivityScenario.launch(MainActivity::class.java)
+        onMainScreen(composeRule) {
+            checkTitleEquals("Untitled.md")
+            openMenu()
+            clickOpenMenuItem()
+            awaitIdle()
+            verifyTextIsShown("temp.bin does not appear to be a text file. Open anyway?")
+            clickOnButtonWithText("No")
+            verifyTextIsNotShown("temp.bin does not appear to be a text file. Open anyway?")
+            checkTitleEquals("Untitled.md")
+        }
+    }
+
+    @Test
+    fun loadNonTextFileAndAccept() = runTest {
+        file = File(getApplicationContext<Context>().filesDir.absolutePath + "/tmp", "temp.bin")
+        file.outputStream().writer().use { it.write("Actually just text") }
+        val activityResult = Instrumentation.ActivityResult(RESULT_OK, Intent().apply {
+            data = Uri.fromFile(file)
+        })
+        intending(hasAction(Intent.ACTION_OPEN_DOCUMENT)).respondWith(activityResult)
+        ActivityScenario.launch(MainActivity::class.java)
+        onMainScreen(composeRule) {
+            checkTitleEquals("Untitled.md")
+            openMenu()
+            clickOpenMenuItem()
+            awaitIdle()
+            verifyTextIsShown("temp.bin does not appear to be a text file. Open anyway?")
+            clickOnButtonWithText("Yes")
+            verifyTextIsNotShown("temp.bin does not appear to be a text file. Open anyway?")
+            checkTitleEquals("temp.bin")
+            checkMarkdownEquals("Actually just text")
         }
     }
 }

@@ -79,6 +79,10 @@ class MainScreenRobot(private val composeRule: ComposeTestRule) :
     fun verifyTextIsNotShown(text: String) =
         composeRule.onNodeWithText(text).waitUntilIsNotDisplayed()
 
+    fun clickOnButtonWithText(text: String) = composeRule.onNode(hasClickAction() and hasText(text))
+        .waitUntilIsDisplayed()
+        .performClick()
+
     fun openDrawer() = composeRule.onNode(hasClickAction() and hasContentDescription("Main Menu"))
         .waitUntilIsDisplayed()
         .performClick()

@@ -134,16 +134,59 @@ class MarkdownViewModel(
             try {
                 val uri = URI.create(actualLoadPath)
                 fileHelper.open(uri)
-                    ?.let { (name, content) ->
+                    ?.let { fileData ->
                         updateState {
-                            copy(
-                                path = uri,
-                                fileName = name,
-                                initialMarkdown = content,
-                                dirty = false,
-                                textFieldState = TextFieldState(initialText = content),
-                                toast = ParameterizedText(R.string.file_loaded, arrayOf(name))
-                            )
+                            if (fileData.type?.startsWith("text/") != true) {
+                                copy(
+                                    alert = AlertDialogModel(
+                                        text = ParameterizedText(
+                                            R.string.prompt_confirm_open_non_text,
+                                            arrayOf(fileData.name)
+                                        ),
+                                        primaryButton = AlertDialogModel.ButtonModel(
+                                            text = ParameterizedText(R.string.yes),
+                                            onClick = {
+                                                updateState {
+                                                    copy(
+                                                        path = uri,
+                                                        fileName = fileData.name,
+                                                        initialMarkdown = fileData.content,
+                                                        dirty = false,
+                                                        textFieldState = TextFieldState(initialText = fileData.content),
+                                                        toast = ParameterizedText(
+                                                            R.string.file_loaded,
+                                                            arrayOf(fileData.name)
+                                                        ),
+                                                        alert = null,
+                                                    )
+                                                }
+                                            }
+                                        ),
+                                        secondaryButton = AlertDialogModel.ButtonModel(
+                                            text = ParameterizedText(R.string.no),
+                                            onClick = {
+                                                updateState {
+                                                    copy(
+                                                        alert = null,
+                                                    )
+                                                }
+                                            }
+                                        )
+                                    )
+                                )
+                            } else {
+                                copy(
+                                    path = uri,
+                                    fileName = fileData.name,
+                                    initialMarkdown = fileData.content,
+                                    dirty = false,
+                                    textFieldState = TextFieldState(initialText = fileData.content),
+                                    toast = ParameterizedText(
+                                        R.string.file_loaded,
+                                        arrayOf(fileData.name)
+                                    )
+                                )
+                            }
                         }
                         preferenceHelper[Preference.AUTOSAVE_URI] = actualLoadPath
                     } ?: throw IllegalStateException("Opened file was null")

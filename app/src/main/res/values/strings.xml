@@ -55,6 +55,7 @@
     <string name="pref_key_dark_mode_dark" translatable="false">dark</string>
     <string name="pref_key_dark_mode_auto" translatable="false">auto</string>
     <string name="prompt_save_changes">Would you like to save your changes?</string>
+    <string name="prompt_confirm_open_non_text">%1$s does not appear to be a text file. Open anyway?</string>
     <string name="action_save_as">Save as…</string>
     <string name="support_info">SimpleMarkdown is a personal project of mine that I develop and
         maintain in my free time. I very much appreciate any and all forms of support, whether
