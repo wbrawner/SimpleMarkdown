@@ -3,6 +3,7 @@ package com.wbrawner.simplemarkdown.utility
 import android.content.Context
 import android.content.Intent
 import android.os.Environment
+import android.webkit.MimeTypeMap
 import androidx.core.net.toUri
 import com.wbrawner.simplemarkdown.utility.FileHelper.FileData
 import kotlinx.coroutines.Dispatchers
@@ -55,9 +56,16 @@ class AndroidFileHelper(private val context: Context) : FileHelper {
         }
         context.contentResolver.openFileDescriptor(uri, "r")
             ?.use {
+                val type = if (uri.scheme == "file") {
+                    MimeTypeMap.getSingleton().getMimeTypeFromExtension(
+                        MimeTypeMap.getFileExtensionFromUrl(uri.toString())
+                    )
+                } else {
+                    context.contentResolver.getType(uri)
+                }
                 FileData(
                     name = uri.getName(context),
-                    type = context.contentResolver.getType(uri),
+                    type = type,
                     content = FileInputStream(it.fileDescriptor).reader()
                         .use(Reader::readText)
                 )

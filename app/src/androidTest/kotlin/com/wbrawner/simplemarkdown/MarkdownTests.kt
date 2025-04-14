@@ -70,7 +70,7 @@ class MarkdownTests {
         val markdownText = "# UI Testing\n\nThe quick brown fox jumped over the lazy dog."
         file.outputStream().writer().use { it.write(markdownText) }
         val activityResult = Instrumentation.ActivityResult(RESULT_OK, Intent().apply {
-            data = Uri.fromFile(file)
+            setDataAndType(Uri.fromFile(file), "text/markdown")
             addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
         })
         intending(hasAction(Intent.ACTION_OPEN_DOCUMENT)).respondWith(activityResult)
@@ -164,7 +164,7 @@ class MarkdownTests {
             val markdownText = "# UI Testing\n\nThe quick brown fox jumped over the lazy dog."
             file.outputStream().writer().use { it.write(markdownText) }
             val activityResult = Instrumentation.ActivityResult(RESULT_OK, Intent().apply {
-                data = Uri.fromFile(file)
+                setDataAndType(Uri.fromFile(file), "text/markdown")
             })
             intending(hasAction(Intent.ACTION_OPEN_DOCUMENT)).respondWith(activityResult)
             openMenu()
@@ -227,7 +227,7 @@ class MarkdownTests {
         val markdownText = "# UI Testing\n\nThe quick brown fox jumped over the lazy dog."
         file.outputStream().writer().use { it.write(markdownText) }
         val activityResult = Instrumentation.ActivityResult(RESULT_OK, Intent().apply {
-            data = Uri.fromFile(file)
+            setDataAndType(Uri.fromFile(file), "text/markdown")
         })
         intending(hasAction(Intent.ACTION_OPEN_DOCUMENT)).respondWith(activityResult)
         ActivityScenario.launch(MainActivity::class.java)
@@ -286,7 +286,7 @@ class MarkdownTests {
         file = File(getApplicationContext<Context>().filesDir.absolutePath + "/tmp", "temp.bin")
         file.outputStream().write(bytes)
         val activityResult = Instrumentation.ActivityResult(RESULT_OK, Intent().apply {
-            data = Uri.fromFile(file)
+            setDataAndType(Uri.fromFile(file), "application/octet-stream")
         })
         intending(hasAction(Intent.ACTION_OPEN_DOCUMENT)).respondWith(activityResult)
         ActivityScenario.launch(MainActivity::class.java)
@@ -307,7 +307,7 @@ class MarkdownTests {
         file = File(getApplicationContext<Context>().filesDir.absolutePath + "/tmp", "temp.bin")
         file.outputStream().writer().use { it.write("Actually just text") }
         val activityResult = Instrumentation.ActivityResult(RESULT_OK, Intent().apply {
-            data = Uri.fromFile(file)
+            setDataAndType(Uri.fromFile(file), "application/octet-stream")
         })
         intending(hasAction(Intent.ACTION_OPEN_DOCUMENT)).respondWith(activityResult)
         ActivityScenario.launch(MainActivity::class.java)
