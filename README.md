@@ -1,6 +1,6 @@
 # Simple Markdown
 
-[![pipeline status](https://github.com/wbrawner/SimpleMarkdown/actions/workflows/android.yml/badge.svg)](https://github.com/wbrawner/SimpleMarkdown/actions/workflows/android.yml)
+[![pipeline status](https://git.wbrawner.com/wbrawner/SimpleMarkdown/badges/workflows/pull_request.yml/badge.svg)](https://git.wbrawner.com/wbrawner/SimpleMarkdown/actions?workflow=pull_request.yml)
 
 <p>
 <img alt="" src="./fastlane/metadata/android/en-US/images/phoneScreenshots/1.png" style="width: 24%" />
