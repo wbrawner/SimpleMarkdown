@@ -1,4 +1,3 @@
-- Add option to share editor input as markdown or HTML
-- Require confirmation to close app with back button
-- Fall back to plain text if markdown parsing or rendering fail
+- Fix issue with needing to triple-tap back to exit the app
+- Enable users to open any type of file, warning them if it appears to be non-text
 - Update dependencies
