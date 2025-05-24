@@ -1,5 +1,6 @@
 package com.wbrawner.simplemarkdown.ui
 
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.BackHandler
@@ -172,7 +173,15 @@ private fun MainScreen(
     enableReadability: Boolean = false,
 ) {
     val openFileLauncher =
-        rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) {
+        rememberLauncherForActivityResult(object : ActivityResultContracts.OpenDocument() {
+            override fun createIntent(
+                context: Context,
+                input: Array<String>
+            ): Intent {
+                return super.createIntent(context, input)
+                    .addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
+            }
+        }) {
             loadFile(it)
         }
     val saveFileLauncher =
