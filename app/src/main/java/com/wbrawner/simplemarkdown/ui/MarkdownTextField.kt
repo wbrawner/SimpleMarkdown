@@ -1,14 +1,19 @@
 package com.wbrawner.simplemarkdown.ui
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -42,18 +47,25 @@ fun MarkdownTextField(
     textFieldState: TextFieldState,
     enableReadability: Boolean,
 ) {
-    if (enableReadability) {
-        ReadabilityMarkdownTextField(modifier, textFieldState)
-    } else {
-        MarkdownTextField(modifier, textFieldState)
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(8.dp)
+    ) {
+        if (enableReadability) {
+            ReadabilityMarkdownTextField(textFieldState)
+        } else {
+            MarkdownTextField(textFieldState)
+        }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MarkdownTextField(
-    modifier: Modifier = Modifier,
     textFieldState: TextFieldState,
+    modifier: Modifier = Modifier,
 ) {
     val colors = TextFieldDefaults.colors(
         focusedContainerColor = MaterialTheme.colorScheme.surface,
@@ -92,7 +104,7 @@ fun MarkdownTextField(
                     enabled = true,
                     interactionSource = interactionSource,
                     colors = colors,
-                    contentPadding = PaddingValues(8.dp)
+                    contentPadding = PaddingValues(0.dp)
                 )
             }
         )
@@ -102,8 +114,8 @@ fun MarkdownTextField(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReadabilityMarkdownTextField(
-    modifier: Modifier = Modifier,
     textFieldState: TextFieldState,
+    modifier: Modifier = Modifier,
 ) {
     val (markdown, setMarkdown) = remember(textFieldState) {
         mutableStateOf(textFieldState.text.toString())
