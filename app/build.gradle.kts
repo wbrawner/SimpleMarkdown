@@ -9,6 +9,7 @@ plugins {
     alias(libs.plugins.fladle)
     alias(libs.plugins.triplet.play)
     id("com.wbrawner.releasehelper")
+    alias(libs.plugins.baselineprofile)
 }
 
 val keystoreProperties = Properties()
@@ -120,6 +121,8 @@ play {
 }
 
 dependencies {
+    implementation(libs.androidx.profileinstaller)
+    "baselineProfile"(project(":baselineprofile"))
     coreLibraryDesugaring(libs.desugar.jdk.libs)
     "freeImplementation"(project(":free"))
     "playImplementation"(project(":non-free"))

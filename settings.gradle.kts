@@ -12,4 +12,4 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
-include(":app", ":core", ":free", "non-free")
+include(":app", ":core", ":free", "non-free", ":baselineprofile")
