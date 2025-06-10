@@ -1,4 +1,4 @@
-image: openjdk:25-jdk
+image: openjdk:26-jdk
 
 variables:
   ANDROID_COMPILE_SDK: "28"
