@@ -8,7 +8,7 @@ plugins {
 
 android {
     namespace = "com.wbrawner.simplemarkdown.baselineprofile"
-    compileSdk = 35
+    compileSdk = libs.versions.maxSdk.get().toInt()
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -20,10 +20,11 @@ android {
     }
 
     defaultConfig {
-        minSdk = 28
-        targetSdk = 35
+        minSdk = libs.versions.minSdk.get().toInt()
+        targetSdk = libs.versions.maxSdk.get().toInt()
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunnerArguments["androidx.benchmark.suppressErrors"] = "EMULATOR"
     }
 
     targetProjectPath = ":app"
@@ -41,7 +42,7 @@ android {
         create<ManagedVirtualDevice>("pixel6Api34") {
             device = "Pixel 6"
             apiLevel = 34
-            systemImageSource = "google"
+            systemImageSource = "aosp"
         }
     }
 }
