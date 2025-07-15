@@ -98,7 +98,7 @@ fun HtmlText(html: String, modifier: Modifier = Modifier) {
             |a {
             |   color: #${materialColors.secondary.toArgb().toHexString().substring(2)};
             |}
-            |pre {
+            |pre, code {
             |   background: #${materialColors.surfaceVariant.toArgb().toHexString().substring(2)};
             |   color: #${materialColors.onSurfaceVariant.toArgb().toHexString().substring(2)};
             |}""".trimMargin().wrapTag("style")
