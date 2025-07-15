@@ -1,3 +1,3 @@
-- Fix padding on MarkdownTextField
-- Fix persistable Uri requesting
+- Improve preview styling
+- Bump targetSdk
 - Update dependencies
