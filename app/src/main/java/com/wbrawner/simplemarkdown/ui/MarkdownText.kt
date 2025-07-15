@@ -91,6 +91,7 @@ fun MarkdownText(modifier: Modifier = Modifier, markdown: String) {
 fun HtmlText(html: String, modifier: Modifier = Modifier) {
     val materialColors = MaterialTheme.colorScheme
     val style = remember(isSystemInDarkTheme()) {
+        val borderColor = materialColors.outline.toArgb().toHexString().substring(2)
         """body {
             |   background: #${materialColors.surface.toArgb().toHexString().substring(2)};
             |   color: #${materialColors.onSurface.toArgb().toHexString().substring(2)};
@@ -101,6 +102,12 @@ fun HtmlText(html: String, modifier: Modifier = Modifier) {
             |pre, code {
             |   background: #${materialColors.surfaceVariant.toArgb().toHexString().substring(2)};
             |   color: #${materialColors.onSurfaceVariant.toArgb().toHexString().substring(2)};
+            |}
+            |blockquote {
+            |   margin: 0;
+            |   padding: 0 1em;
+            |   border-left: .25em solid #$borderColor;
+            |   color: #${materialColors.secondary.toArgb().toHexString().substring(2)};
             |}""".trimMargin().wrapTag("style")
     }
     AndroidView(
