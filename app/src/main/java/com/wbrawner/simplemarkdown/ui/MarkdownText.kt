@@ -108,6 +108,16 @@ fun HtmlText(html: String, modifier: Modifier = Modifier) {
             |   padding: 0 1em;
             |   border-left: .25em solid #$borderColor;
             |   color: #${materialColors.secondary.toArgb().toHexString().substring(2)};
+            |}
+            |table {
+            |   border-collapse: collapse;
+            |}
+            |tr:nth-child(2n) {
+            |   background-color: #${materialColors.surfaceDim.toArgb().toHexString().substring(2)};
+            |}
+            |td, th {
+            |   border: 1px solid #$borderColor;
+            |   padding: 0.5em;
             |}""".trimMargin().wrapTag("style")
     }
     AndroidView(
