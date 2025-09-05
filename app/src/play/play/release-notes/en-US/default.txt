@@ -1,3 +1,2 @@
-- Improve preview styling
-- Bump targetSdk
+- Suppress warning dialog for non-text files if the file has a markdown file extension
 - Update dependencies
