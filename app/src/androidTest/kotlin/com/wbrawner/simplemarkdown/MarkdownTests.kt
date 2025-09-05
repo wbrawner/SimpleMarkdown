@@ -323,4 +323,24 @@ class MarkdownTests {
             checkMarkdownEquals("Actually just text")
         }
     }
+
+    @Test
+    fun loadNonTextFileWithMarkdownExtension() = runTest {
+        file = File(getApplicationContext<Context>().filesDir.absolutePath + "/tmp", "temp.md")
+        file.outputStream().writer().use { it.write("Actually just text") }
+        val activityResult = Instrumentation.ActivityResult(RESULT_OK, Intent().apply {
+            setDataAndType(Uri.fromFile(file), "application/octet-stream")
+        })
+        intending(hasAction(Intent.ACTION_OPEN_DOCUMENT)).respondWith(activityResult)
+        ActivityScenario.launch(MainActivity::class.java)
+        onMainScreen(composeRule) {
+            checkTitleEquals("Untitled.md")
+            openMenu()
+            clickOpenMenuItem()
+            awaitIdle()
+            verifyTextIsNotShown("temp.md does not appear to be a text file. Open anyway?")
+            checkTitleEquals("temp.md")
+            checkMarkdownEquals("Actually just text")
+        }
+    }
 }

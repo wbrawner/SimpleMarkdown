@@ -148,6 +148,23 @@ class MarkdownViewModelTest {
     }
 
     @Test
+    fun testLoadTextFileWithNonTextType() = runTestWithViewModel {
+        val uri = URI.create("file:///home/user/Untitled.md")
+        fileHelper.file = FileHelper.FileData(
+            name = "Untitled.md",
+            type = "application/octet-stream",
+            content = "This is actually a markdown file that the serving app didn't recognize"
+        )
+        assertEquals("", viewModel.state.value.markdown)
+        viewModel.load(uri.toString())
+        assertNull(viewModel.state.value.alert)
+        assertEquals(
+            "This is actually a markdown file that the serving app didn't recognize",
+            viewModel.state.value.markdown
+        )
+    }
+
+    @Test
     fun testSaveWithNullPath() = runTestWithViewModel {
         assertFalse(viewModel.save(null, false))
         assertNull(viewModel.state.value.alert)

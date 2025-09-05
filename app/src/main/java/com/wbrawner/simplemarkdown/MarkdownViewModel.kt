@@ -50,6 +50,8 @@ data class EditorState(
         get() = textFieldState.text.toString()
 }
 
+private val markdownFileExtensions = listOf("md", "markdown", "text", "txt")
+
 @OptIn(ExperimentalCoroutinesApi::class)
 class MarkdownViewModel(
     private val fileHelper: FileHelper,
@@ -136,7 +138,10 @@ class MarkdownViewModel(
                 fileHelper.open(uri)
                     ?.let { fileData ->
                         updateState {
-                            if (fileData.type?.startsWith("text/") != true) {
+                            if (fileData.type?.startsWith("text/") != true && fileData.name.substringAfterLast(
+                                    "."
+                                ) !in markdownFileExtensions
+                            ) {
                                 copy(
                                     alert = AlertDialogModel(
                                         text = ParameterizedText(
