@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Validate
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     - name: set up JDK
       uses: https://git.wbrawner.com/actions/setup-java@v4
       with:
@@ -22,7 +22,7 @@ jobs:
     needs:
     - validate
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: set up JDK
         uses: https://git.wbrawner.com/actions/setup-java@v4
         with:
@@ -47,7 +47,7 @@ jobs:
     needs:
       - unit_tests
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: set up JDK
         uses: https://git.wbrawner.com/actions/setup-java@v4
         with:
