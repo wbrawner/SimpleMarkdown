@@ -10,7 +10,7 @@ jobs:
     steps:
     - uses: actions/checkout@v5
     - name: set up JDK
-      uses: https://git.wbrawner.com/actions/setup-java@v4
+      uses: https://git.wbrawner.com/actions/setup-java@v5
       with:
         distribution: 'zulu'
         java-version: '17'
@@ -24,7 +24,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - name: set up JDK
-        uses: https://git.wbrawner.com/actions/setup-java@v4
+        uses: https://git.wbrawner.com/actions/setup-java@v5
         with:
           distribution: 'zulu'
           java-version: '17'
@@ -49,7 +49,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - name: set up JDK
-        uses: https://git.wbrawner.com/actions/setup-java@v4
+        uses: https://git.wbrawner.com/actions/setup-java@v5
         with:
           distribution: 'zulu'
           java-version: '17'
