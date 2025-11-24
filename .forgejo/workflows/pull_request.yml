@@ -15,7 +15,7 @@ jobs:
         distribution: 'zulu'
         java-version: '17'
     - name: Validate Gradle Wrapper
-      uses: https://git.wbrawner.com/gradle/actions/wrapper-validation@4d9f0ba0025fe599b4ebab900eb7f3a1d93ef4c2
+      uses: https://git.wbrawner.com/gradle/actions/wrapper-validation@261794afacfbe7a93883fe9e989f80e083e3547f
   unit_tests:
     name: Run Unit Tests
     runs-on: ubuntu-latest
@@ -31,7 +31,7 @@ jobs:
       - name: Setup Android SDK
         uses: https://git.wbrawner.com/android-actions/setup-android@v3
       - name: Setup Gradle
-        uses: https://git.wbrawner.com/gradle/actions/setup-gradle@4d9f0ba0025fe599b4ebab900eb7f3a1d93ef4c2
+        uses: https://git.wbrawner.com/gradle/actions/setup-gradle@261794afacfbe7a93883fe9e989f80e083e3547f
       - name: Run unit tests
         run: ./gradlew check
       - name: Publish JUnit Results
@@ -56,7 +56,7 @@ jobs:
       - name: Setup Android SDK
         uses: https://git.wbrawner.com/android-actions/setup-android@v3
       - name: Setup Gradle
-        uses: https://git.wbrawner.com/gradle/actions/setup-gradle@4d9f0ba0025fe599b4ebab900eb7f3a1d93ef4c2
+        uses: https://git.wbrawner.com/gradle/actions/setup-gradle@261794afacfbe7a93883fe9e989f80e083e3547f
       - name: Build APKs
         run: ./gradlew assemblePlayDebug assemblePlayDebugAndroidTest
       - name: Grant execute permission for flank_auth.sh
