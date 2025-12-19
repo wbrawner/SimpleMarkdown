@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -375,13 +376,20 @@ private fun MainScreen(
                         .fillMaxSize()
                         .padding(paddingValues)
                 ) {
-                    MarkdownTextField(
+                    Column(
                         modifier = Modifier
                             .fillMaxHeight()
-                            .weight(1f),
-                        textFieldState = markdownTextFieldState,
-                        enableReadability = enableReadability
-                    )
+                            .weight(1f)
+                    ) {
+                        MarkdownToolbar(textFieldState = markdownTextFieldState)
+                        MarkdownTextField(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .weight(1f),
+                            textFieldState = markdownTextFieldState,
+                            enableReadability = enableReadability
+                        )
+                    }
                     Spacer(
                         modifier = Modifier
                             .fillMaxHeight()
@@ -444,13 +452,17 @@ private fun TabbedMarkdownEditor(
             }
         }
         if (page == 0) {
-            MarkdownTextField(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .nestedScroll(scrollBehavior.nestedScrollConnection),
-                textFieldState = markdownTextFieldState,
-                enableReadability = enableReadability
-            )
+            Column(modifier = Modifier.fillMaxSize()) {
+                MarkdownToolbar(textFieldState = markdownTextFieldState)
+                MarkdownTextField(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                        .nestedScroll(scrollBehavior.nestedScrollConnection),
+                    textFieldState = markdownTextFieldState,
+                    enableReadability = enableReadability
+                )
+            }
         } else {
             MarkdownText(
                 modifier = Modifier
