@@ -8,7 +8,7 @@
     <string name="title_about">О программе</string>
     <string name="title_keyboard_shortcuts_file_operations">Операции с файлами</string>
     <string name="action_edit">Изменить</string>
-    <string name="action_preview">Предварительный просмотр</string>
+    <string name="action_preview">Предсмотр</string>
     <string name="ok">Лады</string>
     <string name="confirm_exit">Нажмите кнопку «Назад», чтобы выйти</string>
     <string name="markdown_here">Markdown здесь…</string>
