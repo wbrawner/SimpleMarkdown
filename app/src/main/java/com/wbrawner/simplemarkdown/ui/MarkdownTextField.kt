@@ -53,10 +53,6 @@ fun MarkdownTextField(
     enableReadability: Boolean,
 ) {
     val focusRequester = remember { FocusRequester() }
-    LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
-        textFieldState.edit { selection = TextRange(0) }
-    }
     Column(
         modifier = modifier
             .fillMaxSize()
