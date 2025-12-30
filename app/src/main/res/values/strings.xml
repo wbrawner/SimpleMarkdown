@@ -13,6 +13,7 @@
     <string name="confirm_exit">Press back again to exit</string>
     <string name="markdown_here">Markdown here…</string>
     <string name="action_save">Save</string>
+    <string name="action_pin_shortcut" >Create Shortcut</string>
     <string name="action_editor_actions">Editor Actions</string>
     <string name="action_share">Share</string>
     <string name="title_share_as">Share as:</string>
@@ -20,6 +21,8 @@
     <string name="share_html">HTML</string>
     <string name="share_file">Share file to…</string>
     <string name="file_saved">Successfully saved %1$s</string>
+    <string name="shortcut_created">Shortcut created</string>
+    <string name="shortcut_path_null">Please save file before creating shortcut.</string>
     <string name="file_save_error">An error occurred while saving the file</string>
     <string name="file_loaded">Successfully loaded %1$s</string>
     <string name="file_load_error">An error occurred while opening the file</string>

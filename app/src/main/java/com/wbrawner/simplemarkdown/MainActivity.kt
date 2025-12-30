@@ -45,6 +45,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.wbrawner.simplemarkdown.MarkdownApplication.Companion.fileHelper
 import com.wbrawner.simplemarkdown.MarkdownApplication.Companion.preferenceHelper
+import com.wbrawner.simplemarkdown.MarkdownApplication.Companion.shortcutHelper
 import com.wbrawner.simplemarkdown.ui.MainScreen
 import com.wbrawner.simplemarkdown.ui.MarkdownInfoScreen
 import com.wbrawner.simplemarkdown.ui.SettingsScreen
@@ -59,6 +60,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
     private val viewModel: MarkdownViewModel by viewModels {
         MarkdownViewModel.factory(
             fileHelper,
+            shortcutHelper,
             preferenceHelper,
             Dispatchers.IO
         )

@@ -2,6 +2,7 @@ package com.wbrawner.simplemarkdown.ui
 
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ShortcutManager
 import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -66,6 +67,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.core.content.pm.ShortcutInfoCompat
+import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.navigation.NavController
 import com.wbrawner.simplemarkdown.AlertDialogModel
 import com.wbrawner.simplemarkdown.EditorState
@@ -134,6 +137,11 @@ fun MainScreen(
                 viewModel.save(it)
             }
         },
+        createShortcut = {
+            coroutineScope.launch {
+                viewModel.createShortcut()
+            }
+        },
         saveCallback = saveCallback,
         reset = {
             viewModel.reset("Untitled.md")
@@ -163,6 +171,7 @@ private fun MainScreen(
     navigateBack: () -> Unit = {},
     loadFile: (Uri?) -> Unit = {},
     saveFile: (URI?) -> Unit = {},
+    createShortcut: () -> Unit = {},
     saveCallback: (() -> Unit)? = null,
     reset: () -> Unit = {},
     shareText: ShareText? = null,
@@ -200,6 +209,7 @@ private fun MainScreen(
     }
 
     val snackBarState = remember { SnackbarHostState() }
+
 
     LaunchedEffect(message) {
         message?.let {
@@ -340,6 +350,14 @@ private fun MainScreen(
                                         menuExpanded = false
                                         saveFileLauncher.launch(fileName)
                                     })
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.action_pin_shortcut)) },
+                                    onClick = {
+                                        menuExpanded = false
+                                        createShortcut()
+                                    },
+                                    enabled = !dirty && ShortcutManagerCompat.isRequestPinShortcutSupported(context)
+                                )
                                 if (!enableWideLayout) {
                                     DropdownMenuItem(text = {
                                         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -354,6 +372,7 @@ private fun MainScreen(
                                         menuExpanded = false
                                     })
                                 }
+
                             }
                         }
                     },
