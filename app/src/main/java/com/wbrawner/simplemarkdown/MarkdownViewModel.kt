@@ -1,7 +1,11 @@
 package com.wbrawner.simplemarkdown
 
+import android.content.Intent
+import android.net.Uri
 import androidx.annotation.StringRes
 import androidx.compose.foundation.text.input.TextFieldState
+import androidx.core.content.pm.ShortcutInfoCompat
+import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -11,6 +15,7 @@ import com.wbrawner.simplemarkdown.ui.markdownParser
 import com.wbrawner.simplemarkdown.ui.markdownRenderer
 import com.wbrawner.simplemarkdown.ui.toHtml
 import com.wbrawner.simplemarkdown.utility.FileHelper
+import com.wbrawner.simplemarkdown.utility.ShortcutHelper
 import com.wbrawner.simplemarkdown.utility.Preference
 import com.wbrawner.simplemarkdown.utility.PreferenceHelper
 import kotlinx.coroutines.CoroutineDispatcher
@@ -55,6 +60,7 @@ private val markdownFileExtensions = listOf("md", "markdown", "text", "txt")
 @OptIn(ExperimentalCoroutinesApi::class)
 class MarkdownViewModel(
     private val fileHelper: FileHelper,
+    private val shortcutHelper: ShortcutHelper,
     private val preferenceHelper: PreferenceHelper,
     private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
@@ -368,6 +374,33 @@ class MarkdownViewModel(
         }
     }
 
+    suspend fun createShortcut() {
+        val fileName = _state.value.fileName
+        val path = _state.value.path
+        if (path != null) {
+            shortcutHelper.createEditShortcut(fileName, Uri.parse(path.toString()))
+
+            updateState {
+                _state.value.copy(
+                    toast = ParameterizedText(
+                        R.string.shortcut_created,
+                        arrayOf()
+                    )
+                )
+            }
+        }
+        else {
+            updateState {
+                _state.value.copy(
+                    toast = ParameterizedText(
+                        R.string.shortcut_path_null,
+                        arrayOf()
+                    )
+                )
+            }
+        }
+    }
+
     fun dismissShare() {
         updateState {
             copy(alert = null, shareText = null)
@@ -385,6 +418,7 @@ class MarkdownViewModel(
     companion object {
         fun factory(
             fileHelper: FileHelper,
+            shortcutHelper: ShortcutHelper,
             preferenceHelper: PreferenceHelper,
             ioDispatcher: CoroutineDispatcher
         ): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
@@ -393,7 +427,7 @@ class MarkdownViewModel(
                 modelClass: Class<T>,
                 extras: CreationExtras
             ): T {
-                return MarkdownViewModel(fileHelper, preferenceHelper, ioDispatcher) as T
+                return MarkdownViewModel(fileHelper, shortcutHelper, preferenceHelper, ioDispatcher) as T
             }
         }
     }
