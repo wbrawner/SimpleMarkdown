@@ -78,4 +78,11 @@
         <item>@string/pref_key_dark_mode_dark</item>
         <item>@string/pref_key_dark_mode_auto</item>
     </string-array>
+    <string name="action_bold">Bold</string>
+    <string name="action_italic">Italic</string>
+    <string name="action_heading">Heading</string>
+    <string name="action_list_bulleted">Bullet List</string>
+    <string name="action_link">Link</string>
+    <string name="action_code">Code</string>
+    <string name="action_quote">Quote</string>
 </resources>
