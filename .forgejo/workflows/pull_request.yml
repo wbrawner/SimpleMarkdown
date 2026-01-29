@@ -35,7 +35,7 @@ jobs:
       - name: Run unit tests
         run: ./gradlew check
       - name: Publish JUnit Results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v6
         if: always()
         with:
           name: Unit Test Results
