@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Simple Markdown</string>
+    <string name="app_name_short">Markdown</string>
+    <string name="title_editor">Düzenleyici</string>
+    <string name="title_settings">Ayarlar</string>
+    <string name="title_help">Yardım</string>
+    <string name="title_about">Hakkında</string>
+    <string name="title_keyboard_shortcuts_file_operations">Dosya işlemleri</string>
+    <string name="action_edit">Düzenle</string>
+    <string name="action_preview">Önizleme</string>
+    <string name="ok">TAMAM</string>
+    <string name="confirm_exit">Çıkmak için tekrar geriye basın</string>
+    <string name="action_save">Kaydet</string>
+    <string name="action_share">Paylaş</string>
+    <string name="share_html">HTML</string>
+    <string name="share_markdown">Markdown</string>
+    <string name="file_save_error">Dosyayı kaydederken bir hata oluştu</string>
+    <string name="file_loaded">%1$s başarıyla yüklendi</string>
+    <string name="file_load_error">Dosyayı açarken bir hata meydana geldi</string>
+    <string name="action_back">Geri dön</string>
+    <string name="action_menu">Ana Menü</string>
+    <string name="action_new">Yeni</string>
+    <string name="action_open">Aç</string>
+    <string name="yes">Evet</string>
+    <string name="no">Hayır</string>
+    <string name="pref_title_autosave">Otomatik kaydetmeyi etkinleştir</string>
+    <string name="action_privacy">Gizlilik</string>
+    <string name="pref_title_error_reports">Otomatikleştirilmiş hata raporlarını etkinleştir</string>
+    <string name="pref_error_reports_off">Hata raporları gönderilemeyecektir</string>
+    <string name="pref_error_reports_on">Hata raporları gönderilecektir</string>
+    <string name="title_dark_mode">Karanlık Mod</string>
+    <string name="pref_value_light">Aydınlık</string>
+    <string name="pref_value_dark">Karanlık</string>
+    <string name="pref_autosave_on">Dosyalar otomatik olarak kaydedilecektir</string>
+    <string name="pref_autosave_off">Dosyalar otomatik olarak kaydedilemeycektir</string>
+    <string name="pref_title_amoled_dark_theme">AMOLED Karanlık Tema</string>
+    <string name="pref_description_amoled_dark_theme">Varsayılan yerine saf siyah bir arkaplan kullan</string>
+</resources>
