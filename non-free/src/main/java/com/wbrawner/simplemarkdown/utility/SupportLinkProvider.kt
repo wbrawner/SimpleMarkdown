@@ -48,7 +48,7 @@ fun SupportLinks() {
                     }
                 }
             }
-            .enablePendingPurchases()
+            .enableAutoServiceReconnection()
             .build()
 
         billingClient?.startConnection(object : BillingClientStateListener {
@@ -71,13 +71,13 @@ fun SupportLinks() {
                     .setProductList(productsQuery)
                     .build()
                 billingClient?.queryProductDetailsAsync(productDetailsQuery) { result, productDetails ->
-                    if (result.responseCode != BillingClient.BillingResponseCode.OK || productDetails.isEmpty()) {
+                    if (result.responseCode != BillingClient.BillingResponseCode.OK || productDetails.productDetailsList.isEmpty()) {
                         Timber.w("Failed to load product details: ${result.debugMessage}")
                         return@queryProductDetailsAsync
                     }
-                    products =
-                        productDetails.sortedBy { it.oneTimePurchaseOfferDetails?.priceAmountMicros }
-                            .toList()
+                    products = productDetails.productDetailsList
+                        .sortedBy { it.oneTimePurchaseOfferDetails?.priceAmountMicros }
+                        .toList()
                 }
             }
         })
