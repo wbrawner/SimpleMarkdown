@@ -49,8 +49,5 @@ android {
 dependencies {
     implementation(project(":core"))
     implementation(libs.timber)
-    val composeBom = enforcedPlatform(libs.compose.bom)
-    implementation(composeBom)
-    androidTestImplementation(composeBom)
-    implementation(libs.runtime)
+    implementation(libs.androidx.runtime)
 }
