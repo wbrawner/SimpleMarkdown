@@ -1,3 +1,4 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.io.FileInputStream
 import java.io.FileNotFoundException
 import java.util.Properties
@@ -5,7 +6,7 @@ import java.util.Properties
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.compose.compiler)
-    alias(libs.plugins.fladle)
+    //alias(libs.plugins.fladle)
     alias(libs.plugins.triplet.play)
     id("com.wbrawner.releasehelper")
     alias(libs.plugins.baselineprofile)
@@ -42,8 +43,10 @@ android {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
-    kotlinOptions {
-        jvmTarget = "1.8"
+    kotlin {
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_1_8)
+        }
     }
     defaultConfig {
         applicationId = "com.wbrawner.simplemarkdown"
@@ -91,6 +94,7 @@ android {
     }
     namespace = "com.wbrawner.simplemarkdown"
     buildFeatures {
+        buildConfig = true
         compose = true
     }
     playConfigs {
@@ -186,6 +190,7 @@ dependencies {
     implementation(project(":core"))
 }
 
+/*
 fladle {
     variant.set("playDebug")
     useOrchestrator.set(true)
@@ -196,6 +201,7 @@ fladle {
     )
     projectId.set("simplemarkdown")
 }
+ */
 
 tasks.register<Exec>("pullLogFiles") {
     commandLine = listOf(

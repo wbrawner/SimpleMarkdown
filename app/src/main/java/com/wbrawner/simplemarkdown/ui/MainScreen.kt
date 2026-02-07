@@ -232,6 +232,7 @@ private fun MainScreen(
         )
     }
     val context = LocalContext.current
+    val shareString = stringResource(R.string.share_file)
     LaunchedEffect(shareText) {
         shareText?.let {
             val shareIntent = Intent(Intent.ACTION_SEND)
@@ -240,11 +241,7 @@ private fun MainScreen(
                 shareText.text
             )
             shareIntent.type = shareText.contentType
-            context.startActivity(
-                Intent.createChooser(
-                    shareIntent, context.getString(R.string.share_file)
-                ), null
-            )
+            context.startActivity(Intent.createChooser(shareIntent, shareString), null)
         }
         dismissShare()
     }

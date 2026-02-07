@@ -17,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import com.wbrawner.simplemarkdown.R
 import kotlinx.coroutines.launch
@@ -33,6 +34,8 @@ fun MarkdownTopAppBar(
 ) {
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
+    val backString = stringResource(R.string.action_back)
+    val menuString = stringResource(R.string.action_menu)
     TopAppBar(
         title = {
             Text(text = title, maxLines = 1, overflow = TextOverflow.Ellipsis)
@@ -41,11 +44,9 @@ fun MarkdownTopAppBar(
         navigationIcon = {
             val (icon, contentDescription, onClick) = remember {
                 if (backAsUp) {
-                    Triple(Icons.AutoMirrored.Filled.ArrowBack, context.getString(R.string.action_back), goBack)
+                    Triple(Icons.AutoMirrored.Filled.ArrowBack, backString, goBack)
                 } else {
-                    Triple(
-                        Icons.Default.Menu, context.getString(R.string.action_menu)
-                    ) {
+                    Triple(Icons.Default.Menu, menuString) {
                         coroutineScope.launch {
                             if (drawerState?.isOpen == true) {
                                 drawerState.close()
