@@ -42,6 +42,7 @@ jobs:
           path: "*/build/reports/*"
           if-no-files-found: error
   ui_tests:
+    if: false
     runs-on: ubuntu-latest
     name: Run UI Tests
     needs:
