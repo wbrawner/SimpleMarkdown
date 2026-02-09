@@ -1,3 +1,4 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.io.FileInputStream
 import java.io.FileNotFoundException
 import java.util.Properties
@@ -5,8 +6,7 @@ import java.util.Properties
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.compose.compiler)
-    alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.fladle)
+    //alias(libs.plugins.fladle)
     alias(libs.plugins.triplet.play)
     id("com.wbrawner.releasehelper")
     alias(libs.plugins.baselineprofile)
@@ -43,8 +43,10 @@ android {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
-    kotlinOptions {
-        jvmTarget = "1.8"
+    kotlin {
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_1_8)
+        }
     }
     defaultConfig {
         applicationId = "com.wbrawner.simplemarkdown"
@@ -67,6 +69,7 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -92,6 +95,7 @@ android {
     }
     namespace = "com.wbrawner.simplemarkdown"
     buildFeatures {
+        buildConfig = true
         compose = true
     }
     playConfigs {
@@ -148,9 +152,6 @@ dependencies {
     implementation(libs.commonmark.ext.yaml.front.matter)
     implementation(libs.commonmark.ext.image.attributes)
     implementation(libs.commonmark.ext.heading.anchor)
-    val composeBom = enforcedPlatform(libs.compose.bom)
-    implementation(composeBom)
-    androidTestImplementation(composeBom)
     implementation(libs.androidx.runtime)
     implementation(libs.androidx.ui)
     implementation(libs.androidx.activity.compose)
@@ -158,7 +159,6 @@ dependencies {
     implementation(libs.androidx.foundation.layout)
     implementation(libs.androidx.ui.tooling)
     implementation(libs.androidx.material3)
-    implementation(libs.androidx.material.icons.extended)
     androidTestImplementation(libs.androidx.ui.test.junit4)
     runtimeOnly(libs.kotlinx.coroutines.android)
     testImplementation(libs.kotlinx.coroutines.test)
@@ -171,7 +171,6 @@ dependencies {
     implementation(libs.androidx.activity.ktx)
     implementation(libs.androidx.animation.core)
     implementation(libs.androidx.animation)
-    implementation(libs.androidx.material.icons.core)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.text)
     implementation(libs.androidx.ui.tooling.preview)
@@ -187,6 +186,7 @@ dependencies {
     implementation(project(":core"))
 }
 
+/*
 fladle {
     variant.set("playDebug")
     useOrchestrator.set(true)
@@ -197,6 +197,7 @@ fladle {
     )
     projectId.set("simplemarkdown")
 }
+ */
 
 tasks.register<Exec>("pullLogFiles") {
     commandLine = listOf(

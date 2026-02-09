@@ -19,9 +19,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.text.input.TextFieldState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
@@ -64,6 +61,7 @@ import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -232,6 +230,7 @@ private fun MainScreen(
         )
     }
     val context = LocalContext.current
+    val shareString = stringResource(R.string.share_file)
     LaunchedEffect(shareText) {
         shareText?.let {
             val shareIntent = Intent(Intent.ACTION_SEND)
@@ -240,11 +239,7 @@ private fun MainScreen(
                 shareText.text
             )
             shareIntent.type = shareText.contentType
-            context.startActivity(
-                Intent.createChooser(
-                    shareIntent, context.getString(R.string.share_file)
-                ), null
-            )
+            context.startActivity(Intent.createChooser(shareIntent, shareString), null)
         }
         dismissShare()
     }
@@ -302,7 +297,7 @@ private fun MainScreen(
                     actions = {
                         IconButton(onClick = share) {
                             Icon(
-                                imageVector = Icons.Default.Share,
+                                painter = painterResource(R.drawable.share_24px),
                                 contentDescription = stringResource(R.string.action_share)
                             )
                         }
@@ -310,7 +305,7 @@ private fun MainScreen(
                             var menuExpanded by remember { mutableStateOf(false) }
                             IconButton(onClick = { menuExpanded = true }) {
                                 Icon(
-                                    imageVector = Icons.Default.MoreVert,
+                                    painter = painterResource(R.drawable.more_vert_24px),
                                     stringResource(R.string.action_editor_actions)
                                 )
                             }

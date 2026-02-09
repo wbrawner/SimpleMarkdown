@@ -13,6 +13,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
+import androidx.compose.ui.res.stringResource
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingClientStateListener
 import com.android.billingclient.api.BillingFlowParams
@@ -27,9 +29,10 @@ import timber.log.Timber
 @Composable
 fun SupportLinks() {
     val context = LocalContext.current
+    val resources = LocalResources.current
     var products by remember { mutableStateOf(emptyList<ProductDetails>()) }
     var billingClient by remember { mutableStateOf<BillingClient?>(null) }
-    DisposableEffect(context) {
+    DisposableEffect(context, resources) {
         billingClient = BillingClient.newBuilder(context.applicationContext)
             .setListener { _, purchases ->
                 purchases?.forEach { purchase ->
@@ -39,13 +42,13 @@ fun SupportLinks() {
                     billingClient?.consumeAsync(consumeParams) { _, _ ->
                         Toast.makeText(
                             context,
-                            context.getString(R.string.support_thank_you),
+                            resources.getString(R.string.support_thank_you),
                             Toast.LENGTH_SHORT
                         ).show()
                     }
                 }
             }
-            .enablePendingPurchases()
+            .enableAutoServiceReconnection()
             .build()
 
         billingClient?.startConnection(object : BillingClientStateListener {
@@ -68,13 +71,13 @@ fun SupportLinks() {
                     .setProductList(productsQuery)
                     .build()
                 billingClient?.queryProductDetailsAsync(productDetailsQuery) { result, productDetails ->
-                    if (result.responseCode != BillingClient.BillingResponseCode.OK || productDetails.isEmpty()) {
+                    if (result.responseCode != BillingClient.BillingResponseCode.OK || productDetails.productDetailsList.isEmpty()) {
                         Timber.w("Failed to load product details: ${result.debugMessage}")
                         return@queryProductDetailsAsync
                     }
-                    products =
-                        productDetails.sortedBy { it.oneTimePurchaseOfferDetails?.priceAmountMicros }
-                            .toList()
+                    products = productDetails.productDetailsList
+                        .sortedBy { it.oneTimePurchaseOfferDetails?.priceAmountMicros }
+                        .toList()
                 }
             }
         })
@@ -98,10 +101,10 @@ fun SupportLinks() {
             }
         ) {
             Text(
-                context.getString(
+                stringResource(
                     R.string.support_button_purchase,
                     product.name,
-                    product.oneTimePurchaseOfferDetails?.formattedPrice
+                    product.oneTimePurchaseOfferDetails?.formattedPrice.orEmpty()
                 )
             )
         }

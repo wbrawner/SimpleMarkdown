@@ -61,7 +61,7 @@ fun MarkdownNavigationDrawer(
                     }
                     NavigationDrawerItem(
                         icon = {
-                            Icon(imageVector = route.icon, contentDescription = null)
+                            Icon(painter = painterResource(route.icon), contentDescription = null)
                         },
                         label = { Text(stringResource(route.title)) },
                         selected = false,

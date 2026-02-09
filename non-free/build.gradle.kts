@@ -1,6 +1,7 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     alias(libs.plugins.android.library)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.compose.compiler)
 }
 
@@ -30,8 +31,10 @@ android {
     buildFeatures {
         compose = true
     }
-    kotlinOptions {
-        jvmTarget = "1.8"
+    kotlin {
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_1_8)
+        }
     }
     lint {
         disable += listOf(
@@ -47,17 +50,14 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.billing)
     api(libs.timber)
-    val composeBom = enforcedPlatform(libs.compose.bom)
-    implementation(composeBom)
-    androidTestImplementation(composeBom)
     implementation(libs.androidx.compose.runtime.runtime)
     implementation(libs.androidx.ui)
-    implementation(libs.foundation)
-    implementation(libs.foundation.layout)
+    implementation(libs.androidx.foundation)
+    implementation(libs.androidx.foundation.layout)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.text)
     implementation(libs.androidx.preference.ktx)
     implementation(libs.play.review.ktx)
     implementation(libs.androidx.ui.tooling)
-    implementation(libs.material3)
+    implementation(libs.androidx.material3)
 }

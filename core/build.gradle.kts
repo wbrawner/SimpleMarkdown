@@ -1,10 +1,10 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.io.FileInputStream
 import java.io.FileNotFoundException
 import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.library)
-    alias(libs.plugins.kotlin.android)
 }
 
 val acraProperties = Properties()
@@ -44,8 +44,10 @@ android {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
-    kotlinOptions {
-        jvmTarget = "1.8"
+    kotlin {
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_1_8)
+        }
     }
     lint {
         disable += listOf(
@@ -54,6 +56,9 @@ android {
             "ObsoleteLintCustomCheck"
         )
         warningsAsErrors = true
+    }
+    buildFeatures {
+        buildConfig = true
     }
 }
 

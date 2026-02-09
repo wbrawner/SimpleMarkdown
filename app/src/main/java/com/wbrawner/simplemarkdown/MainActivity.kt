@@ -11,6 +11,7 @@ import android.view.Menu
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
@@ -20,13 +21,6 @@ import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.scaleOut
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Help
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.PrivacyTip
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
@@ -35,7 +29,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.TransformOrigin
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.core.app.ActivityCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
@@ -205,14 +198,15 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
 
 enum class Route(
     val path: String,
-    @StringRes
+    @param:StringRes
     val title: Int,
-    val icon: ImageVector
+    @param:DrawableRes
+    val icon: Int
 ) {
-    EDITOR("/", R.string.title_editor, Icons.Default.Edit),
-    SETTINGS("/settings", R.string.title_settings, Icons.Default.Settings),
-    SUPPORT("/support", R.string.support_title, Icons.Default.Favorite),
-    HELP("/help", R.string.title_help, Icons.AutoMirrored.Filled.Help),
-    ABOUT("/about", R.string.title_about, Icons.Default.Info),
-    PRIVACY("/privacy", R.string.action_privacy, Icons.Default.PrivacyTip),
+    EDITOR("/", R.string.title_editor, R.drawable.edit_24px),
+    SETTINGS("/settings", R.string.title_settings, R.drawable.settings_24px),
+    SUPPORT("/support", R.string.support_title, R.drawable.favorite_24px),
+    HELP("/help", R.string.title_help, R.drawable.help_24px),
+    ABOUT("/about", R.string.title_about, R.drawable.info_24px),
+    PRIVACY("/privacy", R.string.action_privacy, R.drawable.privacy_tip_24px),
 }

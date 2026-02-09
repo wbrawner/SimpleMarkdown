@@ -1,9 +1,6 @@
 package com.wbrawner.simplemarkdown.ui
 
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -17,6 +14,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import com.wbrawner.simplemarkdown.R
 import kotlinx.coroutines.launch
@@ -33,6 +32,8 @@ fun MarkdownTopAppBar(
 ) {
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
+    val backString = stringResource(R.string.action_back)
+    val menuString = stringResource(R.string.action_menu)
     TopAppBar(
         title = {
             Text(text = title, maxLines = 1, overflow = TextOverflow.Ellipsis)
@@ -41,11 +42,9 @@ fun MarkdownTopAppBar(
         navigationIcon = {
             val (icon, contentDescription, onClick) = remember {
                 if (backAsUp) {
-                    Triple(Icons.AutoMirrored.Filled.ArrowBack, context.getString(R.string.action_back), goBack)
+                    Triple(R.drawable.arrow_back_24px, backString, goBack)
                 } else {
-                    Triple(
-                        Icons.Default.Menu, context.getString(R.string.action_menu)
-                    ) {
+                    Triple(R.drawable.menu_24px, menuString) {
                         coroutineScope.launch {
                             if (drawerState?.isOpen == true) {
                                 drawerState.close()
@@ -57,7 +56,7 @@ fun MarkdownTopAppBar(
                 }
             }
             IconButton(onClick = { onClick() }) {
-                Icon(imageVector = icon, contentDescription = contentDescription)
+                Icon(painter = painterResource(icon), contentDescription = contentDescription)
             }
         },
         actions = actions ?: {},
