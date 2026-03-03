@@ -16,6 +16,16 @@ Simple Markdown is an open source Markdown editor.
      alt="Get it on F-Droid"
      height="80">](https://f-droid.org/packages/com.wbrawner.simplemarkdown.free/)
 
+
+## Translation
+
+Please help to translate on the [Weblate](https://toolate.othing.xyz/projects/simplemarkdown/).
+
+<a href="https://toolate.othing.xyz/projects/simplemarkdown/">
+<img src="https://toolate.othing.xyz/widget/simplemarkdown/multi-auto.svg" alt="Translation status" />
+</a>
+
+
 ## Building
 
 Using Android Studio is the preferred way to build the project. To build from the command line, you can run
