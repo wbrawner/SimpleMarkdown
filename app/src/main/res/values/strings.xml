@@ -22,7 +22,7 @@
     <string name="share_file">Share file to…</string>
     <string name="file_saved">Successfully saved %1$s</string>
     <string name="shortcut_created">Shortcut created</string>
-    <string name="shortcut_path_null">Please save file before creating shortcut.</string>
+    <string name="shortcut_path_null">Please save file before creating shortcut</string>
     <string name="file_save_error">An error occurred while saving the file</string>
     <string name="file_loaded">Successfully loaded %1$s</string>
     <string name="file_load_error">An error occurred while opening the file</string>
