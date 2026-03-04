@@ -13,7 +13,7 @@
     <string name="confirm_exit">Press back again to exit</string>
     <string name="markdown_here">Markdown here…</string>
     <string name="action_save">Save</string>
-    <string name="action_pin_shortcut" >Create Shortcut</string>
+    <string name="action_pin_shortcut">Create Shortcut</string>
     <string name="action_editor_actions">Editor Actions</string>
     <string name="action_share">Share</string>
     <string name="title_share_as">Share as:</string>
