@@ -4,7 +4,6 @@ import android.util.Log
 import com.wbrawner.simplemarkdown.utility.PersistentTree.Companion.create
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -13,7 +12,8 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.io.PrintStream
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
 
 /**
  * A [Timber.Tree] implementation that persists all logs to disk for retrieval later. Create
@@ -73,7 +73,7 @@ class PersistentTree private constructor(
             val timestamp = SimpleDateFormat("yyyyMMddHHmmss", Locale.US).format(Date())
             val logFile = File(logDir, "persistent-log-$timestamp.log")
             if (!logFile.createNewFile())
-                throw IOException("Unable to create logFile at ${logFile.absolutePath}")
+                Timber.w("Failed to create persistent log file ${logFile.absolutePath}")
             PersistentTree(coroutineScope, logFile)
         }
     }
