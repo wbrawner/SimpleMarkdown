@@ -65,7 +65,7 @@ class MarkdownViewModelTest {
     @Test
     fun testAutoLoad() = runTestWithViewModel {
         val uri = URI.create("file:///home/user/Untitled.md")
-        preferenceHelper[Preference.AUTOSAVE_URI] = uri.toString()
+        preferenceHelper[Preference.AutosaveUri] = uri.toString()
         viewModel = viewModelFactory.create(MarkdownViewModel::class.java, CreationExtras.Empty)
         viewModel.load(null)
         assertEquals(uri, fileHelper.openedUris.firstOrNull())
@@ -86,9 +86,9 @@ class MarkdownViewModelTest {
 
     @Test
     fun testLoadWithEmptyPath() = runTestWithViewModel {
-        preferenceHelper[Preference.AUTOSAVE_URI] = ""
+        preferenceHelper[Preference.AutosaveUri] = ""
         viewModel.load("")
-        assertEquals(null, preferenceHelper[Preference.AUTOSAVE_URI])
+        assertEquals(null, preferenceHelper[Preference.AutosaveUri])
         assertTrue(fileHelper.openedUris.isEmpty())
     }
 
@@ -189,7 +189,7 @@ class MarkdownViewModelTest {
         assertEquals("Saved.md", viewModel.state.value.fileName)
         assertEquals(uri, fileHelper.savedData.last().uri)
         assertEquals(testMarkdown, fileHelper.savedData.last().content)
-        assertEquals(uri, preferenceHelper[Preference.AUTOSAVE_URI])
+        assertEquals(uri.toString(), preferenceHelper[Preference.AutosaveUri])
     }
 
     @Test
@@ -280,12 +280,12 @@ class MarkdownViewModelTest {
             assertNull(alert)
             assertFalse(dirty)
         }
-        assertNull(preferenceHelper[Preference.AUTOSAVE_URI])
+        assertNull(preferenceHelper[Preference.AutosaveUri])
     }
 
     @Test
     fun testAutosaveWithPreferenceDisabled() = runTestWithViewModel {
-        preferenceHelper[Preference.AUTOSAVE_ENABLED] = false
+        preferenceHelper[Preference.AutosaveEnabled] = false
         viewModel.updateMarkdown("# Test")
         assertTrue(viewModel.state.value.dirty)
         assertEquals(0, fileHelper.savedData.count())
@@ -341,15 +341,15 @@ class MarkdownViewModelTest {
 
     @Test
     fun testSetLockSwiping() = runTestWithViewModel {
-        preferenceHelper[Preference.LOCK_SWIPING] = false
+        preferenceHelper[Preference.LockSwiping] = false
         assertFalse(viewModel.state.value.lockSwiping)
         viewModel.setLockSwiping(true)
         advanceUntilIdle()
-        assertTrue(preferenceHelper.preferences[Preference.LOCK_SWIPING] as Boolean)
+        assertTrue(preferenceHelper.preferences[Preference.LockSwiping] as Boolean)
         assertTrue(viewModel.state.value.lockSwiping)
         viewModel.setLockSwiping(false)
         advanceUntilIdle()
-        assertFalse(preferenceHelper.preferences[Preference.LOCK_SWIPING] as Boolean)
+        assertFalse(preferenceHelper.preferences[Preference.LockSwiping] as Boolean)
         assertFalse(viewModel.state.value.lockSwiping)
     }
 

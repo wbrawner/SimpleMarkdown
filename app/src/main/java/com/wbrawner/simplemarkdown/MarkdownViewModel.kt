@@ -63,17 +63,17 @@ class MarkdownViewModel(
     private val saveMutex = Mutex()
 
     init {
-        preferenceHelper.observe<Boolean>(Preference.LOCK_SWIPING)
+        preferenceHelper.observe(Preference.LockSwiping)
             .onEach {
                 updateState { copy(lockSwiping = it) }
             }
             .launchIn(viewModelScope)
-        preferenceHelper.observe<Boolean>(Preference.AUTOSAVE_ENABLED)
+        preferenceHelper.observe(Preference.AutosaveEnabled)
             .onEach {
                 updateState { copy(enableAutosave = it) }
             }
             .launchIn(viewModelScope)
-        preferenceHelper.observe<Boolean>(Preference.READABILITY_ENABLED)
+        preferenceHelper.observe(Preference.Readability)
             .onEach {
                 updateState {
                     copy(enableReadability = it)
@@ -121,14 +121,13 @@ class MarkdownViewModel(
         saveMutex.withLock {
             val actualLoadPath = loadPath
                 ?.ifBlank { null }
-                ?: preferenceHelper[Preference.AUTOSAVE_URI]
-                    ?.let {
-                        val autosaveUri = it as? String
-                        if (autosaveUri.isNullOrBlank()) {
-                            preferenceHelper[Preference.AUTOSAVE_URI] = null
+                ?: preferenceHelper[Preference.AutosaveUri]
+                    ?.let { autosaveUri ->
+                        if (autosaveUri.isBlank()) {
+                            preferenceHelper[Preference.AutosaveUri] = null
                             null
                         } else {
-                            Timber.d("Using uri from shared preferences: $it")
+                            Timber.d("Using uri from shared preferences: $autosaveUri")
                             autosaveUri
                         }
                     } ?: return
@@ -193,7 +192,7 @@ class MarkdownViewModel(
                                 )
                             }
                         }
-                        preferenceHelper[Preference.AUTOSAVE_URI] = actualLoadPath
+                        preferenceHelper[Preference.AutosaveUri] = actualLoadPath
                     } ?: throw IllegalStateException("Opened file was null")
             } catch (e: Exception) {
                 Timber.e(LocalOnlyException(e), "Failed to open file at path: $actualLoadPath")
@@ -243,7 +242,7 @@ class MarkdownViewModel(
                 }
                 Timber.i("Saved file $name to uri $actualSavePath")
                 Timber.i("Persisting autosave uri in shared prefs: $actualSavePath")
-                preferenceHelper[Preference.AUTOSAVE_URI] = actualSavePath
+                preferenceHelper[Preference.AutosaveUri] = actualSavePath.toString()
                 true
             } catch (e: Exception) {
                 Timber.e(e, "Failed to save file to $actualSavePath")
@@ -265,7 +264,7 @@ class MarkdownViewModel(
         }
 
     suspend fun autosave() {
-        val isAutoSaveEnabled = preferenceHelper[Preference.AUTOSAVE_ENABLED] as Boolean
+        val isAutoSaveEnabled = preferenceHelper[Preference.AutosaveEnabled]
         if (!isAutoSaveEnabled) {
             Timber.i("Ignoring autosave as autosave not enabled")
             return
@@ -284,7 +283,13 @@ class MarkdownViewModel(
                 // The user has left the app, with autosave enabled, and we don't already have a
                 // Uri for them or for some reason we were unable to save to the original Uri. In
                 // this case, we need to just save to internal file storage so that we can recover
-                val file = File(fileHelper.defaultDirectory, _state.value.fileName).toURI()
+                val file = File(fileHelper.defaultDirectory, _state.value.fileName)
+                    .apply {
+                        createNewFile()
+                        setReadable(true)
+                        setWritable(true)
+                    }
+                    .toURI()
                 Timber.i("No cached uri for autosave, saving to $file instead")
                 // Here we call the fileHelper directly so that the file is still registered as dirty.
                 // This prevents the user from ending up in a scenario where they've autosaved the file
@@ -292,7 +297,7 @@ class MarkdownViewModel(
                 // access the file if the accidentally go to create a new file without properly saving
                 // the current one
                 fileHelper.save(file, _state.value.markdown)
-                preferenceHelper[Preference.AUTOSAVE_URI] = file
+                preferenceHelper[Preference.AutosaveUri] = file.toString()
             }
         }
     }
@@ -326,11 +331,11 @@ class MarkdownViewModel(
         updateState {
             EditorState(
                 fileName = untitledFileName,
-                lockSwiping = preferenceHelper[Preference.LOCK_SWIPING] as Boolean
+                lockSwiping = preferenceHelper[Preference.LockSwiping]
             )
         }
         Timber.i("Removing autosave uri from shared prefs")
-        preferenceHelper[Preference.AUTOSAVE_URI] = null
+        preferenceHelper[Preference.AutosaveUri] = null
     }
 
     fun share() {
@@ -375,7 +380,7 @@ class MarkdownViewModel(
     }
 
     fun setLockSwiping(enabled: Boolean) {
-        preferenceHelper[Preference.LOCK_SWIPING] = enabled
+        preferenceHelper[Preference.LockSwiping] = enabled
     }
 
     private fun updateState(block: EditorState.() -> EditorState) {

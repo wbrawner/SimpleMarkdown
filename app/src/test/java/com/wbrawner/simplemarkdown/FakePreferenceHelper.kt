@@ -6,24 +6,25 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 class FakePreferenceHelper: PreferenceHelper {
-    val preferences = mutableMapOf<Preference, Any?>()
-    private val preferenceFlows = mutableMapOf<Preference, MutableStateFlow<Any?>>()
+    val preferences = mutableMapOf<Preference<*>, Any?>()
+    private val preferenceFlows = mutableMapOf<Preference<*>, MutableStateFlow<Any?>>()
 
-    private fun preferenceFlow(preference: Preference) = preferenceFlows.getOrPut(preference) {
+    private fun <T> preferenceFlow(preference: Preference<T>) =
+        preferenceFlows.getOrPut(preference) {
         MutableStateFlow(preference.default)
     }
 
-    override fun get(preference: Preference): Any? =
+    override fun <T> get(preference: Preference<T>): T =
         (preferences[preference] ?: preference.default).also {
             preferenceFlow(preference)
-        }
+        } as T
 
-    override fun set(preference: Preference, value: Any?) {
+    override fun <T> set(preference: Preference<T>, value: T) {
         preferenceFlow(preference).value = value
         preferences[preference] = value
     }
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T> observe(preference: Preference): StateFlow<T> =
+    override fun <T> observe(preference: Preference<T>): StateFlow<T> =
         preferenceFlow(preference) as StateFlow<T>
 }

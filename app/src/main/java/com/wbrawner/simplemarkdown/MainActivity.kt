@@ -63,7 +63,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         setContent {
-            val darkModePreference by preferenceHelper.observe<String>(Preference.DARK_MODE)
+            val darkModePreference by preferenceHelper.observe(Preference.DarkMode)
                 .collectAsState()
             LaunchedEffect(darkModePreference) {
                 val darkMode = when {
@@ -87,9 +87,9 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
                 }
                 AppCompatDelegate.setDefaultNightMode(darkMode)
             }
-            val amoledDarkTheme by preferenceHelper.observe<Boolean>(Preference.AMOLED_DARK_THEME)
+            val amoledDarkTheme by preferenceHelper.observe(Preference.AmoledDarkTheme)
                 .collectAsState()
-            val errorReporterPreference by preferenceHelper.observe<Boolean>(Preference.ERROR_REPORTS_ENABLED)
+            val errorReporterPreference by preferenceHelper.observe(Preference.ErrorReportsEnabled)
                 .collectAsState()
             LaunchedEffect(errorReporterPreference) {
                 ACRA.errorReporter.setEnabled(errorReporterPreference)
