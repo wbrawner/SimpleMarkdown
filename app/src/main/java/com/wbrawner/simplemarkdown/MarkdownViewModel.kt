@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -63,6 +64,10 @@ class MarkdownViewModel(
     private val saveMutex = Mutex()
 
     init {
+        fileHelper.untitledOffset.takeIf { it > 0 }
+            ?.let { untitledOffset ->
+                updateState { copy(fileName = "Untitled ($untitledOffset).md") }
+            }
         preferenceHelper.observe(Preference.LockSwiping)
             .onEach {
                 updateState { copy(lockSwiping = it) }
@@ -328,9 +333,15 @@ class MarkdownViewModel(
             }
             return
         }
+        val offsetUntitledFileName = fileHelper.untitledOffset.takeIf { it > 0 }
+            ?.let { untitledOffset ->
+                untitledFileName.replace(".md", " ($untitledOffset).md")
+            }
+            ?: untitledFileName
+
         updateState {
             EditorState(
-                fileName = untitledFileName,
+                fileName = offsetUntitledFileName,
                 lockSwiping = preferenceHelper[Preference.LockSwiping]
             )
         }
@@ -384,7 +395,7 @@ class MarkdownViewModel(
     }
 
     private fun updateState(block: EditorState.() -> EditorState) {
-        _state.value = _state.value.block()
+        _state.update { it.block() }
     }
 
     companion object {

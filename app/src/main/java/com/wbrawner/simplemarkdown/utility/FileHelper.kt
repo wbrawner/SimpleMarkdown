@@ -19,6 +19,11 @@ interface FileHelper {
     val defaultDirectory: File
 
     /**
+     * The number to use in the untitled file name. E.g. the `2` in `Untitled (2).md`
+     */
+    val untitledOffset: Int
+
+    /**
      * Opens a file at the given path
      * @param path The path of the file to open
      * @return A [Pair] of the file name to the file's contents
@@ -41,6 +46,15 @@ class AndroidFileHelper(private val context: Context) : FileHelper {
         context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS)
             ?: context.filesDir
     }
+
+    private val untitledFileNameRegex = "Untitled( \\((\\d+)\\))?.md".toRegex()
+    override val untitledOffset: Int
+        get() = defaultDirectory.listFiles()
+            ?.maxOfOrNull {
+                untitledFileNameRegex.find(it.name)?.groupValues?.last()?.toIntOrNull() ?: 0
+            }
+            ?.plus(1)
+            ?: 0
 
     override suspend fun open(source: URI): FileData? = withContext(Dispatchers.IO) {
         val uri = source.toString().toUri()
