@@ -69,20 +69,23 @@ fun SettingsScreen(navController: NavController, preferenceHelper: PreferenceHel
                 preference = Preference.AmoledDarkTheme,
                 preferenceHelper = preferenceHelper
             )
-            BooleanPreference(
-                title = stringResource(R.string.pref_title_error_reports),
-                enabledDescription = stringResource(R.string.pref_error_reports_on),
-                disabledDescription = stringResource(R.string.pref_error_reports_off),
-                preference = Preference.ErrorReportsEnabled,
-                preferenceHelper = preferenceHelper
-            )
-            BooleanPreference(
-                title = stringResource(R.string.pref_title_analytics),
-                enabledDescription = stringResource(R.string.pref_analytics_on),
-                disabledDescription = stringResource(R.string.pref_analytics_off),
-                preference = Preference.AnalyticsEnabled,
-                preferenceHelper = preferenceHelper
-            )
+            if (BuildConfig.FLAVOR == "play") {
+                // F-Droid builds don't have error reports or analytics configured
+                BooleanPreference(
+                    title = stringResource(R.string.pref_title_error_reports),
+                    enabledDescription = stringResource(R.string.pref_error_reports_on),
+                    disabledDescription = stringResource(R.string.pref_error_reports_off),
+                    preference = Preference.ErrorReportsEnabled,
+                    preferenceHelper = preferenceHelper
+                )
+                BooleanPreference(
+                    title = stringResource(R.string.pref_title_analytics),
+                    enabledDescription = stringResource(R.string.pref_analytics_on),
+                    disabledDescription = stringResource(R.string.pref_analytics_off),
+                    preference = Preference.AnalyticsEnabled,
+                    preferenceHelper = preferenceHelper
+                )
+            }
             BooleanPreference(
                 title = stringResource(R.string.pref_title_readability),
                 enabledDescription = stringResource(R.string.pref_readability_on),
@@ -91,16 +94,20 @@ fun SettingsScreen(navController: NavController, preferenceHelper: PreferenceHel
                 preferenceHelper = preferenceHelper
             )
             if (BuildConfig.DEBUG) {
-                Row(modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable {
-                        error("Forced crash")
-                    }
-                    .padding(16.dp),
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            error("Forced crash")
+                        }
+                        .padding(16.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically) {
                     Column(verticalArrangement = Arrangement.Center) {
-                        Text(text = stringResource(R.string.action_force_crash), style = MaterialTheme.typography.bodyLarge)
+                        Text(
+                            text = stringResource(R.string.action_force_crash),
+                            style = MaterialTheme.typography.bodyLarge
+                        )
                         Text(
                             text = stringResource(R.string.description_force_crash),
                             style = MaterialTheme.typography.bodyMedium,
@@ -124,7 +131,8 @@ fun BooleanPreference(
     var enabled by remember {
         mutableStateOf(preferenceHelper[preference])
     }
-    BooleanPreference(title = title,
+    BooleanPreference(
+        title = title,
         enabledDescription = enabledDescription,
         disabledDescription = disabledDescription,
         enabled = enabled,
@@ -142,12 +150,13 @@ fun BooleanPreference(
     enabled: Boolean,
     setEnabled: (Boolean) -> Unit
 ) {
-    Row(modifier = Modifier
-        .fillMaxWidth()
-        .clickable {
-            setEnabled(!enabled)
-        }
-        .padding(16.dp),
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable {
+                setEnabled(!enabled)
+            }
+            .padding(16.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically) {
         Column(verticalArrangement = Arrangement.Center) {
@@ -184,12 +193,13 @@ fun ListPreference(
     title: String, options: Array<String>, selected: String, setSelected: (String) -> Unit
 ) {
     var dialogShowing by remember { mutableStateOf(false) }
-    Column(modifier = Modifier
-        .fillMaxWidth()
-        .clickable {
-            dialogShowing = true
-        }
-        .padding(16.dp), verticalArrangement = Arrangement.Center) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable {
+                dialogShowing = true
+            }
+            .padding(16.dp), verticalArrangement = Arrangement.Center) {
         Text(text = title, style = MaterialTheme.typography.bodyLarge)
         Text(
             text = selected,
