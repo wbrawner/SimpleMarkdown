@@ -11,27 +11,43 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 interface PreferenceHelper {
-    operator fun get(preference: Preference): Any?
+    operator fun <T> get(preference: Preference<T>): T
 
-    operator fun set(preference: Preference, value: Any?)
+    operator fun <T> set(preference: Preference<T>, value: T)
 
-    fun <T> observe(preference: Preference): StateFlow<T>
+    fun <T> observe(preference: Preference<T>): StateFlow<T>
 }
 
-class AndroidPreferenceHelper(context: Context, private val coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.IO)): PreferenceHelper {
+class AndroidPreferenceHelper(
+    context: Context,
+    private val coroutineScope: CoroutineScope = CoroutineScope(
+        Dispatchers.IO
+    )
+) : PreferenceHelper {
     private val sharedPreferences by lazy {
         PreferenceManager.getDefaultSharedPreferences(context)
     }
-    private val states by lazy {
+    private val states: Map<String, ObservablePreference<*>> by lazy {
         val allPrefs: Map<String, Any?> = sharedPreferences.all
-        Preference.entries.associateWith { preference ->
-            MutableStateFlow(allPrefs[preference.key] ?: preference.default)
+        listOf(
+            Preference.AmoledDarkTheme,
+            Preference.AnalyticsEnabled,
+            Preference.AutosaveEnabled,
+            Preference.AutosaveUri,
+            Preference.CustomCSS,
+            Preference.DarkMode,
+            Preference.ErrorReportsEnabled,
+            Preference.LockSwiping,
+            Preference.Readability,
+        ).associate { preference ->
+            preference.key to ObservablePreference.create(preference, allPrefs)
         }
     }
 
-    override fun get(preference: Preference): Any? = states[preference]?.value
+    override fun <T> get(preference: Preference<T>): T =
+        states[preference.key]?.value as? T ?: preference.default
 
-    override fun set(preference: Preference, value: Any?) {
+    override fun <T> set(preference: Preference<T>, value: T) {
         sharedPreferences.edit {
             when (value) {
                 is Boolean -> putBoolean(preference.key, value)
@@ -40,25 +56,85 @@ class AndroidPreferenceHelper(context: Context, private val coroutineScope: Coro
                 is Long -> putLong(preference.key, value)
                 is String -> putString(preference.key, value)
                 null -> remove(preference.key)
+                else -> error("Unhandled preference type for key $preference")
             }
         }
         coroutineScope.launch {
-            states[preference]!!.emit(value)
+            val observablePreference: ObservablePreference<T> =
+                states[preference.key] as ObservablePreference<T>
+            observablePreference.flow.emit(value)
         }
     }
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T> observe(preference: Preference): StateFlow<T> = states[preference]!!.asStateFlow() as StateFlow<T>
+    override fun <T> observe(preference: Preference<T>): StateFlow<T> =
+        states[preference.key]!!.flow.asStateFlow() as StateFlow<T>
 }
 
-enum class Preference(val key: String, val default: Any?) {
-    AMOLED_DARK_THEME("amoled_dark_theme", false),
-    ANALYTICS_ENABLED("analytics.enable", true),
-    AUTOSAVE_ENABLED("autosave", true),
-    AUTOSAVE_URI("autosave.uri", null),
-    CUSTOM_CSS("pref.custom_css", null),
-    DARK_MODE("darkMode", "Auto"),
-    ERROR_REPORTS_ENABLED("acra.enable", true),
-    LOCK_SWIPING("lockSwiping", false),
-    READABILITY_ENABLED("readability.enable", false)
+sealed interface Preference<T> {
+    val key: String
+    val default: T
+
+    data object AmoledDarkTheme : Preference<Boolean> {
+        override val key: String = "amoled_dark_theme"
+        override val default: Boolean = false
+    }
+
+    data object AnalyticsEnabled : Preference<Boolean> {
+        override val key: String = "analytics.enable"
+        override val default: Boolean = true
+    }
+
+    data object AutosaveEnabled : Preference<Boolean> {
+        override val key: String = "autosave"
+        override val default: Boolean = true
+    }
+
+    data object AutosaveUri : Preference<String?> {
+        override val key: String = "autosave.uri"
+        override val default: String? = null
+    }
+
+    data object CustomCSS : Preference<String?> {
+        override val key: String = "pref.custom_css"
+        override val default: String? = null
+    }
+
+    data object DarkMode : Preference<String> {
+        override val key: String = "DarkMode"
+        override val default: String = "auto"
+    }
+
+    data object ErrorReportsEnabled : Preference<Boolean> {
+        override val key: String = "acra.enable"
+        override val default: Boolean = true
+    }
+
+    data object LockSwiping : Preference<Boolean> {
+        override val key: String = "lockSwiping"
+        override val default: Boolean = false
+    }
+
+    data object Readability : Preference<Boolean> {
+        override val key: String = "readability.enable"
+        override val default: Boolean = false
+    }
+}
+
+data class ObservablePreference<T>(val preference: Preference<T>, val flow: MutableStateFlow<T>) {
+    val value: T
+        get() = flow.value
+
+    companion object {
+        fun <T> create(
+            preference: Preference<T>,
+            sharedPrefsMap: Map<String, Any?>
+        ): ObservablePreference<T> {
+            val defaultValue = sharedPrefsMap[preference.key] as? T ?: preference.default
+            return ObservablePreference(
+                preference,
+                MutableStateFlow(defaultValue)
+            )
+        }
+    }
 }

@@ -6,6 +6,7 @@ import java.io.File
 import java.net.URI
 
 class FakeFileHelper : FileHelper {
+    override var untitledOffset: Int = 0
     override val defaultDirectory: File by lazy {
         File.createTempFile("simplemarkdown", null)
             .apply {
