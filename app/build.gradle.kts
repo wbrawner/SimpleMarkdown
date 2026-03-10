@@ -52,8 +52,8 @@ android {
         applicationId = "com.wbrawner.simplemarkdown"
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.maxSdk.get().toInt()
-        versionCode = 54
-        versionName = "2025.09.00"
+        versionCode = 55
+        versionName = "2026.03.00"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         testInstrumentationRunnerArguments["clearPackageData"] = "true"
         buildConfigField("boolean", "ENABLE_CUSTOM_CSS", "true")

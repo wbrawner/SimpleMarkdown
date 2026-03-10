@@ -1,2 +1,5 @@
-- Suppress warning dialog for non-text files if the file has a markdown file extension
+- Add basic documents provider
+- Add auto-incrementing offset number in filename for untitled files
+- Fix persistence of autosave uri for newly created files
+- Enable resource shrinking
 - Update dependencies
