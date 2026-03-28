@@ -43,9 +43,9 @@ import com.wbrawner.simplemarkdown.model.Readability
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MarkdownTextField(
-    modifier: Modifier = Modifier,
     textFieldState: TextFieldState,
     enableReadability: Boolean,
+    modifier: Modifier = Modifier,
 ) {
     Column(
         modifier = modifier
@@ -54,9 +54,9 @@ fun MarkdownTextField(
             .padding(8.dp)
     ) {
         if (enableReadability) {
-            ReadabilityMarkdownTextField(textFieldState)
+            ReadabilityMarkdownTextField(textFieldState = textFieldState)
         } else {
-            MarkdownTextField(textFieldState)
+            MarkdownTextField(textFieldState = textFieldState)
         }
     }
 }
@@ -106,7 +106,8 @@ fun MarkdownTextField(
                     colors = colors,
                     contentPadding = PaddingValues(0.dp)
                 )
-            }
+            },
+            inputTransformation = remember { ListInputTransformation() }
         )
     }
 }
