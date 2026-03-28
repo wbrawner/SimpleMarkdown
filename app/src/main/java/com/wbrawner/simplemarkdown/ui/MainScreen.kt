@@ -247,47 +247,49 @@ private fun MainScreen(
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     MarkdownNavigationDrawer(navigate) { drawerState ->
         Scaffold(
-            modifier = Modifier.onKeyEvent { keyEvent ->
-                if (
-                    keyEvent.type != KeyEventType.KeyUp
-                    || !keyEvent.isCtrlPressed
-                    || keyEvent.isAltPressed
-                    || keyEvent.isMetaPressed
-                ) {
-                    return@onKeyEvent false
-                }
+            modifier = Modifier
+                .onKeyEvent { keyEvent ->
+                    if (
+                        keyEvent.type != KeyEventType.KeyUp
+                        || !keyEvent.isCtrlPressed
+                        || keyEvent.isAltPressed
+                        || keyEvent.isMetaPressed
+                    ) {
+                        return@onKeyEvent false
+                    }
 
-                when (keyEvent.key) {
-                    Key.N -> {
-                        if (!keyEvent.isShiftPressed) {
-                            reset()
+                    when (keyEvent.key) {
+                        Key.N -> {
+                            if (!keyEvent.isShiftPressed) {
+                                reset()
+                                true
+                            } else {
+                                false
+                            }
+                        }
+
+                        Key.O -> {
+                            if (!keyEvent.isShiftPressed) {
+                                openFileLauncher.launch(arrayOf("*/*"))
+                                true
+                            } else {
+                                false
+                            }
+                        }
+
+                        Key.S -> {
+                            if (keyEvent.isShiftPressed) {
+                                saveFileLauncher.launch(fileName)
+                            } else {
+                                saveFile(null)
+                            }
                             true
-                        } else {
-                            false
                         }
-                    }
 
-                    Key.O -> {
-                        if (!keyEvent.isShiftPressed) {
-                            openFileLauncher.launch(arrayOf("*/*"))
-                            true
-                        } else {
-                            false
-                        }
+                        else -> false
                     }
-
-                    Key.S -> {
-                        if (keyEvent.isShiftPressed) {
-                            saveFileLauncher.launch(fileName)
-                        } else {
-                            saveFile(null)
-                        }
-                        true
-                    }
-
-                    else -> false
                 }
-            },
+                .imePadding(),
             topBar = {
                 MarkdownTopAppBar(
                     title = if (dirty) "$fileName*" else fileName,

@@ -4,7 +4,6 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicTextField
@@ -83,7 +82,7 @@ fun MarkdownTextField(
     )
     CompositionLocalProvider(LocalTextSelectionColors provides colors.textSelectionColors) {
         BasicTextField(
-            modifier = modifier.imePadding(),
+            modifier = modifier,
             state = textFieldState,
             enabled = true,
             readOnly = false,
@@ -168,7 +167,7 @@ fun ReadabilityMarkdownTextField(
     CompositionLocalProvider(LocalTextSelectionColors provides colors.textSelectionColors) {
         BasicTextField(
             value = localMarkdown,
-            modifier = modifier.imePadding(),
+            modifier = modifier,
             onValueChange = {
                 selection = it.selection
                 composition = it.composition
