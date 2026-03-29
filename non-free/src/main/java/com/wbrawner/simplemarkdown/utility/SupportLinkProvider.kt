@@ -21,6 +21,7 @@ import com.android.billingclient.api.BillingFlowParams
 import com.android.billingclient.api.BillingFlowParams.ProductDetailsParams
 import com.android.billingclient.api.BillingResult
 import com.android.billingclient.api.ConsumeParams
+import com.android.billingclient.api.PendingPurchasesParams
 import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.QueryProductDetailsParams
 import com.wbrawner.simplemarkdown.nonfree.R
@@ -49,6 +50,9 @@ fun SupportLinks() {
                 }
             }
             .enableAutoServiceReconnection()
+            .enablePendingPurchases(
+                PendingPurchasesParams.newBuilder().enableOneTimeProducts().build()
+            )
             .build()
 
         billingClient?.startConnection(object : BillingClientStateListener {

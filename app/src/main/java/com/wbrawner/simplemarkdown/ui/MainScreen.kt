@@ -28,11 +28,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SecondaryTabRow
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
@@ -247,47 +247,49 @@ private fun MainScreen(
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     MarkdownNavigationDrawer(navigate) { drawerState ->
         Scaffold(
-            modifier = Modifier.onKeyEvent { keyEvent ->
-                if (
-                    keyEvent.type != KeyEventType.KeyUp
-                    || !keyEvent.isCtrlPressed
-                    || keyEvent.isAltPressed
-                    || keyEvent.isMetaPressed
-                ) {
-                    return@onKeyEvent false
-                }
+            modifier = Modifier
+                .onKeyEvent { keyEvent ->
+                    if (
+                        keyEvent.type != KeyEventType.KeyUp
+                        || !keyEvent.isCtrlPressed
+                        || keyEvent.isAltPressed
+                        || keyEvent.isMetaPressed
+                    ) {
+                        return@onKeyEvent false
+                    }
 
-                when (keyEvent.key) {
-                    Key.N -> {
-                        if (!keyEvent.isShiftPressed) {
-                            reset()
+                    when (keyEvent.key) {
+                        Key.N -> {
+                            if (!keyEvent.isShiftPressed) {
+                                reset()
+                                true
+                            } else {
+                                false
+                            }
+                        }
+
+                        Key.O -> {
+                            if (!keyEvent.isShiftPressed) {
+                                openFileLauncher.launch(arrayOf("*/*"))
+                                true
+                            } else {
+                                false
+                            }
+                        }
+
+                        Key.S -> {
+                            if (keyEvent.isShiftPressed) {
+                                saveFileLauncher.launch(fileName)
+                            } else {
+                                saveFile(null)
+                            }
                             true
-                        } else {
-                            false
                         }
-                    }
 
-                    Key.O -> {
-                        if (!keyEvent.isShiftPressed) {
-                            openFileLauncher.launch(arrayOf("*/*"))
-                            true
-                        } else {
-                            false
-                        }
+                        else -> false
                     }
-
-                    Key.S -> {
-                        if (keyEvent.isShiftPressed) {
-                            saveFileLauncher.launch(fileName)
-                        } else {
-                            saveFile(null)
-                        }
-                        true
-                    }
-
-                    else -> false
                 }
-            },
+                .imePadding(),
             topBar = {
                 MarkdownTopAppBar(
                     title = if (dirty) "$fileName*" else fileName,
@@ -418,14 +420,19 @@ private fun TabbedMarkdownEditor(
 ) {
     val coroutineScope = rememberCoroutineScope()
     val pagerState = rememberPagerState { 2 }
-    TabRow(selectedTabIndex = pagerState.currentPage) {
-        Tab(text = { Text(stringResource(R.string.action_edit)) },
-            selected = pagerState.currentPage == 0,
-            onClick = { coroutineScope.launch { pagerState.animateScrollToPage(0) } })
-        Tab(text = { Text(stringResource(R.string.action_preview)) },
-            selected = pagerState.currentPage == 1,
-            onClick = { coroutineScope.launch { pagerState.animateScrollToPage(1) } })
-    }
+    SecondaryTabRow(
+        selectedTabIndex = pagerState.currentPage,
+        tabs = {
+            Tab(
+                text = { Text(stringResource(R.string.action_edit)) },
+                selected = pagerState.currentPage == 0,
+                onClick = { coroutineScope.launch { pagerState.animateScrollToPage(0) } })
+            Tab(
+                text = { Text(stringResource(R.string.action_preview)) },
+                selected = pagerState.currentPage == 1,
+                onClick = { coroutineScope.launch { pagerState.animateScrollToPage(1) } })
+        }
+    )
     HorizontalPager(
         modifier = Modifier.fillMaxSize(1f), state = pagerState,
         beyondViewportPageCount = 1,

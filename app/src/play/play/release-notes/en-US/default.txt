@@ -1,5 +1,3 @@
-- Add basic documents provider
-- Add auto-incrementing offset number in filename for untitled files
-- Fix persistence of autosave uri for newly created files
-- Enable resource shrinking
+- Fix soft keyboard covering edited text
+- Automatically insert list and checkbox items on newlines
 - Update dependencies

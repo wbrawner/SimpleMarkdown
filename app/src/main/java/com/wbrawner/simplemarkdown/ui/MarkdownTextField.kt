@@ -4,7 +4,6 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicTextField
@@ -43,9 +42,9 @@ import com.wbrawner.simplemarkdown.model.Readability
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MarkdownTextField(
-    modifier: Modifier = Modifier,
     textFieldState: TextFieldState,
     enableReadability: Boolean,
+    modifier: Modifier = Modifier,
 ) {
     Column(
         modifier = modifier
@@ -54,9 +53,9 @@ fun MarkdownTextField(
             .padding(8.dp)
     ) {
         if (enableReadability) {
-            ReadabilityMarkdownTextField(textFieldState)
+            ReadabilityMarkdownTextField(textFieldState = textFieldState)
         } else {
-            MarkdownTextField(textFieldState)
+            MarkdownTextField(textFieldState = textFieldState)
         }
     }
 }
@@ -83,7 +82,7 @@ fun MarkdownTextField(
     )
     CompositionLocalProvider(LocalTextSelectionColors provides colors.textSelectionColors) {
         BasicTextField(
-            modifier = modifier.imePadding(),
+            modifier = modifier,
             state = textFieldState,
             enabled = true,
             readOnly = false,
@@ -106,7 +105,8 @@ fun MarkdownTextField(
                     colors = colors,
                     contentPadding = PaddingValues(0.dp)
                 )
-            }
+            },
+            inputTransformation = remember { ListInputTransformation() }
         )
     }
 }
@@ -167,7 +167,7 @@ fun ReadabilityMarkdownTextField(
     CompositionLocalProvider(LocalTextSelectionColors provides colors.textSelectionColors) {
         BasicTextField(
             value = localMarkdown,
-            modifier = modifier.imePadding(),
+            modifier = modifier,
             onValueChange = {
                 selection = it.selection
                 composition = it.composition
