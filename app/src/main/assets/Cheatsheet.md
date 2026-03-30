@@ -122,6 +122,18 @@ function helloWorld() {
 }
 ```
 
+### Mermaid Diagrams
+
+You can also create diagrams using Mermaid:
+
+```mermaid
+graph TD;
+    A-->B;
+    A-->C;
+    B-->D;
+    C-->D;
+```
+
 ### Line breaks
 
 `***`

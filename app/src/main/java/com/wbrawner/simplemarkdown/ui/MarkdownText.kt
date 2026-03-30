@@ -90,9 +90,10 @@ fun MarkdownText(modifier: Modifier = Modifier, markdown: String) {
 @Composable
 fun HtmlText(html: String, modifier: Modifier = Modifier) {
     val materialColors = MaterialTheme.colorScheme
-    val style = remember(isSystemInDarkTheme()) {
+    val isDark = isSystemInDarkTheme()
+    val (style, script) = remember(isDark, html) {
         val borderColor = materialColors.outline.toArgb().toHexString().substring(2)
-        """body {
+        val style = """body {
             |   background: #${materialColors.surface.toArgb().toHexString().substring(2)};
             |   color: #${materialColors.onSurface.toArgb().toHexString().substring(2)};
             |}
@@ -119,6 +120,41 @@ fun HtmlText(html: String, modifier: Modifier = Modifier) {
             |   border: 1px solid #$borderColor;
             |   padding: 0.5em;
             |}""".trimMargin().wrapTag("style")
+
+        val script = if (html.contains("language-mermaid")) {
+            """
+            |<script src='file:///android_asset/mermaid.min.js'></script>
+            |<script>
+            |   mermaid.initialize({
+            |       startOnLoad: false,
+            |       theme: '${if (isDark) "dark" else "default"}'
+            |   });
+            |
+            |   function renderMermaid() {
+            |       var mermaidBlocks = document.querySelectorAll('code.language-mermaid');
+            |       if (mermaidBlocks.length > 0) {
+            |           mermaidBlocks.forEach(function(block) {
+            |               var pre = block.parentNode;
+            |               var div = document.createElement('div');
+            |               div.className = 'mermaid';
+            |               div.textContent = block.textContent;
+            |               pre.parentNode.replaceChild(div, pre);
+            |           });
+            |           mermaid.init();
+            |       }
+            |   }
+            |
+            |   if (document.readyState === 'complete') {
+            |       renderMermaid();
+            |   } else {
+            |       window.addEventListener('load', renderMermaid);
+            |   }
+            |</script>
+            """.trimMargin()
+        } else {
+            ""
+        }
+        style to script
     }
     AndroidView(
         modifier = modifier,
@@ -139,14 +175,16 @@ fun HtmlText(html: String, modifier: Modifier = Modifier) {
                         setBackgroundColor(TRANSPARENT)
                         isNestedScrollingEnabled = false
                         settings.javaScriptEnabled = true
-                        loadDataWithBaseURL(null, style + html, "text/html", "UTF-8", null)
+                        settings.allowFileAccess = true
+                        settings.domStorageEnabled = true
+                        loadDataWithBaseURL("file:///android_asset/", style + html + script, "text/html", "UTF-8", null)
                     }
                 )
             }
         },
         update = { frameLayout ->
             frameLayout.findViewWithTag<WebView>(WEBVIEW_TAG)
-                .loadDataWithBaseURL(null, style + html, "text/html", "UTF-8", null)
+                .loadDataWithBaseURL("file:///android_asset/", style + html + script, "text/html", "UTF-8", null)
         }
     )
 }
