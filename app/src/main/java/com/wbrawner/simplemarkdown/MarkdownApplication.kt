@@ -5,10 +5,12 @@ import android.os.StrictMode
 import com.wbrawner.simplemarkdown.core.ErrorReporterTree
 import com.wbrawner.simplemarkdown.utility.AndroidFileHelper
 import com.wbrawner.simplemarkdown.utility.AndroidPreferenceHelper
+import com.wbrawner.simplemarkdown.utility.AndroidShortcutHelper
 import com.wbrawner.simplemarkdown.utility.FileHelper
 import com.wbrawner.simplemarkdown.utility.PersistentTree
 import com.wbrawner.simplemarkdown.utility.PreferenceHelper
 import com.wbrawner.simplemarkdown.utility.ReviewHelper
+import com.wbrawner.simplemarkdown.utility.ShortcutHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -44,11 +46,14 @@ class MarkdownApplication : Application() {
         super.onCreate()
         ReviewHelper.init(this)
         fileHelper = AndroidFileHelper(this)
+        shortcutHelper = AndroidShortcutHelper(this)
         preferenceHelper = AndroidPreferenceHelper(this)
     }
 
     companion object {
         lateinit var fileHelper: FileHelper
+            private set
+        lateinit var shortcutHelper: ShortcutHelper
             private set
         lateinit var preferenceHelper: PreferenceHelper
             private set
