@@ -3,8 +3,6 @@ package com.wbrawner.simplemarkdown.utility
 import android.app.Activity
 import android.widget.Toast
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -24,6 +22,7 @@ import com.android.billingclient.api.ConsumeParams
 import com.android.billingclient.api.PendingPurchasesParams
 import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.QueryProductDetailsParams
+import com.wbrawner.simplemarkdown.core.ui.SupportButton
 import com.wbrawner.simplemarkdown.nonfree.R
 import timber.log.Timber
 
@@ -92,8 +91,14 @@ fun SupportLinks() {
     }
 
     products.forEach { product ->
-        Button(
+        SupportButton(
             modifier = Modifier.fillMaxWidth(),
+            icon = R.drawable.ic_money,
+            title = stringResource(
+                R.string.support_button_purchase,
+                product.name,
+                product.oneTimePurchaseOfferDetails?.formattedPrice.orEmpty()
+            ),
             onClick = {
                 val productDetails = ProductDetailsParams.newBuilder()
                     .setProductDetails(product)
@@ -103,14 +108,6 @@ fun SupportLinks() {
                     .build()
                 billingClient?.launchBillingFlow(context as Activity, flowParams)
             }
-        ) {
-            Text(
-                stringResource(
-                    R.string.support_button_purchase,
-                    product.name,
-                    product.oneTimePurchaseOfferDetails?.formattedPrice.orEmpty()
-                )
-            )
-        }
+        )
     }
 }

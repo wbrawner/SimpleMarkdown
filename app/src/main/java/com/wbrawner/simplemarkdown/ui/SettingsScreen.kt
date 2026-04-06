@@ -33,7 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.wbrawner.simplemarkdown.BuildConfig
 import com.wbrawner.simplemarkdown.R
-import com.wbrawner.simplemarkdown.ui.theme.SimpleMarkdownTheme
+import com.wbrawner.simplemarkdown.core.ui.theme.SimpleMarkdownTheme
 import com.wbrawner.simplemarkdown.utility.Preference
 import com.wbrawner.simplemarkdown.utility.PreferenceHelper
 

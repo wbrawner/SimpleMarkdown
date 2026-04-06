@@ -58,14 +58,15 @@
     <string name="prompt_confirm_open_non_text">%1$s does not appear to be a text file. Open anyway?</string>
     <string name="action_save_as">Save as…</string>
     <string name="support_info">SimpleMarkdown is a personal project of mine that I develop and
-        maintain in my free time. I very much appreciate any and all forms of support, whether
-        that be assistance with designing the app or icons, adding translations for other
-        languages, contributing to the code, or giving me a tip. If you have any troubles with
-        SimpleMarkdown, please don\'t hesitate to get in touch, and if you haven\'t already,
-        please rate the app on the Play Store.\n\nAlso please keep in mind that the in-app
+        maintain in my free time. I would absolutely love to dedicate more time to it, but I need
+        your help to make that a reality! If you find the app useful and are in a position to do so,
+        please consider supporting my work.\n\nPlease keep in mind that the in-app
         purchases for the tips won\'t unlock any additional functionality in the app.
         SimpleMarkdown is and always will be completely free and open source!</string>
+    <string name="action_github_sponsor">Sponsor me on GitHub</string>
     <string name="action_view_github">View SimpleMarkdown on GitHub</string>
+    <string name="action_become_patron">Become a Patron</string>
+    <string name="action_donate_liberapay">Donate on Liberapay</string>
     <string name="support_title">Support SimpleMarkdown</string>
     <string name="action_rate">Rate SimpleMarkdown</string>
 <!--    <string-array name="pref_entries_dark_mode">-->
