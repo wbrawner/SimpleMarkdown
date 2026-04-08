@@ -43,17 +43,12 @@ android {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
-    kotlin {
-        compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_1_8)
-        }
-    }
     defaultConfig {
         applicationId = "com.wbrawner.simplemarkdown"
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.maxSdk.get().toInt()
-        versionCode = 57
-        versionName = "2026.03.02"
+        versionCode = 58
+        versionName = "2026.04.00"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         testInstrumentationRunnerArguments["clearPackageData"] = "true"
         buildConfigField("boolean", "ENABLE_CUSTOM_CSS", "true")
@@ -111,6 +106,12 @@ android {
             "ObsoleteLintCustomCheck"
         )
         warningsAsErrors = true
+    }
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_1_8)
     }
 }
 
