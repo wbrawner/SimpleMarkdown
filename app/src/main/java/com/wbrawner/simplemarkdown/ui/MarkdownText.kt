@@ -90,9 +90,9 @@ fun MarkdownText(modifier: Modifier = Modifier, markdown: String) {
 @Composable
 fun HtmlText(html: String, modifier: Modifier = Modifier) {
     val materialColors = MaterialTheme.colorScheme
-    val style = remember(isSystemInDarkTheme()) {
+    val head = remember(isSystemInDarkTheme()) {
         val borderColor = materialColors.outline.toArgb().toHexString().substring(2)
-        """body {
+        val style = """body {
             |   background: #${materialColors.surface.toArgb().toHexString().substring(2)};
             |   color: #${materialColors.onSurface.toArgb().toHexString().substring(2)};
             |}
@@ -111,6 +111,8 @@ fun HtmlText(html: String, modifier: Modifier = Modifier) {
             |}
             |table {
             |   border-collapse: collapse;
+            |   display: block;
+            |   overflow-x: auto;
             |}
             |tr:nth-child(2n) {
             |   background-color: #${materialColors.surfaceDim.toArgb().toHexString().substring(2)};
@@ -119,6 +121,8 @@ fun HtmlText(html: String, modifier: Modifier = Modifier) {
             |   border: 1px solid #$borderColor;
             |   padding: 0.5em;
             |}""".trimMargin().wrapTag("style")
+        val viewport = """<meta name="viewport" content="width=device-width, initial-scale=1">"""
+        viewport + style
     }
     AndroidView(
         modifier = modifier,
@@ -139,14 +143,14 @@ fun HtmlText(html: String, modifier: Modifier = Modifier) {
                         setBackgroundColor(TRANSPARENT)
                         isNestedScrollingEnabled = false
                         settings.javaScriptEnabled = true
-                        loadDataWithBaseURL(null, style + html, "text/html", "UTF-8", null)
+                        loadDataWithBaseURL(null, head + html, "text/html", "UTF-8", null)
                     }
                 )
             }
         },
         update = { frameLayout ->
             frameLayout.findViewWithTag<WebView>(WEBVIEW_TAG)
-                .loadDataWithBaseURL(null, style + html, "text/html", "UTF-8", null)
+                .loadDataWithBaseURL(null, head + html, "text/html", "UTF-8", null)
         }
     )
 }
