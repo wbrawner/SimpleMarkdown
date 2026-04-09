@@ -1,4 +1,4 @@
-package com.wbrawner.simplemarkdown.ui.theme
+package com.wbrawner.simplemarkdown.core.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme

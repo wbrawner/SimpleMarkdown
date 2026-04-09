@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#d32f2f</color>
+    <color name="colorPrimaryDark">#b71c1c</color>
+    <color name="colorAccent">#d32f2f</color>
+    <color name="colorBackground">#FFFFFF</color>
+    <color name="colorBackgroundGitHub">#24292e</color>
+    <color name="colorBackgroundPlayStore">#689f38</color>
+</resources>

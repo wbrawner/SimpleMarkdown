@@ -5,6 +5,7 @@ import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.library)
+    alias(libs.plugins.compose.compiler)
 }
 
 val acraProperties = Properties()
@@ -59,6 +60,7 @@ android {
     }
     buildFeatures {
         buildConfig = true
+        compose = true
     }
 }
 
@@ -69,4 +71,12 @@ dependencies {
     runtimeOnly(libs.acra.limiter)
     runtimeOnly(libs.acra.advanced.scheduler)
     api(libs.timber)
+    implementation(libs.androidx.compose.runtime.runtime)
+    implementation(libs.androidx.ui)
+    implementation(libs.androidx.foundation)
+    implementation(libs.androidx.foundation.layout)
+    implementation(libs.androidx.ui.graphics)
+    implementation(libs.androidx.ui.text)
+    implementation(libs.androidx.ui.tooling)
+    implementation(libs.androidx.material3)
 }

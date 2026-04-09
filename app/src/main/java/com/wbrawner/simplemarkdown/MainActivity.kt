@@ -38,11 +38,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.wbrawner.simplemarkdown.MarkdownApplication.Companion.fileHelper
 import com.wbrawner.simplemarkdown.MarkdownApplication.Companion.preferenceHelper
+import com.wbrawner.simplemarkdown.core.ui.theme.SimpleMarkdownTheme
 import com.wbrawner.simplemarkdown.ui.MainScreen
 import com.wbrawner.simplemarkdown.ui.MarkdownInfoScreen
 import com.wbrawner.simplemarkdown.ui.SettingsScreen
 import com.wbrawner.simplemarkdown.ui.SupportScreen
-import com.wbrawner.simplemarkdown.ui.theme.SimpleMarkdownTheme
 import com.wbrawner.simplemarkdown.utility.Preference
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

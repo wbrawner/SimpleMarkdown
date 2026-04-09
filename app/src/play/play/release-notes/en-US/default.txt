@@ -1,3 +1,3 @@
-- Fix soft keyboard covering edited text
-- Automatically insert list and checkbox items on newlines
+- Add ongoing support options
+- Add startup profile
 - Update dependencies
