@@ -9,7 +9,7 @@
 <img alt="" src="./fastlane/metadata/android/en-US/images/phoneScreenshots/4.png" style="width: 24%" />
 </p>
 
-Simple Markdown is an open source Markdown editor.
+Simple Markdown is a free and open source Markdown editor.
 
 <a href='https://play.google.com/store/apps/details?id=com.wbrawner.simplemarkdown&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png' height="80"/></a>
 [<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
@@ -22,15 +22,18 @@ Using Android Studio is the preferred way to build the project. To build from th
 
     ./gradlew assembleFreeDebug
 
-### Crashlytics
+## Contributing
 
-SimpleMarkdown makes use of Firebase Crashlytics for error reporting. You'll need to follow the 
-[Get started with Firebase Crashlytics](https://firebase.google.com/docs/crashlytics/get-started?platform=android) guide in order to build the project.
+GitHub is the primary interaction point though just a mirror for me. Feel free to open a PR there or send me a patch via email.
+
+### AI Usage
+
+SimpleMarkdown is proudly handwritten. The use of LLMs for any purpose is not welcome here.
 
 ## License
 
 ```
-   Copyright 2017-2022 William Brawner
+   Copyright 2017-2026 William Brawner
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -45,7 +48,3 @@ SimpleMarkdown makes use of Firebase Crashlytics for error reporting. You'll nee
    limitations under the License.
 ```
 
-## Libraries
-
-- [AndDown](https://github.com/commonsguy/cwac-anddown)
-- [Hoedown](https://github.com/hoedown/hoedown)
