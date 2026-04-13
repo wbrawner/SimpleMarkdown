@@ -1,3 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="title_editor">Editor</string>
+    <string name="title_settings">Ajustes</string>
+    <string name="title_help">Ayuda</string>
+    <string name="title_about">Acerca de</string>
+    <string name="title_keyboard_shortcuts_file_operations">Operaciones de archivos</string>
+    <string name="action_edit">Editar</string>
+    <string name="action_preview">Vista Previa</string>
+    <string name="confirm_exit">Presiona atrás otra vez para salir</string>
+    <string name="markdown_here">Markdown aquí…</string>
+    <string name="action_save">Guardar</string>
+    <string name="action_rate">Calificar SimpleMarkdown</string>
 </resources>
