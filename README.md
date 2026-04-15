@@ -1,6 +1,7 @@
 # Simple Markdown
 
 [![pipeline status](https://git.wbrawner.com/wbrawner/SimpleMarkdown/badges/workflows/pull_request.yml/badge.svg)](https://git.wbrawner.com/wbrawner/SimpleMarkdown/actions?workflow=pull_request.yml)
+[![translation status](https://hosted.weblate.org/widget/simplemarkdown/svg-badge.svg)](https://hosted.weblate.org/engage/simplemarkdown/)
 
 <p>
 <img alt="" src="./fastlane/metadata/android/en-US/images/phoneScreenshots/1.png" style="width: 24%" />
@@ -29,6 +30,12 @@ GitHub is the primary interaction point though just a mirror for me. Feel free t
 ### AI Usage
 
 SimpleMarkdown is proudly handwritten. The use of LLMs for any purpose is not welcome here.
+
+### Translations
+
+Translations are powered by [Weblate](https://weblate.org/). If you would like
+to contribute translations for a language you speak, please open a PR directly
+or contribute via the [Weblate project](https://hosted.weblate.org/engage/simplemarkdown).
 
 ## License
 
