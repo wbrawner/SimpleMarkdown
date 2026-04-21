@@ -159,7 +159,7 @@ fun BooleanPreference(
             .padding(16.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically) {
-        Column(verticalArrangement = Arrangement.Center) {
+        Column(verticalArrangement = Arrangement.Center, modifier = Modifier.weight(1f).padding(end = 1.dp)) {
             Text(text = title, style = MaterialTheme.typography.bodyLarge)
             Text(
                 text = if (enabled) enabledDescription else disabledDescription,
@@ -200,11 +200,12 @@ fun ListPreference(
                 dialogShowing = true
             }
             .padding(16.dp), verticalArrangement = Arrangement.Center) {
-        Text(text = title, style = MaterialTheme.typography.bodyLarge)
+        Text(text = title, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.padding(end = 1.dp))
         Text(
             text = selected,
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(end = 1.dp)
         )
     }
     if (dialogShowing) {
