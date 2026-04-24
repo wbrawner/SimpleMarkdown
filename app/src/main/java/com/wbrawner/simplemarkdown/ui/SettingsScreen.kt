@@ -1,6 +1,7 @@
 package com.wbrawner.simplemarkdown.ui
 
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -157,10 +158,15 @@ fun BooleanPreference(
                 setEnabled(!enabled)
             }
             .padding(16.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically) {
-        Column(verticalArrangement = Arrangement.Center, modifier = Modifier.weight(1f).padding(end = 1.dp)) {
-            Text(text = title, style = MaterialTheme.typography.bodyLarge)
+        Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.Center) {
+            Text(
+                modifier = Modifier.basicMarquee(),
+                text = title,
+                style = MaterialTheme.typography.bodyLarge,
+                maxLines = 1,
+            )
             Text(
                 text = if (enabled) enabledDescription else disabledDescription,
                 style = MaterialTheme.typography.bodyMedium,
@@ -200,12 +206,16 @@ fun ListPreference(
                 dialogShowing = true
             }
             .padding(16.dp), verticalArrangement = Arrangement.Center) {
-        Text(text = title, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.padding(end = 1.dp))
+        Text(
+            modifier = Modifier.basicMarquee(),
+            text = title,
+            style = MaterialTheme.typography.bodyLarge,
+            maxLines = 1,
+        )
         Text(
             text = selected,
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(end = 1.dp)
         )
     }
     if (dialogShowing) {
