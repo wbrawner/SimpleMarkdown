@@ -102,6 +102,7 @@ fun HtmlText(html: String, modifier: Modifier = Modifier) {
             |pre, code {
             |   background: #${materialColors.surfaceVariant.toArgb().toHexString().substring(2)};
             |   color: #${materialColors.onSurfaceVariant.toArgb().toHexString().substring(2)};
+            |   overflow-x: auto;
             |}
             |blockquote {
             |   margin: 0;
@@ -111,6 +112,8 @@ fun HtmlText(html: String, modifier: Modifier = Modifier) {
             |}
             |table {
             |   border-collapse: collapse;
+            |   display: block;
+            |   overflow-x: auto;
             |}
             |tr:nth-child(2n) {
             |   background-color: #${materialColors.surfaceDim.toArgb().toHexString().substring(2)};
